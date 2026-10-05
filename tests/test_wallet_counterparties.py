@@ -29,7 +29,7 @@ def _tx(sig: str, mint: str) -> dict:
         "transaction": {
             "signatures": [sig],
             "message": {
-                "accountKeys": ["OWNER", "COMMON_COUNTERPARTY"],
+                "accountKeys": ["A", "COMMON_COUNTERPARTY"],
             },
         },
     }
