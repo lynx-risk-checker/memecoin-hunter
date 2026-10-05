@@ -45,22 +45,28 @@ def _sol_flows(wallet: str, tx: ParsedTransaction) -> list[MoneyFlowEvidence]:
     if not incoming or not outgoing:
         return []
 
+    total_incoming = sum(item.lamport_delta for item in incoming)
     confidence = 1.0 if len(outgoing) == 1 else 0.5
-    return [
-        MoneyFlowEvidence(
-            wallet=wallet,
-            source_account=source.account,
-            asset="SOL",
-            mint=None,
-            amount_raw=-source.lamport_delta,
-            amount_ui=-source.sol_delta,
-            signature=tx.signature,
-            slot=tx.slot,
-            block_time=tx.block_time,
-            confidence=confidence,
+    result: list[MoneyFlowEvidence] = []
+    for source in outgoing:
+        amount_raw = min(total_incoming, -source.lamport_delta)
+        if amount_raw <= 0:
+            continue
+        result.append(
+            MoneyFlowEvidence(
+                wallet=wallet,
+                source_account=source.account,
+                asset="SOL",
+                mint=None,
+                amount_raw=amount_raw,
+                amount_ui=amount_raw / 1_000_000_000,
+                signature=tx.signature,
+                slot=tx.slot,
+                block_time=tx.block_time,
+                confidence=confidence,
+            )
         )
-        for source in outgoing
-    ]
+    return result
 
 
 def _spl_flows(wallet: str, tx: ParsedTransaction) -> list[MoneyFlowEvidence]:
@@ -73,14 +79,15 @@ def _spl_flows(wallet: str, tx: ParsedTransaction) -> list[MoneyFlowEvidence]:
             continue
         confidence = 1.0 if len(sources) == 1 else 0.5
         for source in sources:
+            amount_raw = min(target.raw_delta, -source.raw_delta)
             result.append(
                 MoneyFlowEvidence(
                     wallet=wallet,
                     source_account=source.owner,
                     asset="SPL",
                     mint=target.mint,
-                    amount_raw=min(target.raw_delta, -source.raw_delta),
-                    amount_ui=min(target.ui_delta, -source.ui_delta),
+                    amount_raw=amount_raw,
+                    amount_ui=amount_raw / (10 ** target.decimals),
                     signature=tx.signature,
                     slot=tx.slot,
                     block_time=tx.block_time,
@@ -90,13 +97,9 @@ def _spl_flows(wallet: str, tx: ParsedTransaction) -> list[MoneyFlowEvidence]:
     return result
 
 
-def infer_money_flows(
-    wallet: str,
-    transactions: list[ParsedTransaction],
-) -> tuple[MoneyFlowEvidence, ...]:
+def infer_money_flows(wallet: str, transactions: list[ParsedTransaction]) -> tuple[MoneyFlowEvidence, ...]:
     if not wallet.strip():
         raise ValueError("wallet is required")
-
     result: list[MoneyFlowEvidence] = []
     for tx in transactions:
         if tx.success:
