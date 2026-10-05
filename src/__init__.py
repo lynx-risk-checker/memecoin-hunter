@@ -1,0 +1,1 @@
+"""MEMECOIN HUNTER package."""
