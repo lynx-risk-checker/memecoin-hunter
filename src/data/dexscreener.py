@@ -65,6 +65,19 @@ class DexScreenerClient:
         return [item for item in body if isinstance(item, dict)]
 
     @staticmethod
+    def _number(value: Any) -> float | None:
+        if isinstance(value, bool):
+            return None
+        if isinstance(value, (int, float)):
+            return float(value)
+        if isinstance(value, str):
+            try:
+                return float(value.strip())
+            except ValueError:
+                return None
+        return None
+
+    @staticmethod
     def _best_solana_pair(
         pairs: list[dict[str, Any]], token_address: str
     ) -> dict[str, Any] | None:
@@ -77,10 +90,12 @@ class DexScreenerClient:
                 continue
             liquidity = pair.get("liquidity")
             liquidity_usd = (
-                float(liquidity["usd"])
-                if isinstance(liquidity, dict) and isinstance(liquidity.get("usd"), (int, float))
-                else -1.0
+                DexScreenerClient._number(liquidity.get("usd"))
+                if isinstance(liquidity, dict)
+                else None
             )
+            if liquidity_usd is None:
+                liquidity_usd = -1.0
             matches.append((liquidity_usd, pair))
         if not matches:
             return None
@@ -163,19 +178,20 @@ class DexScreenerClient:
         if not isinstance(market_cap, (int, float)):
             market_cap = pair.get("fdv")
 
-        liquidity_usd = liquidity.get("usd") if isinstance(liquidity, dict) else None
-        volume_usd = volume.get("h24") if isinstance(volume, dict) else None
-        buys = txns.get("h24", {}).get("buys") if isinstance(txns, dict) else None
-        sells = txns.get("h24", {}).get("sells") if isinstance(txns, dict) else None
+        liquidity_usd = self._number(liquidity.get("usd")) if isinstance(liquidity, dict) else None
+        volume_usd = self._number(volume.get("h24")) if isinstance(volume, dict) else None
+        buys = self._number(txns.get("h24", {}).get("buys")) if isinstance(txns, dict) else None
+        sells = self._number(txns.get("h24", {}).get("sells")) if isinstance(txns, dict) else None
+        price_usd = self._number(price)
 
         required = {
-            "priceUsd": price,
+            "priceUsd": price_usd,
             "liquidity.usd": liquidity_usd,
             "volume.h24": volume_usd,
             "txns.h24.buys": buys,
             "txns.h24.sells": sells,
         }
-        missing = [name for name, value in required.items() if not isinstance(value, (int, float))]
+        missing = [name for name, value in required.items() if value is None]
         if missing:
             raise DexScreenerError(
                 "Snapshot is incomplete; missing numeric fields: " + ", ".join(missing)
@@ -187,13 +203,13 @@ class DexScreenerClient:
         return TokenSnapshot(
             token_address=token_address,
             observed_at=datetime.now(timezone.utc),
-            price_usd=float(price),
+            price_usd=float(price_usd),
             liquidity_usd=float(liquidity_usd),
             volume_usd=float(volume_usd),
             buy_count=int(buys),
             sell_count=int(sells),
-            unique_buyers=0,
-            unique_sellers=0,
-            holder_count=0,
+            unique_buyers=None,
+            unique_sellers=None,
+            holder_count=None,
             market_cap_usd=float(market_cap) if isinstance(market_cap, (int, float)) else None,
         )
