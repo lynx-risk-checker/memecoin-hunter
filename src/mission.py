@@ -18,3 +18,13 @@ class Mission:
 
     def status(self, capital_idr: int) -> str:
         return "TARGET_REACHED" if capital_idr >= self.target_idr else "IN_PROGRESS"
+
+
+MISSIONS: tuple[Mission, ...] = (
+    Mission(1_000, 1_500_000),
+    Mission(1_500_000, 5_000_000),
+    Mission(5_000_000, 25_000_000),
+    Mission(25_000_000, 100_000_000),
+    Mission(100_000_000, 500_000_000),
+    Mission(500_000_000, 1_000_000_000),
+)
