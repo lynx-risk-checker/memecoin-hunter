@@ -152,7 +152,7 @@ class DexScreenerClient:
         pairs = self.token_pairs([token_address])
         pair = self._best_solana_pair(pairs, token_address)
         if pair is None:
-            raise DexScreenerError("No Solana pair found for token.")
+            raise DexScreenerError("Snapshot incomplete: no Solana pair found for token.")
 
         base = pair.get("baseToken")
         price = pair.get("priceUsd")
