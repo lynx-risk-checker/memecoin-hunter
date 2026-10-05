@@ -29,3 +29,19 @@ def test_discover_maps_solana_profile_and_pair():
     assert result[0].liquidity_usd == 1234.5
     assert result[0].market_cap_usd == 9876.5
     assert result[0].age_seconds is not None
+
+
+def test_get_sends_json_accept_and_user_agent_headers():
+    client = DexScreenerClient("https://example.invalid")
+    response = object()
+
+    with patch("src.data.dexscreener.urllib.request.urlopen") as urlopen:
+        context = urlopen.return_value.__enter__.return_value
+        context.read.return_value = b"[]"
+        with patch("src.data.dexscreener.urllib.request.Request") as request:
+            client._get("/test")
+            request.assert_called_once()
+            kwargs = request.call_args.kwargs
+            assert kwargs["headers"]["Accept"] == "application/json"
+            assert kwargs["headers"]["User-Agent"] == "memecoin-hunter/0.1 (+read-only)"
+        assert response is not None
