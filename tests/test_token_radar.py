@@ -30,7 +30,7 @@ def test_radar_blocks_unknown_liquidity_by_default():
         TokenCandidate("KNOWN", now, "test", liquidity_usd=100),
         TokenCandidate("UNKNOWN", now, "test", liquidity_usd=None),
     ]
-    result = filter_candidates(candidates, RadarPolicy())
+    result = filter_candidates(candidates, RadarPolicy(require_liquidity=True))
     assert [x.address for x in result] == ["KNOWN"]
 
 
