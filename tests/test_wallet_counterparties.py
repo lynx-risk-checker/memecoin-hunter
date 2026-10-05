@@ -11,8 +11,8 @@ def _tx(sig: str, mint: str) -> dict:
         "meta": {
             "err": None,
             "fee": 5000,
-            "preBalances": [100],
-            "postBalances": [90],
+            "preBalances": [100, 50],
+            "postBalances": [90, 50],
             "preTokenBalances": [{
                 "accountIndex": 0,
                 "mint": mint,
