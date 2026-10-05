@@ -1,7 +1,11 @@
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+
+
+def _env(name: str, default: str) -> str:
+    return os.getenv(name, default)
 
 
 def _bool(name: str, default: bool) -> bool:
@@ -13,13 +17,19 @@ def _bool(name: str, default: bool) -> bool:
 
 @dataclass(frozen=True)
 class Settings:
-    app_env: str = os.getenv("APP_ENV", "development")
-    dry_run: bool = _bool("DRY_RUN", True)
-    paper_trading: bool = _bool("PAPER_TRADING", True)
-    solana_rpc_url: str = os.getenv("SOLANA_RPC_URL", "")
-    max_position_usd: float = float(os.getenv("MAX_POSITION_USD", "10"))
-    max_daily_loss_usd: float = float(os.getenv("MAX_DAILY_LOSS_USD", "10"))
-    max_slippage_bps: int = int(os.getenv("MAX_SLIPPAGE_BPS", "100"))
+    app_env: str = field(default_factory=lambda: _env("APP_ENV", "development"))
+    dry_run: bool = field(default_factory=lambda: _bool("DRY_RUN", True))
+    paper_trading: bool = field(default_factory=lambda: _bool("PAPER_TRADING", True))
+    solana_rpc_url: str = field(default_factory=lambda: _env("SOLANA_RPC_URL", ""))
+    max_position_usd: float = field(
+        default_factory=lambda: float(_env("MAX_POSITION_USD", "10"))
+    )
+    max_daily_loss_usd: float = field(
+        default_factory=lambda: float(_env("MAX_DAILY_LOSS_USD", "10"))
+    )
+    max_slippage_bps: int = field(
+        default_factory=lambda: int(_env("MAX_SLIPPAGE_BPS", "100"))
+    )
 
     def validate(self) -> None:
         if not self.dry_run and self.paper_trading:
