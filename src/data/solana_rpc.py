@@ -11,7 +11,7 @@ class SolanaRPCError(RuntimeError):
     """Raised when a Solana JSON-RPC request cannot be completed."""
 
 
-@dataclass(frozen=True)
+@dataclass
 class SolanaRPCClient:
     endpoint: str
     timeout_seconds: float = 10.0
@@ -21,12 +21,7 @@ class SolanaRPCClient:
             raise ValueError("Solana RPC endpoint is required.")
 
     def call(self, method: str, params: list[Any] | None = None) -> Any:
-        payload = {
-            "jsonrpc": "2.0",
-            "id": 1,
-            "method": method,
-            "params": [] if params is None else params,
-        }
+        payload = {"jsonrpc": "2.0", "id": 1, "method": method, "params": [] if params is None else params}
         request = urllib.request.Request(
             self.endpoint,
             data=json.dumps(payload).encode("utf-8"),
@@ -38,7 +33,6 @@ class SolanaRPCClient:
                 body = json.loads(response.read().decode("utf-8"))
         except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
             raise SolanaRPCError(f"Solana RPC request failed: {method}") from exc
-
         if "error" in body:
             raise SolanaRPCError(f"Solana RPC error for {method}: {body['error']}")
         return body.get("result")
@@ -53,13 +47,8 @@ class SolanaRPCClient:
         return int(self.call("getBlockHeight"))
 
     def get_signatures_for_address(
-        self,
-        address: str,
-        *,
-        limit: int = 10,
-        before: str | None = None,
-        until: str | None = None,
-        commitment: str = "confirmed",
+        self, address: str, *, limit: int = 10, before: str | None = None,
+        until: str | None = None, commitment: str = "confirmed",
     ) -> list[dict[str, Any]]:
         if not address.strip():
             raise ValueError("Address is required.")
@@ -76,26 +65,16 @@ class SolanaRPCClient:
         return result
 
     def get_transaction(
-        self,
-        signature: str,
-        *,
-        commitment: str = "confirmed",
-        max_supported_transaction_version: int = 1,
-        encoding: str = "jsonParsed",
+        self, signature: str, *, commitment: str = "confirmed",
+        max_supported_transaction_version: int = 1, encoding: str = "jsonParsed",
     ) -> dict[str, Any] | None:
         if not signature.strip():
             raise ValueError("Transaction signature is required.")
-        result = self.call(
-            "getTransaction",
-            [
-                signature,
-                {
-                    "commitment": commitment,
-                    "maxSupportedTransactionVersion": max_supported_transaction_version,
-                    "encoding": encoding,
-                },
-            ],
-        )
+        result = self.call("getTransaction", [signature, {
+            "commitment": commitment,
+            "maxSupportedTransactionVersion": max_supported_transaction_version,
+            "encoding": encoding,
+        }])
         if result is not None and not isinstance(result, dict):
             raise SolanaRPCError("Invalid getTransaction result.")
         return result
