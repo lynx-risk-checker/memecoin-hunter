@@ -51,3 +51,51 @@ class SolanaRPCClient:
 
     def get_block_height(self) -> int:
         return int(self.call("getBlockHeight"))
+
+    def get_signatures_for_address(
+        self,
+        address: str,
+        *,
+        limit: int = 10,
+        before: str | None = None,
+        until: str | None = None,
+        commitment: str = "confirmed",
+    ) -> list[dict[str, Any]]:
+        if not address.strip():
+            raise ValueError("Address is required.")
+        if not 1 <= limit <= 1000:
+            raise ValueError("limit must be between 1 and 1000.")
+        config: dict[str, Any] = {"limit": limit, "commitment": commitment}
+        if before is not None:
+            config["before"] = before
+        if until is not None:
+            config["until"] = until
+        result = self.call("getSignaturesForAddress", [address, config])
+        if not isinstance(result, list):
+            raise SolanaRPCError("Invalid getSignaturesForAddress result.")
+        return result
+
+    def get_transaction(
+        self,
+        signature: str,
+        *,
+        commitment: str = "confirmed",
+        max_supported_transaction_version: int = 0,
+        encoding: str = "jsonParsed",
+    ) -> dict[str, Any] | None:
+        if not signature.strip():
+            raise ValueError("Transaction signature is required.")
+        result = self.call(
+            "getTransaction",
+            [
+                signature,
+                {
+                    "commitment": commitment,
+                    "maxSupportedTransactionVersion": max_supported_transaction_version,
+                    "encoding": encoding,
+                },
+            ],
+        )
+        if result is not None and not isinstance(result, dict):
+            raise SolanaRPCError("Invalid getTransaction result.")
+        return result
