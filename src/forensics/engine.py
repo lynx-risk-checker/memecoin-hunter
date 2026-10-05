@@ -13,6 +13,12 @@ def _pct_change(previous: float, current: float) -> float:
     return ((current - previous) / previous) * 100.0
 
 
+def _optional_change(previous: int | None, current: int | None) -> int | None:
+    if previous is None or current is None:
+        return None
+    return current - previous
+
+
 def compare_snapshots(previous: TokenSnapshot, current: TokenSnapshot) -> ForensicDelta:
     if previous.token_address != current.token_address:
         raise ValueError("Snapshots must belong to the same token.")
@@ -28,15 +34,13 @@ def compare_snapshots(previous: TokenSnapshot, current: TokenSnapshot) -> Forens
     return ForensicDelta(
         elapsed_seconds=elapsed,
         price_change_pct=_pct_change(previous.price_usd, current.price_usd),
-        liquidity_change_pct=_pct_change(
-            previous.liquidity_usd, current.liquidity_usd
-        ),
+        liquidity_change_pct=_pct_change(previous.liquidity_usd, current.liquidity_usd),
         volume_change_pct=_pct_change(previous.volume_usd, current.volume_usd),
         buy_count_change=current.buy_count - previous.buy_count,
         sell_count_change=current.sell_count - previous.sell_count,
-        unique_buyer_change=current.unique_buyers - previous.unique_buyers,
-        unique_seller_change=current.unique_sellers - previous.unique_sellers,
-        holder_change=current.holder_count - previous.holder_count,
+        unique_buyer_change=_optional_change(previous.unique_buyers, current.unique_buyers),
+        unique_seller_change=_optional_change(previous.unique_sellers, current.unique_sellers),
+        holder_change=_optional_change(previous.holder_count, current.holder_count),
         market_cap_change_pct=market_cap_change,
     )
 
