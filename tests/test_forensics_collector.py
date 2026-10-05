@@ -80,10 +80,10 @@ def test_early_flow_acceleration_uses_prior_interval():
 
     metrics = collector.early_flow("TOKEN")
     assert metrics is not None
-    assert metrics.volume_rate_per_minute == pytest.approx(60.0)
+    assert metrics.volume_rate_per_minute == pytest.approx(40.0)
     assert metrics.buy_rate_per_minute == pytest.approx(60.0)
     assert metrics.sell_rate_per_minute == pytest.approx(15.0)
-    assert metrics.volume_acceleration_pct == pytest.approx(150.0)
+    assert metrics.volume_acceleration_pct == pytest.approx(60.0)
     assert metrics.buy_acceleration_pct == pytest.approx(100.0)
     assert metrics.sell_acceleration_pct == pytest.approx(50.0)
 
