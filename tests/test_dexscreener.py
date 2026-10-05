@@ -74,7 +74,7 @@ def test_snapshot_rejects_incomplete_pair():
         try:
             client.snapshot("TOKEN1")
         except DexScreenerError as exc:
-            assert "Snapshot is incomplete" in str(exc)
+            assert "Snapshot incomplete" in str(exc)
         else:
             raise AssertionError("Expected DexScreenerError")
 
