@@ -19,8 +19,8 @@ class NarrativeSignal:
 
 def classify(signal: NarrativeSignal) -> str:
     score = signal.score()
-    if score >= 0.75:
+    if score >= 0.75 - 1e-12:
         return "STRONG"
-    if score >= 0.40:
+    if score >= 0.40 - 1e-12:
         return "MODERATE"
     return "WEAK"
