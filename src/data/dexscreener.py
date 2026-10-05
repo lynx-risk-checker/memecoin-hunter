@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
 
+from src.forensics.models import TokenSnapshot
 from src.radar.models import TokenCandidate
 
 
@@ -63,14 +64,33 @@ class DexScreenerClient:
             raise DexScreenerError("Token pairs response must be a list.")
         return [item for item in body if isinstance(item, dict)]
 
+    @staticmethod
+    def _best_solana_pair(
+        pairs: list[dict[str, Any]], token_address: str
+    ) -> dict[str, Any] | None:
+        matches = []
+        for pair in pairs:
+            if pair.get("chainId") != "solana":
+                continue
+            base = pair.get("baseToken")
+            if not isinstance(base, dict) or base.get("address") != token_address:
+                continue
+            liquidity = pair.get("liquidity")
+            liquidity_usd = (
+                float(liquidity["usd"])
+                if isinstance(liquidity, dict) and isinstance(liquidity.get("usd"), (int, float))
+                else -1.0
+            )
+            matches.append((liquidity_usd, pair))
+        if not matches:
+            return None
+        return max(matches, key=lambda item: item[0])[1]
+
     def discover(self, max_tokens: int = 30) -> list[TokenCandidate]:
         if max_tokens <= 0:
             raise ValueError("max_tokens must be positive.")
 
-        # The latest token-profile endpoint can be blocked by some hosted-network
-        # egress policies. Do not silently substitute synthetic data: fail closed.
         profiles = self.latest_profiles()
-
         addresses: list[str] = []
         for profile in profiles:
             if profile.get("chainId") != "solana":
@@ -86,12 +106,12 @@ class DexScreenerClient:
         candidates: list[TokenCandidate] = []
         seen: set[str] = set()
 
-        for pair in pairs:
+        for address in addresses:
+            pair = self._best_solana_pair(pairs, address)
+            if pair is None or address in seen:
+                continue
             base = pair.get("baseToken")
             if not isinstance(base, dict):
-                continue
-            address = base.get("address")
-            if not isinstance(address, str) or not address.strip() or address in seen:
                 continue
 
             created_at = pair.get("pairCreatedAt")
@@ -124,3 +144,56 @@ class DexScreenerClient:
             seen.add(address)
 
         return candidates
+
+    def snapshot(self, token_address: str) -> TokenSnapshot:
+        if not token_address.strip():
+            raise ValueError("Token address is required.")
+
+        pairs = self.token_pairs([token_address])
+        pair = self._best_solana_pair(pairs, token_address)
+        if pair is None:
+            raise DexScreenerError("No Solana pair found for token.")
+
+        base = pair.get("baseToken")
+        price = pair.get("priceUsd")
+        liquidity = pair.get("liquidity")
+        volume = pair.get("volume")
+        txns = pair.get("txns")
+        market_cap = pair.get("marketCap")
+        if not isinstance(market_cap, (int, float)):
+            market_cap = pair.get("fdv")
+
+        liquidity_usd = liquidity.get("usd") if isinstance(liquidity, dict) else None
+        volume_usd = volume.get("h24") if isinstance(volume, dict) else None
+        buys = txns.get("h24", {}).get("buys") if isinstance(txns, dict) else None
+        sells = txns.get("h24", {}).get("sells") if isinstance(txns, dict) else None
+
+        required = {
+            "priceUsd": price,
+            "liquidity.usd": liquidity_usd,
+            "volume.h24": volume_usd,
+            "txns.h24.buys": buys,
+            "txns.h24.sells": sells,
+        }
+        missing = [name for name, value in required.items() if not isinstance(value, (int, float))]
+        if missing:
+            raise DexScreenerError(
+                "Snapshot is incomplete; missing numeric fields: " + ", ".join(missing)
+            )
+
+        if not isinstance(base, dict) or not isinstance(base.get("address"), str):
+            raise DexScreenerError("Snapshot base token data is invalid.")
+
+        return TokenSnapshot(
+            token_address=token_address,
+            observed_at=datetime.now(timezone.utc),
+            price_usd=float(price),
+            liquidity_usd=float(liquidity_usd),
+            volume_usd=float(volume_usd),
+            buy_count=int(buys),
+            sell_count=int(sells),
+            unique_buyers=0,
+            unique_sellers=0,
+            holder_count=0,
+            market_cap_usd=float(market_cap) if isinstance(market_cap, (int, float)) else None,
+        )
