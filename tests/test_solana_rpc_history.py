@@ -46,7 +46,7 @@ def test_get_transaction_uses_json_parsed() -> None:
                 "signature",
                 {
                     "commitment": "confirmed",
-                    "maxSupportedTransactionVersion": 0,
+                    "maxSupportedTransactionVersion": 1,
                     "encoding": "jsonParsed",
                 },
             ],
