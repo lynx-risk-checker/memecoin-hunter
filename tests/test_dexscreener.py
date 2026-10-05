@@ -19,8 +19,8 @@ def test_discover_maps_solana_profile_and_pair():
         }
     ]
 
-    with patch.object(client, "latest_profiles", return_value=profiles):
-        with patch.object(client, "token_pairs", return_value=pairs):
+    with patch.object(DexScreenerClient, "latest_profiles", return_value=profiles):
+        with patch.object(DexScreenerClient, "token_pairs", return_value=pairs):
             result = client.discover()
 
     assert len(result) == 1
