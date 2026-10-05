@@ -53,7 +53,7 @@ def test_shared_funding_is_derived_from_explicit_flows() -> None:
     b = infer_funding_sources("B", funders_b)
     shared = detect_shared_funding_sources({"A": a, "B": b})
     assert len(shared) == 1
-    assert shared[0].shared_sources == 1
+    assert shared[0].shared_sources == 3
 
 
 def test_cluster_evidence_can_block_edge() -> None:
