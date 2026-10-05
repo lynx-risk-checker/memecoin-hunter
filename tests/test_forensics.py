@@ -41,7 +41,6 @@ def test_snapshot_delta_tracks_flow_and_liquidity():
             market_cap_usd=120_000,
         ),
     )
-
     assert delta.elapsed_seconds == 60
     assert delta.price_change_pct == pytest.approx(20.0)
     assert delta.liquidity_change_pct == pytest.approx(10.0)
@@ -62,3 +61,13 @@ def test_series_requires_strict_time_order():
 def test_different_tokens_are_rejected():
     with pytest.raises(ValueError, match="same token"):
         compare_snapshots(snapshot(0), snapshot(60, token_address="OTHER"))
+
+
+def test_optional_holder_data_stays_unknown():
+    delta = compare_snapshots(
+        snapshot(0, unique_buyers=None, unique_sellers=None, holder_count=None),
+        snapshot(60, unique_buyers=None, unique_sellers=None, holder_count=None),
+    )
+    assert delta.unique_buyer_change is None
+    assert delta.unique_seller_change is None
+    assert delta.holder_change is None
