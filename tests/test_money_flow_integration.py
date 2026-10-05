@@ -47,8 +47,10 @@ def test_funding_source_is_not_inferred_from_account_keys_alone() -> None:
 
 
 def test_shared_funding_is_derived_from_explicit_flows() -> None:
-    a = infer_funding_sources("A", [tx("A", "FUNDER", "sig-a")])
-    b = infer_funding_sources("B", [tx("B", "FUNDER", "sig-b")])
+    funders = [tx("A", f"FUNDER-{i}", f"sig-a-{i}") for i in range(3)]
+    funders_b = [tx("B", f"FUNDER-{i}", f"sig-b-{i}") for i in range(3)]
+    a = infer_funding_sources("A", funders)
+    b = infer_funding_sources("B", funders_b)
     shared = detect_shared_funding_sources({"A": a, "B": b})
     assert len(shared) == 1
     assert shared[0].shared_sources == 1
