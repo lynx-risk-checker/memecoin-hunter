@@ -19,6 +19,7 @@ class DexScreenerError(RuntimeError):
 class DexScreenerClient:
     base_url: str = "https://api.dexscreener.com"
     timeout_seconds: float = 10.0
+    user_agent: str = "memecoin-hunter/0.1 (+read-only)"
 
     def _get(self, path: str, params: dict[str, str] | None = None) -> Any:
         query = ""
@@ -26,12 +27,19 @@ class DexScreenerClient:
             query = "?" + urllib.parse.urlencode(params)
         request = urllib.request.Request(
             self.base_url.rstrip("/") + path + query,
-            headers={"Accept": "application/json"},
+            headers={
+                "Accept": "application/json",
+                "User-Agent": self.user_agent,
+            },
             method="GET",
         )
         try:
             with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
                 body = json.loads(response.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            raise DexScreenerError(
+                f"DEX Screener HTTP {exc.code} for {path}"
+            ) from exc
         except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
             raise DexScreenerError(f"DEX Screener request failed: {path}") from exc
 
@@ -50,9 +58,7 @@ class DexScreenerClient:
             return []
         if len(token_addresses) > 30:
             raise ValueError("DEX Screener accepts at most 30 token addresses per request.")
-        body = self._get(
-            "/tokens/v1/solana/" + ",".join(token_addresses)
-        )
+        body = self._get("/tokens/v1/solana/" + ",".join(token_addresses))
         if not isinstance(body, list):
             raise DexScreenerError("Token pairs response must be a list.")
         return [item for item in body if isinstance(item, dict)]
@@ -60,8 +66,12 @@ class DexScreenerClient:
     def discover(self, max_tokens: int = 30) -> list[TokenCandidate]:
         if max_tokens <= 0:
             raise ValueError("max_tokens must be positive.")
+
+        # The latest token-profile endpoint can be blocked by some hosted-network
+        # egress policies. Do not silently substitute synthetic data: fail closed.
         profiles = self.latest_profiles()
-        addresses = []
+
+        addresses: list[str] = []
         for profile in profiles:
             if profile.get("chainId") != "solana":
                 continue
