@@ -12,7 +12,9 @@ Solana / DEX data -> Token Radar -> Early Flow -> 5-Min Forensics -> Dev DNA -> 
 
 ## Capital mission
 
-Initial mission: **Rp100,000 -> Rp1,500,000** over a defined mission window. This is an objective, not a profit guarantee. Strategy validation and capital-target status are tracked separately.
+Six canonical missions: **Rp1,000 -> Rp1,500,000 -> Rp5,000,000 -> Rp25,000,000 -> Rp100,000,000 -> Rp500,000,000 -> Rp1,000,000,000**.
+
+These are objectives, not profit guarantees. Strategy validation and capital-target status are tracked separately.
 
 ## Engineering rules
 
@@ -26,4 +28,6 @@ Initial mission: **Rp100,000 -> Rp1,500,000** over a defined mission window. Thi
 ## Status
 
 Foundation: **IN PROGRESS**
+
+Full roadmap status is tracked in `docs/ROADMAP_AUDIT.md`.
 BELUM TERVERIFIKASI until runtime and integration evidence exists.
