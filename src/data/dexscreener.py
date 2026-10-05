@@ -1,0 +1,116 @@
+from __future__ import annotations
+
+import json
+import urllib.error
+import urllib.parse
+import urllib.request
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from typing import Any
+
+from src.radar.models import TokenCandidate
+
+
+class DexScreenerError(RuntimeError):
+    """Raised when the DEX Screener API cannot be read safely."""
+
+
+@dataclass(frozen=True)
+class DexScreenerClient:
+    base_url: str = "https://api.dexscreener.com"
+    timeout_seconds: float = 10.0
+
+    def _get(self, path: str, params: dict[str, str] | None = None) -> Any:
+        query = ""
+        if params:
+            query = "?" + urllib.parse.urlencode(params)
+        request = urllib.request.Request(
+            self.base_url.rstrip("/") + path + query,
+            headers={"Accept": "application/json"},
+            method="GET",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
+                body = json.loads(response.read().decode("utf-8"))
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+            raise DexScreenerError(f"DEX Screener request failed: {path}") from exc
+
+        if not isinstance(body, (dict, list)):
+            raise DexScreenerError("DEX Screener returned an invalid JSON shape.")
+        return body
+
+    def latest_profiles(self) -> list[dict[str, Any]]:
+        body = self._get("/token-profiles/latest/v1")
+        if not isinstance(body, list):
+            raise DexScreenerError("Latest token profiles response must be a list.")
+        return [item for item in body if isinstance(item, dict)]
+
+    def token_pairs(self, token_addresses: list[str]) -> list[dict[str, Any]]:
+        if not token_addresses:
+            return []
+        if len(token_addresses) > 30:
+            raise ValueError("DEX Screener accepts at most 30 token addresses per request.")
+        body = self._get(
+            "/tokens/v1/solana/" + ",".join(token_addresses)
+        )
+        if not isinstance(body, list):
+            raise DexScreenerError("Token pairs response must be a list.")
+        return [item for item in body if isinstance(item, dict)]
+
+    def discover(self, max_tokens: int = 30) -> list[TokenCandidate]:
+        if max_tokens <= 0:
+            raise ValueError("max_tokens must be positive.")
+        profiles = self.latest_profiles()
+        addresses = []
+        for profile in profiles:
+            if profile.get("chainId") != "solana":
+                continue
+            address = profile.get("tokenAddress")
+            if isinstance(address, str) and address.strip() and address not in addresses:
+                addresses.append(address)
+            if len(addresses) >= max_tokens:
+                break
+
+        pairs = self.token_pairs(addresses)
+        now = datetime.now(timezone.utc)
+        candidates: list[TokenCandidate] = []
+        seen: set[str] = set()
+
+        for pair in pairs:
+            base = pair.get("baseToken")
+            if not isinstance(base, dict):
+                continue
+            address = base.get("address")
+            if not isinstance(address, str) or not address.strip() or address in seen:
+                continue
+
+            created_at = pair.get("pairCreatedAt")
+            age_seconds = None
+            if isinstance(created_at, (int, float)):
+                age_seconds = max(0.0, now.timestamp() - (float(created_at) / 1000.0))
+
+            liquidity = pair.get("liquidity")
+            liquidity_usd = None
+            if isinstance(liquidity, dict) and isinstance(liquidity.get("usd"), (int, float)):
+                liquidity_usd = float(liquidity["usd"])
+
+            market_cap = pair.get("marketCap")
+            if not isinstance(market_cap, (int, float)):
+                market_cap = pair.get("fdv")
+            market_cap_usd = float(market_cap) if isinstance(market_cap, (int, float)) else None
+
+            candidates.append(
+                TokenCandidate(
+                    address=address,
+                    observed_at=now,
+                    source="dexscreener",
+                    symbol=base.get("symbol") if isinstance(base.get("symbol"), str) else None,
+                    name=base.get("name") if isinstance(base.get("name"), str) else None,
+                    liquidity_usd=liquidity_usd,
+                    market_cap_usd=market_cap_usd,
+                    age_seconds=age_seconds,
+                )
+            )
+            seen.add(address)
+
+        return candidates
