@@ -17,7 +17,7 @@ def tx(wallet: str, source: str, signature: str) -> ParsedTransaction:
         token_deltas=(),
         sol_deltas=(
             SolBalanceDelta(wallet, 0, 0, 1_000_000_000),
-            SolBalanceDelta(source, 1, 2_000_000_000, 999_000_000),
+            SolBalanceDelta(source, 1, 2_000_000_000, 1_999_000_000),
         ),
     )
 
