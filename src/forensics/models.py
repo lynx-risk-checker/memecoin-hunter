@@ -13,9 +13,9 @@ class TokenSnapshot:
     volume_usd: float
     buy_count: int
     sell_count: int
-    unique_buyers: int
-    unique_sellers: int
-    holder_count: int
+    unique_buyers: int | None
+    unique_sellers: int | None
+    holder_count: int | None
     market_cap_usd: float | None = None
 
     def __post_init__(self) -> None:
@@ -23,20 +23,15 @@ class TokenSnapshot:
             raise ValueError("Token address is required.")
         if self.price_usd < 0:
             raise ValueError("Price cannot be negative.")
-        for name in (
-            "liquidity_usd",
-            "volume_usd",
-        ):
+        for name in ("liquidity_usd", "volume_usd"):
             if getattr(self, name) < 0:
                 raise ValueError(f"{name} cannot be negative.")
-        for name in (
-            "buy_count",
-            "sell_count",
-            "unique_buyers",
-            "unique_sellers",
-            "holder_count",
-        ):
+        for name in ("buy_count", "sell_count"):
             if getattr(self, name) < 0:
+                raise ValueError(f"{name} cannot be negative.")
+        for name in ("unique_buyers", "unique_sellers", "holder_count"):
+            value = getattr(self, name)
+            if value is not None and value < 0:
                 raise ValueError(f"{name} cannot be negative.")
         if self.market_cap_usd is not None and self.market_cap_usd < 0:
             raise ValueError("Market cap cannot be negative.")
@@ -50,9 +45,9 @@ class ForensicDelta:
     volume_change_pct: float
     buy_count_change: int
     sell_count_change: int
-    unique_buyer_change: int
-    unique_seller_change: int
-    holder_change: int
+    unique_buyer_change: int | None
+    unique_seller_change: int | None
+    holder_change: int | None
     market_cap_change_pct: float | None
 
     @property
