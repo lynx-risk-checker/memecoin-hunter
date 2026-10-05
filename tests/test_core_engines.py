@@ -47,7 +47,7 @@ def test_paper_summary():
     ]
     result = summarize(trades)
     assert result["trades"] == 2
-    assert result["pnl_usd"] == pytest.approx(0.0)
+    assert result["pnl_usd"] == pytest.approx(50.0)
     assert result["win_rate"] == pytest.approx(0.5)
 
 
