@@ -85,3 +85,26 @@ def test_cluster_evidence_can_block_edge() -> None:
     )
     assert edge.decision == EdgeDecision.BUY_BLOCKED
     assert "MANIPULATION_RISK" in edge.reasons
+
+from src.data.tx_parser import TokenBalanceDelta
+
+def test_money_flow_supports_explicit_spl_owner_deltas() -> None:
+    transaction = tx("W", "S", "spl-sig")
+    transaction = ParsedTransaction(
+        signature=transaction.signature,
+        slot=transaction.slot,
+        block_time=transaction.block_time,
+        success=True,
+        fee_lamports=transaction.fee_lamports,
+        account_keys=transaction.account_keys,
+        token_deltas=(
+            TokenBalanceDelta("W", "MINT", 0, 0, 500, 2),
+            TokenBalanceDelta("S", "MINT", 1, 900, 400, 2),
+        ),
+        sol_deltas=(),
+    )
+    flows = infer_money_flows("W", [transaction])
+    assert len(flows) == 1
+    assert flows[0].asset == "SPL"
+    assert flows[0].mint == "MINT"
+    assert flows[0].amount_raw == 500
