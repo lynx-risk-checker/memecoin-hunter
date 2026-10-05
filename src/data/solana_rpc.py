@@ -80,7 +80,7 @@ class SolanaRPCClient:
         signature: str,
         *,
         commitment: str = "confirmed",
-        max_supported_transaction_version: int = 0,
+        max_supported_transaction_version: int = 1,
         encoding: str = "jsonParsed",
     ) -> dict[str, Any] | None:
         if not signature.strip():
