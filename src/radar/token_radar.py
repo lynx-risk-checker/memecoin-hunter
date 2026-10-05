@@ -10,7 +10,7 @@ from .models import TokenCandidate
 class RadarPolicy:
     min_liquidity_usd: float = 0.0
     max_age_seconds: float = 300.0
-    require_liquidity: bool = True
+    require_liquidity: bool = False
 
     def __post_init__(self) -> None:
         if self.min_liquidity_usd < 0:
