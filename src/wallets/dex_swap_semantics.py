@@ -47,6 +47,7 @@ class DexSwapSemanticEvidence:
     quote_quantity_ui: float
     price_quote_per_token: float
     semantic_class: str
+    block_time: int | None
 
 
 def classify_dex_swap_semantics(
@@ -104,6 +105,7 @@ def classify_dex_swap_semantics(
                         if spec.parsed_types or spec.data_prefixes
                         else "EXPLICIT_PROGRAM_ID_PLUS_BALANCE_FLOW"
                     ),
+                    block_time=transaction.block_time,
                 )
             )
     return tuple(result)
