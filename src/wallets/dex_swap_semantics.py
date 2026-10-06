@@ -99,7 +99,11 @@ def classify_dex_swap_semantics(
                     quantity_ui=float(quantity),
                     quote_quantity_ui=float(quote_quantity),
                     price_quote_per_token=float(price),
-                    semantic_class="EXPLICIT_PROGRAM_SEMANTICS_PLUS_BALANCE_FLOW",
+                    semantic_class=(
+                        "EXPLICIT_PROGRAM_SEMANTICS_PLUS_BALANCE_FLOW"
+                        if spec.parsed_types or spec.data_prefixes
+                        else "EXPLICIT_PROGRAM_ID_PLUS_BALANCE_FLOW"
+                    ),
                 )
             )
     return tuple(result)
