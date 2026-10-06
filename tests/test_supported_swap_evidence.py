@@ -47,8 +47,9 @@ def test_joins_known_program_instruction_with_balance_flow() -> None:
     assert len(result) == 1
     assert result[0].direction == "BUY"
     assert result[0].quantity_ui == 1000
-    assert result[0].quote_quantity_ui == 1
-    assert result[0].price_quote_per_token == 0.001
+    assert result[0].quote_quantity_ui == 0.999995
+    assert result[0].price_quote_per_token == 0.000999995
+    assert result[0].network_fee_quote == 0.000005
     assert result[0].evidence_class == "KNOWN_PROGRAM_PLUS_BALANCE_FLOW"
 
 
