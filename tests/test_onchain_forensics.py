@@ -4,7 +4,7 @@ from src.forensics.onchain import infer_token_flow, summarize_five_minutes
 
 def _tx(sig: str, t: int, owner: str, raw: int) -> ParsedTransaction:
     delta = TokenBalanceDelta(owner, "MINT", 0, 0 if raw > 0 else -raw, raw if raw > 0 else 0, 0)
-    return ParsedTransaction(sig, 1, t, True, 0, (), (delta,))
+    return ParsedTransaction(sig, 1, t, True, 0, (), (delta,), ())
 
 
 def test_native_five_minute_flow_uses_transaction_block_time() -> None:
