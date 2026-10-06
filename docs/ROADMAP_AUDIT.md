@@ -36,12 +36,19 @@ A smoke pass is not evidence of profitability, common economic ownership, manipu
 
 ## Immediate engineering priority
 
-1. Verify real confirmed DEX swaps end-to-end: explicit program semantics → execution price → realized PnL → Smart Money reliability.
+1. Verify real confirmed DEX swaps end-to-end: explicit program semantics → execution price → realized PnL → Smart Money reliability. A real-RPC smoke script now exists; it refuses to promote a swap without an explicit operator-supplied DEX program specification.
 2. Harden cluster aggregation against correlated-signal double counting.
 3. Build route-aware liquidity/exitability with real quotes.
 4. Add persistent paper journal and connect performance metrics.
 5. Create one production orchestrator: radar → forensics → wallet/cluster → manipulation → liquidity → edge → risk → paper → protection.
 6. Keep live execution locked.
+
+## Latest engineering work
+
+- Added `scripts/smoke_real_dex_swap_semantics.py` to inspect confirmed real Solana transactions and join balance-flow candidates with explicitly supplied DEX program semantics.
+- The script requires `SOLANA_RPC_URL`, wallet address, target/quote mints, DEX name, and explicit DEX program IDs. It does not invent program IDs or discriminators.
+- Jupiter's current official Swap API documentation confirms Swap V2 is the current API and distinguishes the Meta-Aggregator from the Router; this project has not hard-coded Jupiter program semantics without transaction-level verification. citeturn1view0
+- Solana's official RPC documentation confirms `getTransaction` exposes confirmed transaction metadata, instructions, inner instructions, logs, and balance deltas needed for forensic reconstruction. citeturn0search1turn0search2
 
 ## Safety
 
