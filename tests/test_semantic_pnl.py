@@ -17,6 +17,7 @@ def swap(direction, qty, price, time, sig):
         quote_quantity_ui=qty * price,
         price_quote_per_token=price,
         semantic_class="EXPLICIT_PROGRAM_SEMANTICS_PLUS_BALANCE_FLOW",
+        block_time=time,
     )
 
 
