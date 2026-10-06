@@ -11,7 +11,7 @@ Audit basis: branch `agent/memecoin-hunter-foundation`, current source/tests, an
 | 2 | Token Radar | VERIFIED (unit + prior real smoke) |
 | 3 | 5-minute forensics | PARTIAL — native on-chain block-time flow engine exists/unit-tested; continual real 5m dataset evidence BELUM TERVERIFIKASI |
 | 4 | Dev DNA | PARTIAL — runtime developer attribution/history BELUM TERVERIFIKASI |
-| 5 | Smart Money / wallet intelligence | PARTIAL — real transaction parsing/runtime plumbing reported PASS; PnL, win rate, holding time, entry quality and reliability model remain missing |
+| 5 | Smart Money / wallet intelligence | PARTIAL — wallet history, FIFO reconstruction, holding time, price-aware accounting, swap evidence, instruction evidence, execution-price accounting, and explicit DEX semantic evidence are implemented/tested; real confirmed DEX swap semantics and real-wallet PnL remain BELUM TERVERIFIKASI |
 | 6 | Wallet graph / economic clusters | PARTIAL — real smoke pipeline reported PASS; economic ownership inference and double-counting hardening remain incomplete |
 | 7 | Manipulation / insider detection | PARTIAL — real smoke pipeline reported PASS; substantive manipulation ground-truth validation BELUM TERVERIFIKASI |
 | 8 | Liquidity / exitability | PARTIAL — basic ratio heuristic only; route-aware quote/exit simulation and dynamic slippage missing |
@@ -36,7 +36,7 @@ A smoke pass is not evidence of profitability, common economic ownership, manipu
 
 ## Immediate engineering priority
 
-1. Build wallet intelligence records: PnL, win rate, holding time, early-entry quality, reliability.
+1. Verify real confirmed DEX swaps end-to-end: explicit program semantics → execution price → realized PnL → Smart Money reliability.
 2. Harden cluster aggregation against correlated-signal double counting.
 3. Build route-aware liquidity/exitability with real quotes.
 4. Add persistent paper journal and connect performance metrics.
