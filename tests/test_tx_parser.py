@@ -78,3 +78,30 @@ def test_parse_transaction_does_not_infer_buy_or_sell() -> None:
 
     assert result.token_deltas[0].raw_delta > 0
     assert not hasattr(result.token_deltas[0], "side")
+
+
+def test_parse_transaction_includes_versioned_loaded_addresses() -> None:
+    tx = _transaction()
+    tx["transaction"]["message"]["accountKeys"] = [
+        {
+            "pubkey": "StaticWallet",
+            "signer": True,
+            "source": "transaction",
+            "writable": True,
+        }
+    ]
+    tx["meta"]["loadedAddresses"] = {
+        "writable": ["LoadedWritable"],
+        "readonly": ["LoadedReadonly"],
+    }
+    tx["meta"]["preBalances"] = [2_000_000_000, 1_000_000, 2_000_000]
+    tx["meta"]["postBalances"] = [1_999_000_000, 1_001_000, 2_000_000]
+
+    result = parse_transaction(tx)
+
+    assert [item.pubkey for item in result.account_keys] == [
+        "StaticWallet",
+        "LoadedWritable",
+        "LoadedReadonly",
+    ]
+    assert result.sol_deltas[0].account == "StaticWallet"
