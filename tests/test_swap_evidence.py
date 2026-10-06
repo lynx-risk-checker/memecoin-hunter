@@ -24,7 +24,7 @@ def test_infers_buy_price_from_token_and_sol_balance_flow() -> None:
     assert result[0].direction == "BUY"
     assert result[0].quote_quantity_ui == 1.0
     assert result[0].price_quote_per_token == 0.01
-    assert result[0].evidence_class == "BALANCE_FLOW_INFERRED"
+    assert result[0].evidence_class == "BALANCE_FLOW_ACCOUNTING"
 
 
 def test_ignores_non_swap_like_flow() -> None:
