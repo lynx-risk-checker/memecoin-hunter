@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Iterable
 
 from src.data.tx_parser import ParsedTransaction
+from src.wallets.execution_price import derive_execution_price
 
 
 @dataclass(frozen=True)
@@ -70,18 +71,25 @@ def extract_balance_flow_swaps(
             continue
 
         quantity = abs(target_delta)
-        quote_quantity = abs(quote_delta)
+        pricing = derive_execution_price(
+            quantity_ui=quantity,
+            quote_delta_ui=quote_delta,
+            quote_mint=quote_mint,
+            fee_lamports=tx.fee_lamports,
+        )
+        if pricing is None:
+            continue
         result.append(
             SwapEvidence(
                 signature=tx.signature,
                 mint=target_mint,
-                quantity_ui=quantity,
+                quantity_ui=pricing.quantity_ui,
                 quote_mint=quote_mint,
-                quote_quantity_ui=quote_quantity,
-                price_quote_per_token=quote_quantity / quantity,
+                quote_quantity_ui=pricing.quote_quantity_ui,
+                price_quote_per_token=pricing.price_quote_per_token,
                 block_time=tx.block_time,
                 direction=direction,
-                evidence_class="BALANCE_FLOW_INFERRED",
+                evidence_class=pricing.accounting_class,
             )
         )
 
