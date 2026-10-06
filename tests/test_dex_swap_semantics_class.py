@@ -10,6 +10,7 @@ class Swap:
     quantity_ui = 10.0
     quote_quantity_ui = 1.0
     price_quote_per_token = 0.1
+    block_time = 1
 
 
 def test_program_only_is_not_called_full_semantics():
