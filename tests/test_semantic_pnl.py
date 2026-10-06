@@ -1,3 +1,5 @@
+import pytest
+
 from src.wallets.dex_swap_semantics import DexSwapSemanticEvidence
 from src.wallets.semantic_pnl import reconstruct_semantic_pnl
 
@@ -29,9 +31,9 @@ def test_fifo_realized_pnl_from_semantic_swaps():
     ])
     assert len(result) == 2
     assert result[0].quantity_ui == 100
-    assert result[0].realized_pnl_quote == 2.0
+    assert result[0].realized_pnl_quote == pytest.approx(2.0)
     assert result[1].quantity_ui == 20
-    assert result[1].realized_pnl_quote == 0.2
+    assert result[1].realized_pnl_quote == pytest.approx(0.2)
 
 
 def test_unmatched_sell_does_not_invent_entry():
