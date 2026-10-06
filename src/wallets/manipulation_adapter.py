@@ -40,9 +40,18 @@ def build_cluster_manipulation_input(
         raise ValueError("ratio inputs must be between 0 and 1")
 
     pair_capacity = max(wallet_count * (wallet_count - 1) // 2, 1)
-    # Counterparty links are deliberately folded into linked-wallet evidence only
-    # through their own count; they remain separately observable by callers.
-    linked_count = max(len(wallet_links), len(counterparties))
+    # Wallet-link and counterparty evidence describe the same wallet pairs.
+    # Count the union of pair identities, not max(len(...)), so two detectors
+    # observing the same pair cannot manufacture extra independent evidence.
+    linked_pairs = {
+        tuple(sorted((item.wallet_a, item.wallet_b)))
+        for item in wallet_links
+    }
+    linked_pairs.update(
+        tuple(sorted((item.wallet_a, item.wallet_b)))
+        for item in counterparties
+    )
+    linked_count = len(linked_pairs)
     return ClusterManipulationInput(
         linked_wallet_ratio=_ratio(linked_count, pair_capacity),
         synchronized_entry_ratio=max(
