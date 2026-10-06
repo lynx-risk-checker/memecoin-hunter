@@ -37,10 +37,10 @@ def reconstruct_semantic_pnl(
             and swap.quote_quantity_ui > 0
             and swap.price_quote_per_token > 0
             and swap.signature is not None
-            and getattr(swap, "entry_time", getattr(swap, "block_time", None)) is not None
+            and swap.block_time is not None
         ),
         key=lambda item: (
-            getattr(item, "entry_time", getattr(item, "block_time", 0)),
+            item.block_time,
             item.signature or "",
         ),
     )
@@ -49,7 +49,7 @@ def reconstruct_semantic_pnl(
     result: list[RealizedSemanticTrade] = []
 
     for swap in ordered:
-        time = getattr(swap, "entry_time", getattr(swap, "block_time", None))
+        time = swap.block_time
         if time is None:
             continue
         if swap.direction == "BUY":
