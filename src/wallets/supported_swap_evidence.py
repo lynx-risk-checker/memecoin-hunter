@@ -20,6 +20,7 @@ class SupportedSwapEvidence:
     direction: str
     program_ids: tuple[str, ...]
     evidence_class: str
+    network_fee_quote: float
 
 
 def classify_supported_swap_evidence(
@@ -87,6 +88,7 @@ def classify_supported_swap_evidence(
                 direction=flow.direction,
                 program_ids=program_ids,
                 evidence_class="KNOWN_PROGRAM_PLUS_BALANCE_FLOW",
+                network_fee_quote=next((tx.fee_lamports / 1_000_000_000 for tx in parsed_by_signature.values() if tx.signature == flow.signature), 0.0) if flow.quote_mint == "SOL" else 0.0,
             )
         )
 
