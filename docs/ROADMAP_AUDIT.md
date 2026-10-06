@@ -1,46 +1,52 @@
 # Roadmap Audit — MEMECOIN HUNTER
 
-Audit basis: repository branch agent/memecoin-hunter-foundation, current source tree and tests. This document distinguishes code presence, unit-test coverage, and real-runtime evidence.
+Audit basis: branch `agent/memecoin-hunter-foundation`, current source/tests, and Founder-reported real runtime smoke results. Exact runtime numeric outputs were not independently inspected in this chat.
 
 ## Phase status
 
 | Phase | Area | Status |
 |---|---|---|
 | 0 | Foundation / safety | VERIFIED (unit) |
-| 1 | Real Solana data | VERIFIED for prior RPC smoke; continual evidence BELUM TERVERIFIKASI |
+| 1 | Real Solana data | VERIFIED for RPC/DEX real smoke; continual evidence BELUM TERVERIFIKASI |
 | 2 | Token Radar | VERIFIED (unit + prior real smoke) |
-| 3 | 5-minute forensics | PARTIAL — DEX Screener h24 fields are proxies, not native 5m on-chain flow |
+| 3 | 5-minute forensics | PARTIAL — native on-chain block-time flow engine exists/unit-tested; continual real 5m dataset evidence BELUM TERVERIFIKASI |
 | 4 | Dev DNA | PARTIAL — runtime developer attribution/history BELUM TERVERIFIKASI |
-| 5 | Smart Money / wallet intelligence | PARTIAL — real wallet intelligence BELUM TERVERIFIKASI; PnL/win-rate/entry-quality model missing |
-| 6 | Wallet graph / economic clusters | PARTIAL — real multi-wallet cluster evidence BELUM TERVERIFIKASI; correlation/double-counting needs hardening |
-| 7 | Manipulation / insider detection | PARTIAL — real Solana end-to-end veto BELUM TERVERIFIKASI |
-| 8 | Liquidity / exitability | PARTIAL — basic liquidity-ratio heuristic only; route-aware exitability/dynamic slippage missing |
-| 9 | Narrative / social intelligence | PARTIAL — scoring exists; no live social/public-feed ingestion |
-| 10 | Asymmetric Edge | PARTIAL — components exist, but no production end-to-end orchestrator |
-| 11 | Risk veto / decision | PARTIAL — veto unit-tested; state machine/kill-switch integration missing |
-| 12 | Paper trading / journal | PARTIAL — minimal PnL/win-rate only; journal, slippage, latency, drawdown, PF, expectancy, rug-loss metrics missing |
-| 13 | Capital Mission | VERIFIED for target definitions; mission runtime/state persistence BELUM TERVERIFIKASI |
+| 5 | Smart Money / wallet intelligence | PARTIAL — real transaction parsing/runtime plumbing reported PASS; PnL, win rate, holding time, entry quality and reliability model remain missing |
+| 6 | Wallet graph / economic clusters | PARTIAL — real smoke pipeline reported PASS; economic ownership inference and double-counting hardening remain incomplete |
+| 7 | Manipulation / insider detection | PARTIAL — real smoke pipeline reported PASS; substantive manipulation ground-truth validation BELUM TERVERIFIKASI |
+| 8 | Liquidity / exitability | PARTIAL — basic ratio heuristic only; route-aware quote/exit simulation and dynamic slippage missing |
+| 9 | Narrative / social intelligence | PARTIAL — scoring exists; live social/public-feed ingestion missing |
+| 10 | Asymmetric Edge | PARTIAL — edge→risk→protection pipeline integrated/unit-tested; full production orchestration missing |
+| 11 | Risk veto / decision | PARTIAL — integrated pipeline unit-tested; persistent state/kill-switch orchestration incomplete |
+| 12 | Paper trading / journal | PARTIAL — expanded metrics exist/unit-tested; persistent journal and long-run real-market evidence missing |
+| 13 | Capital Mission | VERIFIED for target definitions/runtime evaluation; persistence/continual evidence BELUM TERVERIFIKASI |
 | 14 | Mobile PWA cockpit | NOT BUILT |
 | 15 | Execution engine | SAFETY LOCK VERIFIED; live execution intentionally not built |
-| 16 | Exit / emergency kill switch | NOT BUILT |
+| 16 | Exit / emergency kill switch | PARTIAL — protection/exit evaluation exists/unit-tested; runtime position-monitoring integration missing |
 | 17 | Adaptive research | NOT BUILT |
 | 18 | Full validation | NOT BUILT |
 | 19 | Small live capital | NOT READY |
 | 20 | Mission mode | NOT BUILT |
 
-## Findings that must not be skipped
+## Evidence boundary
 
-1. Real-runtime integration is the immediate gate. Unit tests do not prove the Solana funding/cluster/manipulation path on real chain data.
-2. 5-minute forensics is not yet native 5-minute on-chain flow. DEX Screener h24 volume/transactions are cumulative 24-hour fields.
-3. Smart-money intelligence is incomplete: historical PnL, win rate, holding time, early-entry quality and reliability scoring are missing.
-4. Liquidity/exitability is too simple for live trading: no route/quote/exit simulation.
-5. Paper trading is too thin for validation: required journal and robust performance metrics are missing.
-6. There are two decision paths: src/decision.py and src/strategy/edge.py. They are not unified and this is a consistency risk.
-7. README mission text was stale relative to the canonical six-mission definition and is corrected by this audit update.
-8. Live execution remains locked.
+The Founder reported a successful real Solana wallet-intelligence smoke run reaching real transaction parsing and completion. This supports runtime plumbing. Exact wallet/cluster/manipulation numeric values remain **BELUM TERVERIFIKASI** here.
 
-## Immediate next gate
+A smoke pass is not evidence of profitability, common economic ownership, manipulation ground truth, or live-trading readiness.
 
-Run scripts/smoke_wallet_intelligence_real_data.py. It starts from a real Solana token, reads real transaction signatures, parses real transactions, discovers candidate wallet owners, infers explicit funding flows, and runs wallet-link/synchronization/counterparty/shared-funding/cluster/manipulation.
+## Immediate engineering priority
 
-Passing this script proves runtime plumbing only; it does not prove profitable strategy performance or common ownership.
+1. Build wallet intelligence records: PnL, win rate, holding time, early-entry quality, reliability.
+2. Harden cluster aggregation against correlated-signal double counting.
+3. Build route-aware liquidity/exitability with real quotes.
+4. Add persistent paper journal and connect performance metrics.
+5. Create one production orchestrator: radar → forensics → wallet/cluster → manipulation → liquidity → edge → risk → paper → protection.
+6. Keep live execution locked.
+
+## Safety
+
+- No private keys in source/frontend.
+- No real order placement.
+- No merge to `main` without explicit Founder approval.
+- Fixtures are not runtime evidence.
+- No profitability claim without out-of-sample/paper evidence.
