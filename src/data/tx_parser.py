@@ -61,15 +61,46 @@ def _account_keys(transaction: dict[str, Any]) -> list[AccountKey]:
     message = transaction.get("message")
     if not isinstance(message, dict):
         return []
+
     keys = message.get("accountKeys", [])
     if not isinstance(keys, list):
         return []
+
     result: list[AccountKey] = []
     for item in keys:
         if isinstance(item, str):
             result.append(AccountKey(item, False, False))
         elif isinstance(item, dict) and isinstance(item.get("pubkey"), str):
-            result.append(AccountKey(item["pubkey"], bool(item.get("signer", False)), bool(item.get("writable", False))))
+            result.append(
+                AccountKey(
+                    item["pubkey"],
+                    bool(item.get("signer", False)),
+                    bool(item.get("writable", False)),
+                )
+            )
+
+    # Versioned Solana transactions can have address-table-loaded accounts.
+    # getTransaction includes their SOL balance slots in pre/postBalances, so
+    # they must be appended to keep account indices aligned with those arrays.
+    meta = transaction.get("_meta_for_account_keys")
+    if isinstance(meta, dict):
+        loaded = meta.get("loadedAddresses")
+        if isinstance(loaded, dict):
+            writable = loaded.get("writable", [])
+            readonly = loaded.get("readonly", [])
+            if isinstance(writable, list):
+                result.extend(
+                    AccountKey(pubkey, False, True)
+                    for pubkey in writable
+                    if isinstance(pubkey, str)
+                )
+            if isinstance(readonly, list):
+                result.extend(
+                    AccountKey(pubkey, False, False)
+                    for pubkey in readonly
+                    if isinstance(pubkey, str)
+                )
+
     return result
 
 
@@ -130,7 +161,10 @@ def parse_transaction(transaction: dict[str, Any], *, signature: str | None = No
     meta, tx = transaction.get("meta"), transaction.get("transaction")
     if not isinstance(meta, dict) or not isinstance(tx, dict):
         raise ValueError("Transaction must contain meta and transaction objects.")
-    account_keys = _account_keys(tx)
+
+    tx_for_keys = dict(tx)
+    tx_for_keys["_meta_for_account_keys"] = meta
+    account_keys = _account_keys(tx_for_keys)
     if not account_keys:
         raise ValueError("Transaction has no accountKeys.")
     slot, block_time, fee = transaction.get("slot"), transaction.get("blockTime"), meta.get("fee", 0)
