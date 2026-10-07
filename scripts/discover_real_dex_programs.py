@@ -55,6 +55,8 @@ def main() -> None:
         except (ValueError, TypeError):
             continue
         parsed_count += 1
+        if not tx.success:
+            continue
         swaps = extract_balance_flow_swaps(
             wallet,
             (tx,),
@@ -71,6 +73,7 @@ def main() -> None:
 
     print(f"Confirmed transactions parsed: {parsed_count}")
     print(f"Balance-flow swap transactions: {len(candidates)}")
+    print("Evidence rule: only successful transactions are eligible for discovery.")
 
     if not candidates:
         print("RESULT: NO_BALANCE_FLOW_SWAP_CANDIDATES")
