@@ -15,15 +15,15 @@ Audit basis: branch `agent/memecoin-hunter-foundation`, current source/tests, an
 | 6 | Wallet graph / economic clusters | PARTIAL — real smoke pipeline reported PASS; economic ownership inference and double-counting hardening remain incomplete |
 | 7 | Manipulation / insider detection | PARTIAL — real smoke pipeline reported PASS; substantive manipulation ground-truth validation BELUM TERVERIFIKASI |
 | 8 | Liquidity / exitability | PARTIAL — basic ratio engine plus route-aware quote contract implemented/tested; real quote provider and exit simulation remain to be wired |
-| 9 | Narrative / social intelligence | PARTIAL — scoring exists; live social/public-feed ingestion missing |
+| 9 | Narrative / social intelligence | PARTIAL — scoring plus source/observation ingestion contract implemented/tested; live public-feed adapters remain |
 | 10 | Asymmetric Edge | PARTIAL — edge→risk→protection path now has a single orchestrator; full live-data orchestration remains to be wired |
-| 11 | Risk veto / decision | PARTIAL — integrated pipeline plus orchestrator implemented/tested; persistent runtime kill-switch state remains to be wired |
+| 11 | Risk veto / decision | PARTIAL — integrated pipeline, decision snapshot, and persistent kill-switch latch implemented/tested; runtime wiring remains |
 | 12 | Paper trading / journal | PARTIAL — persistent JSONL journal and journal→metrics adapter implemented/tested; long-run real-market evidence missing |
-| 13 | Capital Mission | VERIFIED for target definitions/runtime evaluation; persistence/continual evidence BELUM TERVERIFIKASI |
+| 13 | Capital Mission | PARTIAL — target definitions/runtime evaluation plus persistent mission-state store implemented/tested; continual evidence remains |
 | 14 | Mobile PWA cockpit | PARTIAL — mobile PWA shell and snapshot viewer implemented; production hosting/auth/operational UX remain |
 | 15 | Execution engine | SAFETY LOCK VERIFIED; live execution intentionally not built |
 | 16 | Exit / emergency kill switch | PARTIAL — protection/exit evaluation exists/unit-tested; runtime position-monitoring integration remains |
-| 17 | Adaptive research | PARTIAL — signal outcome grouping/scoring implemented/tested; persistent research loop remains |
+| 17 | Adaptive research | PARTIAL — signal outcome grouping/scoring plus positive-rate evidence implemented/tested; persistent research loop remains |
 | 18 | Full validation | PARTIAL — explicit validation gate implemented/tested; real OOS/walk-forward evidence gate remains |
 | 19 | Small live capital | NOT READY |
 | 20 | Mission mode | NOT BUILT |
@@ -60,4 +60,4 @@ A smoke pass is not evidence of profitability, common economic ownership, manipu
 
 ## Current checkpoint
 
-The branch contains 193 commits ahead of the foundation commit and is not behind. The latest completed structural work includes persistent paper journaling, route-quote validation, a production decision orchestrator, developer DNA scoring, adaptive research scoring, an explicit validation gate, and a mobile PWA cockpit shell. These are implementation milestones; they do not substitute for real-market runtime evidence.
+The branch is now materially ahead of the original foundation and continues to advance and is not behind. The latest completed structural work includes persistent paper journaling, route-quote validation, a production decision orchestrator, developer DNA scoring, adaptive research scoring, an explicit validation gate, and a mobile PWA cockpit shell. These are implementation milestones; they do not substitute for real-market runtime evidence.
