@@ -22,7 +22,7 @@ Audit basis: branch `agent/memecoin-hunter-foundation`, current source/tests, an
 | 13 | Capital Mission | PARTIAL — target definitions/runtime evaluation plus persistent mission-state store implemented/tested; continual evidence remains |
 | 14 | Mobile PWA cockpit | PARTIAL — mobile PWA shell and snapshot viewer implemented; production hosting/auth/operational UX remain |
 | 15 | Execution engine | SAFETY LOCK VERIFIED; live execution intentionally not built |
-| 16 | Exit / emergency kill switch | PARTIAL — protection/exit evaluation exists/unit-tested; runtime position-monitoring integration remains |
+| 16 | Exit / emergency kill switch | PARTIAL — protection/exit evaluation, persistent kill switch, and position-monitor integration are implemented/tested; live runtime stream integration remains |
 | 17 | Adaptive research | PARTIAL — signal outcome grouping/scoring plus positive-rate evidence implemented/tested; persistent research loop remains |
 | 18 | Full validation | PARTIAL — explicit validation gate implemented/tested; real OOS/walk-forward evidence gate remains |
 | 19 | Small live capital | NOT READY |
@@ -42,6 +42,7 @@ A smoke pass is not evidence of profitability, common economic ownership, manipu
 4. Add persistent paper journal and connect performance metrics.
 5. Wire the production orchestrator to the complete real-data chain: radar → forensics → wallet/cluster → manipulation → liquidity → edge → risk → paper → protection.
 6. Keep live execution locked.
+7. Harden edge quality with independent-signal weighting, correlated-wallet penalties, and real quote/exitability evidence before any BUY_ALLOWED decision is treated as actionable.
 
 ## Latest engineering work
 
