@@ -94,6 +94,21 @@ def test_program_only_spec_is_explicit_and_not_a_guess():
     assert len(result) == 1
 
 
+def test_both_semantic_constraints_must_match():
+    spec = DexProgramSpec(
+        "TestDEX",
+        frozenset({PROGRAM}),
+        frozenset({"swap"}),
+        frozenset({"AA"}),
+    )
+    assert classify_dex_swap_semantics(
+        transaction=_tx(),
+        raw_transaction=_raw(parsed_type="swap", data="BBCC"),
+        swap=_swap(),
+        specs=(spec,),
+    ) == ()
+
+
 def test_multiple_matching_instructions_do_not_duplicate_transaction_evidence():
     raw = _raw()
     raw["transaction"]["message"]["instructions"].append(
