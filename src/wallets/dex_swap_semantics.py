@@ -64,7 +64,7 @@ def classify_dex_swap_semantics(
     accepts the existing SwapEvidence without importing it, avoiding a cycle.
     """
     signature = getattr(swap, "signature", None)
-    if signature != transaction.signature:
+    if signature != transaction.signature or not transaction.success:
         return ()
     direction = getattr(swap, "direction", None)
     target_mint = getattr(swap, "mint", None)
