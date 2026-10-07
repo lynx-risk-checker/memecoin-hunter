@@ -38,7 +38,10 @@ def assess_smart_money(
     entries = sum(x.buys for x in intelligence.token_stats)
     exits = sum(x.sells for x in intelligence.token_stats)
 
-    trades = tuple(realized_trades)
+    trades = tuple(
+        trade for trade in realized_trades
+        if trade.wallet == intelligence.wallet
+    )
     profitable = sum(1 for trade in trades if trade.realized_pnl_quote > 0)
     closed = len(trades)
     win_rate = profitable / closed if closed else 0.0
