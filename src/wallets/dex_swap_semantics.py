@@ -82,10 +82,18 @@ def classify_dex_swap_semantics(
 
     instructions = extract_instruction_evidence(raw_transaction)
     result: list[DexSwapSemanticEvidence] = []
+    seen: set[tuple[str | None, str, str, str]] = set()
     for spec in specs:
         for evidence in instructions:
             if not spec.matches(evidence):
                 continue
+            # Balance-flow evidence is transaction-level. Multiple matching
+            # inner/outer instructions in the same transaction must not create
+            # duplicate economic swaps for downstream PnL.
+            key = (transaction.signature, spec.name, direction, target_mint)
+            if key in seen:
+                continue
+            seen.add(key)
             result.append(
                 DexSwapSemanticEvidence(
                     signature=transaction.signature,
