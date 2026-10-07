@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import StrEnum
 
+from src.wallets.smart_money_aggregate import SmartMoneyAggregate
+
 
 class EdgeDecision(StrEnum):
     BUY_ALLOWED = "BUY_ALLOWED"
@@ -21,6 +23,7 @@ class EdgeInput:
     manipulation_blocked: bool
     narrative_score: float
     wallet_independence: float = 1.0
+    smart_money_aggregate: SmartMoneyAggregate | None = None
 
 
 @dataclass(frozen=True)
@@ -42,7 +45,19 @@ def assess_edge(value: EdgeInput) -> EdgeAssessment:
     if not 0 <= value.wallet_independence <= 1:
         raise ValueError("wallet_independence must be between 0 and 1")
 
-    reasons = []
+    effective_wallet_support = value.wallet_support * value.wallet_independence
+    if value.smart_money_aggregate is not None:
+        aggregate = value.smart_money_aggregate
+        if not 0 <= aggregate.effective_support <= 1:
+            raise ValueError("smart_money aggregate effective_support must be between 0 and 1")
+        if not 0 <= aggregate.independence_ratio <= 1:
+            raise ValueError("smart_money aggregate independence_ratio must be between 0 and 1")
+        effective_wallet_support = aggregate.effective_support
+        reasons = []
+        if aggregate.independence_ratio < 1.0:
+            reasons.append("CORRELATED_SMART_MONEY_CLUSTER")
+    else:
+        reasons = []
     if not value.liquidity_ok:
         reasons.append("LIQUIDITY_NOT_EXITABLE")
     if value.manipulation_blocked:
@@ -52,7 +67,6 @@ def assess_edge(value: EdgeInput) -> EdgeAssessment:
     if reasons:
         return EdgeAssessment(EdgeDecision.BUY_BLOCKED, 0.0, tuple(reasons))
 
-    effective_wallet_support = value.wallet_support * value.wallet_independence
     flow_component = (max(-1.0, min(1.0, value.flow_score / 2.0)) + 1.0) / 2.0
     score = (
         0.35 * flow_component
