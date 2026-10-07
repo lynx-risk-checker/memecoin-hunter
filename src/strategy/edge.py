@@ -54,8 +54,6 @@ def assess_edge(value: EdgeInput) -> EdgeAssessment:
             raise ValueError("smart_money aggregate independence_ratio must be between 0 and 1")
         effective_wallet_support = aggregate.effective_support
         reasons = []
-        if aggregate.independence_ratio < 1.0:
-            reasons.append("CORRELATED_SMART_MONEY_CLUSTER")
     else:
         reasons = []
     if not value.liquidity_ok:
@@ -75,6 +73,8 @@ def assess_edge(value: EdgeInput) -> EdgeAssessment:
         + 0.20 * value.narrative_score
     )
 
+    if value.smart_money_aggregate is not None and value.smart_money_aggregate.independence_ratio < 1.0:
+        reasons.append("CORRELATED_SMART_MONEY_CLUSTER")
     if value.wallet_independence < 1.0:
         reasons.append("CORRELATED_WALLET_PENALTY")
 
