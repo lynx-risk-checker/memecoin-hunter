@@ -16,8 +16,18 @@ class PositionMonitorResult:
     token: str
     emergency: bool
     state: ProtectionState
-    reasons: tuple[str,...]
+    reasons: tuple[str, ...]
 
 def monitor_position(observation: PositionObservation) -> PositionMonitorResult:
-    decision=evaluate_protection(liquidity_drop_pct=observation.liquidity_drop_pct,dev_sell_ratio=observation.dev_sell_ratio,manipulation_blocked=observation.manipulation_blocked,exitability=observation.exitable)
-    return PositionMonitorResult(observation.token,decision.emergency,decision.state,decision.reasons)
+    decision = evaluate_protection(
+        state=observation.state,
+        liquidity_drop_pct=observation.liquidity_drop_pct,
+        dev_sell_ratio=observation.dev_sell_ratio,
+        manipulation_blocked=observation.manipulation_blocked,
+        exitability=observation.exitable,
+    )
+    return PositionMonitorResult(
+        observation.token, decision.emergency,
+        ProtectionState.HALTED if decision.emergency else observation.state,
+        decision.reasons,
+    )
