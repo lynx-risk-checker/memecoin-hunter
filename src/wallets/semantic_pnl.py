@@ -18,12 +18,19 @@ class RealizedSemanticTrade:
     entry_quote: float
     exit_quote: float
     realized_pnl_quote: float
+    wallet: str | None = None
 
 
 def reconstruct_semantic_pnl(
     swaps: Iterable[DexSwapSemanticEvidence],
+    *,
+    wallet: str | None = None,
 ) -> tuple[RealizedSemanticTrade, ...]:
     """FIFO realized PnL from explicitly promoted DEX semantic swaps.
+
+    ``wallet`` is caller-supplied provenance tying the transaction set to one
+    wallet. It is preserved on each realized trade so downstream smart-money
+    scoring cannot accidentally mix trades from different wallets.
 
     Only semantic evidence is accepted. This is quote-denominated PnL and does
     not convert SOL/USDC/etc. to USD. Unmatched sells are ignored rather than
@@ -77,6 +84,7 @@ def reconstruct_semantic_pnl(
                     entry_quote=entry_quote,
                     exit_quote=exit_quote,
                     realized_pnl_quote=exit_quote - entry_quote,
+                    wallet=wallet,
                 )
             )
             remaining -= matched
