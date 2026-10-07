@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from math import inf
+from math import inf, isfinite
 
 
 @dataclass(frozen=True)
@@ -16,8 +16,12 @@ class PaperTradeRecord:
     def __post_init__(self) -> None:
         if not self.token.strip():
             raise ValueError("token is required")
-        if self.position_usd <= 0:
-            raise ValueError("position_usd must be positive")
+        if not isfinite(self.pnl_usd):
+            raise ValueError("pnl_usd must be finite")
+        if not isfinite(self.position_usd) or self.position_usd <= 0:
+            raise ValueError("position_usd must be finite and positive")
+        if not isfinite(self.slippage_bps) or not isfinite(self.latency_ms):
+            raise ValueError("execution metrics must be finite")
         if self.slippage_bps < 0 or self.latency_ms < 0:
             raise ValueError("execution metrics cannot be negative")
 
@@ -39,8 +43,8 @@ class PaperPerformance:
 
 
 def summarize_performance(trades: list[PaperTradeRecord], starting_equity_usd: float) -> PaperPerformance:
-    if starting_equity_usd <= 0:
-        raise ValueError("starting_equity_usd must be positive")
+    if not isfinite(starting_equity_usd) or starting_equity_usd <= 0:
+        raise ValueError("starting_equity_usd must be finite and positive")
     if not trades:
         return PaperPerformance(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0, 0.0)
 
