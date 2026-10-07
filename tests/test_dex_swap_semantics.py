@@ -92,3 +92,15 @@ def test_program_only_spec_is_explicit_and_not_a_guess():
         transaction=_tx(), raw_transaction=_raw(), swap=_swap(), specs=(spec,)
     )
     assert len(result) == 1
+
+
+def test_multiple_matching_instructions_do_not_duplicate_transaction_evidence():
+    raw = _raw()
+    raw["transaction"]["message"]["instructions"].append(
+        {"programId": PROGRAM, "parsed": {"type": "swap"}, "accounts": []}
+    )
+    spec = DexProgramSpec("TestDEX", frozenset({PROGRAM}), frozenset({"swap"}))
+    result = classify_dex_swap_semantics(
+        transaction=_tx(), raw_transaction=raw, swap=_swap(), specs=(spec,)
+    )
+    assert len(result) == 1
