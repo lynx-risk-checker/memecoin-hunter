@@ -12,3 +12,13 @@ def test_mission_state_round_trips(tmp_path):
 
 def test_missing_mission_state_is_none(tmp_path):
     assert MissionStateStore(tmp_path / "missing.json").load() is None
+
+
+def test_mission_state_store_rejects_invalid_index(tmp_path):
+    store = MissionStateStore(tmp_path / "mission.json")
+    try:
+        store.save(MissionState(capital_idr=1000, mission_index=999, status="NORMAL"))
+    except ValueError as exc:
+        assert "mission_index" in str(exc)
+    else:
+        raise AssertionError("invalid mission index was accepted")
