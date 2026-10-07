@@ -29,3 +29,19 @@ def test_edge_vetoes_manipulation() -> None:
 def test_edge_waits_when_flow_is_not_confirmed() -> None:
     result = assess_edge(base(flow_score=0.0, wallet_support=0.2, narrative_score=0.2))
     assert result.decision == EdgeDecision.WAIT
+
+
+def test_edge_uses_cluster_adjusted_smart_money_support() -> None:
+    from src.wallets.smart_money_aggregate import SmartMoneyAggregate
+
+    aggregate = SmartMoneyAggregate(
+        wallet_count=3,
+        independent_cluster_count=2,
+        independence_ratio=2 / 3,
+        effective_support=0.6,
+        average_reliability=0.9,
+        pnl_evidence_wallets=2,
+    )
+    result = assess_edge(base(wallet_support=1.0, smart_money_aggregate=aggregate))
+    assert result.score < assess_edge(base(wallet_support=1.0)).score
+    assert "CORRELATED_SMART_MONEY_CLUSTER" in result.reasons
