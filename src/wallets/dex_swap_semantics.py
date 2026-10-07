@@ -23,13 +23,28 @@ class DexProgramSpec:
     def matches(self, evidence: InstructionEvidence) -> bool:
         if evidence.program_id not in self.program_ids:
             return False
-        if self.parsed_types and evidence.parsed_type in self.parsed_types:
+
+        type_configured = bool(self.parsed_types)
+        prefix_configured = bool(self.data_prefixes)
+        if not type_configured and not prefix_configured:
             return True
-        if self.data_prefixes and evidence.data:
-            return any(evidence.data.startswith(prefix) for prefix in self.data_prefixes)
-        if not self.parsed_types and not self.data_prefixes:
-            return True
-        return False
+
+        # When multiple explicit semantic constraints are supplied, require
+        # all configured constraints to match. This is deliberately
+        # conservative: a program ID plus only one matching discriminator
+        # should not silently promote evidence when the operator supplied both.
+        type_matches = (
+            evidence.parsed_type in self.parsed_types
+            if type_configured
+            else True
+        )
+        prefix_matches = (
+            bool(evidence.data)
+            and any(evidence.data.startswith(prefix) for prefix in self.data_prefixes)
+            if prefix_configured
+            else True
+        )
+        return type_matches and prefix_matches
 
 
 @dataclass(frozen=True)
