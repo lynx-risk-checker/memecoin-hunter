@@ -10,21 +10,21 @@ Audit basis: branch `agent/memecoin-hunter-foundation`, current source/tests, an
 | 1 | Real Solana data | VERIFIED for RPC/DEX real smoke; continual evidence BELUM TERVERIFIKASI |
 | 2 | Token Radar | VERIFIED (unit + prior real smoke) |
 | 3 | 5-minute forensics | PARTIAL — native on-chain block-time flow engine exists/unit-tested; continual real 5m dataset evidence BELUM TERVERIFIKASI |
-| 4 | Dev DNA | PARTIAL — runtime developer attribution/history BELUM TERVERIFIKASI |
+| 4 | Dev DNA | PARTIAL — evidence-scored developer DNA model implemented/tested; runtime attribution/history still requires real transaction evidence |
 | 5 | Smart Money / wallet intelligence | PARTIAL — wallet history, FIFO reconstruction, holding time, price-aware accounting, swap evidence, instruction evidence, execution-price accounting, and explicit DEX semantic evidence are implemented/tested; real confirmed DEX swap semantics and real-wallet PnL remain BELUM TERVERIFIKASI |
 | 6 | Wallet graph / economic clusters | PARTIAL — real smoke pipeline reported PASS; economic ownership inference and double-counting hardening remain incomplete |
 | 7 | Manipulation / insider detection | PARTIAL — real smoke pipeline reported PASS; substantive manipulation ground-truth validation BELUM TERVERIFIKASI |
-| 8 | Liquidity / exitability | PARTIAL — basic ratio heuristic only; route-aware quote/exit simulation and dynamic slippage missing |
+| 8 | Liquidity / exitability | PARTIAL — basic ratio engine plus route-aware quote contract implemented/tested; real quote provider and exit simulation remain to be wired |
 | 9 | Narrative / social intelligence | PARTIAL — scoring exists; live social/public-feed ingestion missing |
-| 10 | Asymmetric Edge | PARTIAL — edge→risk→protection pipeline integrated/unit-tested; full production orchestration missing |
-| 11 | Risk veto / decision | PARTIAL — integrated pipeline unit-tested; persistent state/kill-switch orchestration incomplete |
-| 12 | Paper trading / journal | PARTIAL — expanded metrics exist/unit-tested; persistent journal and long-run real-market evidence missing |
+| 10 | Asymmetric Edge | PARTIAL — edge→risk→protection path now has a single orchestrator; full live-data orchestration remains to be wired |
+| 11 | Risk veto / decision | PARTIAL — integrated pipeline plus orchestrator implemented/tested; persistent runtime kill-switch state remains to be wired |
+| 12 | Paper trading / journal | PARTIAL — persistent JSONL journal and journal→metrics adapter implemented/tested; long-run real-market evidence missing |
 | 13 | Capital Mission | VERIFIED for target definitions/runtime evaluation; persistence/continual evidence BELUM TERVERIFIKASI |
-| 14 | Mobile PWA cockpit | NOT BUILT |
+| 14 | Mobile PWA cockpit | PARTIAL — mobile PWA shell and snapshot viewer implemented; production hosting/auth/operational UX remain |
 | 15 | Execution engine | SAFETY LOCK VERIFIED; live execution intentionally not built |
-| 16 | Exit / emergency kill switch | PARTIAL — protection/exit evaluation exists/unit-tested; runtime position-monitoring integration missing |
-| 17 | Adaptive research | NOT BUILT |
-| 18 | Full validation | NOT BUILT |
+| 16 | Exit / emergency kill switch | PARTIAL — protection/exit evaluation exists/unit-tested; runtime position-monitoring integration remains |
+| 17 | Adaptive research | PARTIAL — signal outcome grouping/scoring implemented/tested; persistent research loop remains |
+| 18 | Full validation | PARTIAL — explicit validation gate implemented/tested; real OOS/walk-forward evidence gate remains |
 | 19 | Small live capital | NOT READY |
 | 20 | Mission mode | NOT BUILT |
 
@@ -40,7 +40,7 @@ A smoke pass is not evidence of profitability, common economic ownership, manipu
 2. Harden cluster aggregation against correlated-signal double counting.
 3. Build route-aware liquidity/exitability with real quotes.
 4. Add persistent paper journal and connect performance metrics.
-5. Create one production orchestrator: radar → forensics → wallet/cluster → manipulation → liquidity → edge → risk → paper → protection.
+5. Wire the production orchestrator to the complete real-data chain: radar → forensics → wallet/cluster → manipulation → liquidity → edge → risk → paper → protection.
 6. Keep live execution locked.
 
 ## Latest engineering work
@@ -57,3 +57,7 @@ A smoke pass is not evidence of profitability, common economic ownership, manipu
 - No merge to `main` without explicit Founder approval.
 - Fixtures are not runtime evidence.
 - No profitability claim without out-of-sample/paper evidence.
+
+## Current checkpoint
+
+The branch contains 193 commits ahead of the foundation commit and is not behind. The latest completed structural work includes persistent paper journaling, route-quote validation, a production decision orchestrator, developer DNA scoring, adaptive research scoring, an explicit validation gate, and a mobile PWA cockpit shell. These are implementation milestones; they do not substitute for real-market runtime evidence.
