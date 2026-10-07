@@ -4,7 +4,6 @@ from dataclasses import dataclass
 
 from src.exit import ProtectionState
 from src.pipeline import CandidateContext, PipelineResult, evaluate_candidate
-from src.risk import RiskDecision
 
 
 @dataclass(frozen=True)
@@ -42,6 +41,6 @@ def snapshot_candidate(
         decision=result.decision.decision.value,
         edge_score=result.decision.edge.score,
         risk_allowed=result.decision.risk_allowed,
-        protection_state=result.protection.state,
+        protection_state=context.protection_state,
         reasons=reasons,
     )
