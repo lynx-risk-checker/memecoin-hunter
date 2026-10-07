@@ -35,8 +35,8 @@ def test_semantic_realized_pnl_can_support_win_rate() -> None:
         1.0,
     )
     trades = (
-        RealizedSemanticTrade("EARLY", 1.0, 100, 200, 100, 1.0, 1.2, 1.0, 1.2, 0.2),
-        RealizedSemanticTrade("EARLY", 1.0, 300, 400, 100, 1.0, 0.8, 1.0, 0.8, -0.2),
+        RealizedSemanticTrade("EARLY", 1.0, 100, 200, 100, 1.0, 1.2, 1.0, 1.2, 0.2, "W"),
+        RealizedSemanticTrade("EARLY", 1.0, 300, 400, 100, 1.0, 0.8, 1.0, 0.8, -0.2, "W"),
     )
     r = assess_smart_money(i, early_window_mints={"EARLY"}, realized_trades=trades)
     assert r.profitable_proxy_events == 1
@@ -52,3 +52,12 @@ def test_empty_history_is_not_smart_money() -> None:
     assert r.win_rate_proxy == 0.0
     assert r.closed_trade_events == 0
     assert r.reliability_score == 0.0
+
+
+def test_mixed_wallet_realized_pnl_is_not_attributed() -> None:
+    i = WalletIntelligence("W", 4, 4, (), 0.5)
+    trades = (RealizedSemanticTrade("TOKEN", 1.0, 100, 200, 100, 1.0, 2.0, 1.0, 2.0, 1.0, "OTHER"),)
+    r = assess_smart_money(i, realized_trades=trades)
+    assert r.closed_trade_events == 0
+    assert r.win_rate_proxy == 0.0
+    assert r.pnl_evidence_available is False
