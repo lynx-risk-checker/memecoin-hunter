@@ -2,11 +2,15 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from time import time
-from typing import Callable
+from typing import Callable, Protocol
 
 from src.decision_snapshot import DecisionSnapshot, snapshot_candidate
 from src.journal import JournalEvent
 from src.pipeline import CandidateContext, PipelineResult, evaluate_candidate
+
+
+class JournalSink(Protocol):
+    def append(self, event: JournalEvent) -> None: ...
 
 
 @dataclass(frozen=True)
@@ -18,7 +22,7 @@ class OrchestrationResult:
 
 
 class ProductionOrchestrator:
-    """Single coordinator for edge -> risk -> protection -> decision snapshot.
+    """Coordinator for edge -> risk -> protection -> decision snapshot.
 
     The orchestrator remains paper/dry-run safe; live execution is not implemented.
     """
@@ -26,7 +30,7 @@ class ProductionOrchestrator:
     def __init__(
         self,
         *,
-        journal: Callable[[dict[str, object]], None] | Callable[[JournalEvent], None] | None = None,
+        journal: Callable[[dict[str, object]], None] | JournalSink | None = None,
     ) -> None:
         self._journal = journal
 
@@ -70,16 +74,15 @@ class ProductionOrchestrator:
             "reasons": list(reasons),
         }
         if self._journal is not None:
-            if isinstance(self._journal, Callable):
-                try:
-                    self._journal(event)
-                except TypeError:
-                    self._journal(
-                        JournalEvent(
-                            event_type="DECISION",
-                            timestamp=int(time()),
-                            token=context.token,
-                            payload=event,
-                        )
+            if hasattr(self._journal, "append"):
+                self._journal.append(
+                    JournalEvent(
+                        event_type="DECISION",
+                        timestamp=int(time()),
+                        token=context.token,
+                        payload=event,
                     )
+                )
+            else:
+                self._journal(event)
         return OrchestrationResult(context.token, result, snapshot, event)
