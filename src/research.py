@@ -13,6 +13,7 @@ class ResearchScore:
     observations: int
     mean_outcome: float
     confidence_proxy: float
+    positive_rate: float = 0.0
 
 def score_research(observations: list[ResearchObservation]) -> tuple[ResearchScore,...]:
     groups: dict[str,list[float]]={}
@@ -23,5 +24,5 @@ def score_research(observations: list[ResearchObservation]) -> tuple[ResearchSco
     for signal,values in sorted(groups.items()):
         mean=sum(values)/len(values)
         confidence=min(1.0,sqrt(len(values))/10.0)
-        result.append(ResearchScore(signal,len(values),mean,confidence))
+        positive_rate = sum(value > 0 for value in values) / len(values)\n        result.append(ResearchScore(signal,len(values),mean,confidence,positive_rate))
     return tuple(result)
