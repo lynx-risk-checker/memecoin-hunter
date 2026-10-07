@@ -104,3 +104,25 @@ def test_multiple_matching_instructions_do_not_duplicate_transaction_evidence():
         transaction=_tx(), raw_transaction=raw, swap=_swap(), specs=(spec,)
     )
     assert len(result) == 1
+
+
+def test_failed_transaction_does_not_promote_dex_semantics():
+    raw = _raw()
+    raw["meta"]["err"] = {"InstructionError": [0, "Custom"]}
+    failed = ParsedTransaction(
+        signature="sig",
+        slot=1,
+        block_time=100,
+        success=False,
+        fee_lamports=5000,
+        account_keys=(AccountKey(WALLET, True, True), AccountKey(PROGRAM, False, False)),
+        token_deltas=(
+            TokenBalanceDelta(WALLET, TOKEN, 0, 0, 1000, 0),
+            TokenBalanceDelta(WALLET, QUOTE, 0, 1000, 0, 0),
+        ),
+        sol_deltas=(),
+    )
+    spec = DexProgramSpec("TestDEX", frozenset({PROGRAM}), frozenset({"swap"}))
+    assert classify_dex_swap_semantics(
+        transaction=failed, raw_transaction=raw, swap=_swap(), specs=(spec,)
+    ) == ()
