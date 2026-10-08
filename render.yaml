@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: memecoin-hunter
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: "10000"
