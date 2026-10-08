@@ -89,6 +89,7 @@ STATIC_FILES = {
     "/app.js": ("app.js", "application/javascript; charset=utf-8"),
     "/styles.css": ("styles.css", "text/css; charset=utf-8"),
     "/manifest.webmanifest": ("manifest.webmanifest", "application/manifest+json; charset=utf-8"),
+    "/icons/icon.svg": ("icons/icon.svg", "image/svg+xml"),
     "/sw.js": ("sw.js", "application/javascript; charset=utf-8"),
 }
 
