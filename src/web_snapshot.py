@@ -137,3 +137,7 @@ def serve(host: str | None = None, port: int | None = None) -> None:
     port = port or int(os.getenv("SNAPSHOT_PORT", "8080"))
     server = ThreadingHTTPServer((host, port), SnapshotHandler)
     server.serve_forever()
+
+
+if __name__ == "__main__":
+    serve()
