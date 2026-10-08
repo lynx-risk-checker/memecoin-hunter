@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import json
 import os
-from dataclasses import asdict
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 from typing import Any
 
 from src.data.dexscreener import DexScreenerClient, DexScreenerError
@@ -81,23 +81,45 @@ def build_snapshot(
     }
 
 
+WEB_ROOT = Path(__file__).resolve().parent.parent / "web"
+STATIC_FILES = {"/": ("index.html", "text/html; charset=utf-8"), "/index.html": ("index.html", "text/html; charset=utf-8"), "/app.js": ("app.js", "application/javascript; charset=utf-8"), "/styles.css": ("styles.css", "text/css; charset=utf-8"), "/manifest.webmanifest": ("manifest.webmanifest", "application/manifest+json; charset=utf-8")}
+
+
 class SnapshotHandler(BaseHTTPRequestHandler):
     client = DexScreenerClient()
 
-    def _write_json(self, status: int, payload: dict[str, Any]) -> None:
-        body = json.dumps(payload, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    def _write_bytes(self, status: int, body: bytes, content_type: str) -> None:
         self.send_response(status)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Type", content_type)
         self.send_header("Cache-Control", "no-store")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
 
-    def do_GET(self) -> None:  # noqa: N802
-        if self.path != "/snapshot":
+    def _write_json(self, status: int, payload: dict[str, Any]) -> None:
+        body = json.dumps(payload, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+        self._write_bytes(status, body, "application/json; charset=utf-8")
+
+    def _serve_static(self) -> bool:
+        target = STATIC_FILES.get(self.path)
+        if target is None:
+            return False
+        filename, content_type = target
+        try:
+            body = (WEB_ROOT / filename).read_bytes()
+        except FileNotFoundError:
             self._write_json(404, {"status": "NOT_FOUND"})
+            return True
+        self._write_bytes(200, body, content_type)
+        return True
+
+    def do_GET(self) -> None:  # noqa: N802
+        if self.path == "/snapshot":
+            self._write_json(200, build_snapshot(self.client))
             return
-        self._write_json(200, build_snapshot(self.client))
+        if self._serve_static():
+            return
+        self._write_json(404, {"status": "NOT_FOUND"})
 
     def log_message(self, format: str, *args: object) -> None:
         return
