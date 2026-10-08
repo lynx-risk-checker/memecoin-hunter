@@ -5,6 +5,7 @@ import os
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from urllib.parse import urlsplit
 from typing import Any
 
 from src.data.dexscreener import DexScreenerClient, DexScreenerError
@@ -107,8 +108,8 @@ class SnapshotHandler(BaseHTTPRequestHandler):
         body = json.dumps(payload, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
         self._write_bytes(status, body, "application/json; charset=utf-8")
 
-    def _serve_static(self) -> bool:
-        target = STATIC_FILES.get(self.path)
+    def _serve_static(self, path: str) -> bool:
+        target = STATIC_FILES.get(path)
         if target is None:
             return False
         filename, content_type = target
@@ -121,10 +122,11 @@ class SnapshotHandler(BaseHTTPRequestHandler):
         return True
 
     def do_GET(self) -> None:  # noqa: N802
-        if self.path == "/snapshot":
+        path = urlsplit(self.path).path
+        if path == "/snapshot":
             self._write_json(200, build_snapshot(self.client))
             return
-        if self._serve_static():
+        if self._serve_static(path):
             return
         self._write_json(404, {"status": "NOT_FOUND"})
 
