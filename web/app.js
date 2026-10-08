@@ -1,0 +1,4 @@
+const demo=[{symbol:"WAITING",decision:"🟡 WATCH",reason:"Connect backend snapshot untuk data token nyata."}];
+function render(items){document.querySelector("#opportunities").innerHTML=items.map(x=>`<article class="card"><h3>${x.symbol}</h3><strong class="watch">${x.decision}</strong><p class="muted">${x.reason||"No live snapshot yet."}</p></article>`).join("")}
+async function refresh(){try{const r=await fetch("/snapshot",{cache:"no-store"});if(!r.ok)throw new Error();const d=await r.json();document.querySelector("#connection").textContent="Backend snapshot connected";render(d.opportunities||demo)}catch{document.querySelector("#connection").textContent="Backend snapshot belum terhubung";render(demo)}}
+document.querySelector("#refresh").addEventListener("click",refresh);render(demo);refresh();
