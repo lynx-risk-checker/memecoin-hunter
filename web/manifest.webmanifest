@@ -1,13 +1,25 @@
 {
-  "name":"MEMECOIN HUNTER — Solana Intelligence",
-  "short_name":"MEMECOIN HUNTER",
-  "start_url":"/",
-  "scope":"/",
-  "display":"standalone",
-  "orientation":"portrait",
-  "background_color":"#080c16",
-  "theme_color":"#080c16",
-  "lang":"id",
-  "description":"Solana meme-coin intelligence cockpit. Public paper/dry-run app; live execution locked.",
-  "categories":["finance","productivity","utilities"]
+  "name": "MEMECOIN HUNTER — Solana Intelligence",
+  "short_name": "MEMECOIN HUNTER",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#080c16",
+  "theme_color": "#080c16",
+  "lang": "id",
+  "description": "Solana meme-coin intelligence cockpit. Public paper/dry-run app; live execution locked.",
+  "categories": [
+    "finance",
+    "productivity",
+    "utilities"
+  ],
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }
