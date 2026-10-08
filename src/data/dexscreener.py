@@ -143,6 +143,25 @@ class DexScreenerClient:
             if not isinstance(market_cap, (int, float)):
                 market_cap = pair.get("fdv")
             market_cap_usd = float(market_cap) if isinstance(market_cap, (int, float)) else None
+            volume = pair.get("volume")
+            txns = pair.get("txns")
+            volume_5m_usd = self._number(volume.get("m5")) if isinstance(volume, dict) else None
+            volume_1h_usd = self._number(volume.get("h1")) if isinstance(volume, dict) else None
+            txn_count_5m = None
+            txn_count_1h = None
+            if isinstance(txns, dict):
+                m5 = txns.get("m5")
+                h1 = txns.get("h1")
+                if isinstance(m5, dict):
+                    buys = self._number(m5.get("buys"))
+                    sells = self._number(m5.get("sells"))
+                    if buys is not None and sells is not None:
+                        txn_count_5m = int(buys + sells)
+                if isinstance(h1, dict):
+                    buys = self._number(h1.get("buys"))
+                    sells = self._number(h1.get("sells"))
+                    if buys is not None and sells is not None:
+                        txn_count_1h = int(buys + sells)
 
             candidates.append(
                 TokenCandidate(
@@ -154,6 +173,10 @@ class DexScreenerClient:
                     liquidity_usd=liquidity_usd,
                     market_cap_usd=market_cap_usd,
                     age_seconds=age_seconds,
+                    volume_5m_usd=volume_5m_usd,
+                    volume_1h_usd=volume_1h_usd,
+                    txn_count_5m=txn_count_5m,
+                    txn_count_1h=txn_count_1h,
                 )
             )
             seen.add(address)
@@ -180,8 +203,25 @@ class DexScreenerClient:
 
         liquidity_usd = self._number(liquidity.get("usd")) if isinstance(liquidity, dict) else None
         volume_usd = self._number(volume.get("h24")) if isinstance(volume, dict) else None
+        volume_5m_usd = self._number(volume.get("m5")) if isinstance(volume, dict) else None
+        volume_1h_usd = self._number(volume.get("h1")) if isinstance(volume, dict) else None
         buys = self._number(txns.get("h24", {}).get("buys")) if isinstance(txns, dict) else None
         sells = self._number(txns.get("h24", {}).get("sells")) if isinstance(txns, dict) else None
+        txn_count_5m = None
+        txn_count_1h = None
+        if isinstance(txns, dict):
+            m5 = txns.get("m5")
+            h1 = txns.get("h1")
+            if isinstance(m5, dict):
+                m5_buys = self._number(m5.get("buys"))
+                m5_sells = self._number(m5.get("sells"))
+                if m5_buys is not None and m5_sells is not None:
+                    txn_count_5m = int(m5_buys + m5_sells)
+            if isinstance(h1, dict):
+                h1_buys = self._number(h1.get("buys"))
+                h1_sells = self._number(h1.get("sells"))
+                if h1_buys is not None and h1_sells is not None:
+                    txn_count_1h = int(h1_buys + h1_sells)
         price_usd = self._number(price)
 
         required = {
@@ -212,4 +252,8 @@ class DexScreenerClient:
             unique_sellers=None,
             holder_count=None,
             market_cap_usd=float(market_cap) if isinstance(market_cap, (int, float)) else None,
+            volume_5m_usd=volume_5m_usd,
+            volume_1h_usd=volume_1h_usd,
+            txn_count_5m=txn_count_5m,
+            txn_count_1h=txn_count_1h,
         )
