@@ -1,28 +1,38 @@
 <!doctype html>
 <html lang="id">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#080c16"><link rel="manifest" href="/manifest.webmanifest">
-<title>MEMECOIN HUNTER — Cockpit</title><link rel="stylesheet" href="/styles.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080c16">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MEMECOIN HUNTER">
+<link rel="manifest" href="/manifest.webmanifest">
+<title>MEMECOIN HUNTER — Solana Intelligence</title>
+<link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-<header class="top"><div><span class="eyebrow">SOLANA • EVIDENCE-FIRST</span><h1>MEMECOIN HUNTER</h1><p id="connection">● CONNECTING TO SNAPSHOT</p></div><span class="mode">🔵 PAPER / DRY RUN</span></header>
+<header class="top">
+  <div><span class="eyebrow">SOLANA • INTELLIGENCE COCKPIT</span><h1>MEMECOIN HUNTER</h1><p id="connection">● CONNECTING TO SNAPSHOT</p></div>
+  <div class="mode">🔵 PAPER / DRY RUN</div>
+</header>
 <main>
 <section class="hero">
-<div><span>CAPITAL</span><strong id="capital">Rp50.000</strong></div>
-<div><span>MISSION</span><strong>Rp50K → Rp300K</strong></div>
-<div><span>EXECUTION</span><strong>🔒 LOCKED</strong></div>
+  <div><span>CAPITAL</span><strong id="capital">Rp50.000</strong></div>
+  <div><span>MISSION</span><strong>Rp50K → Rp300K</strong></div>
+  <div><span>EXECUTION</span><strong>🔒 LOCKED</strong></div>
 </section>
 <section>
-<div class="section-head"><h2>🔥 Opportunity Radar</h2><button id="refresh">Refresh</button></div>
-<div id="opportunities" class="grid"></div>
+  <div class="section-head"><h2>🔥 Token Radar</h2><button id="refresh">Refresh</button></div>
+  <div id="opportunities" class="grid"></div>
 </section>
 <section class="grid panels">
-<article><h3>⚡ Momentum</h3><div class="metric"><span>Volume 5M</span><b id="v5m">—</b></div><div class="metric"><span>Volume 1H</span><b id="v1h">—</b></div><div class="metric"><span>TXNS / min</span><b id="txns">—</b></div><div class="metric"><span>BUY / SELL</span><b id="flow">—</b></div></article>
-<article><h3>🧠 Intelligence</h3><div class="metric"><span>Smart Money</span><b id="smart">—</b></div><div class="metric"><span>Dev DNA</span><b id="dev">—</b></div><div class="metric"><span>Clusters</span><b id="cluster">—</b></div></article>
-<article><h3>🛡 Risk Veto</h3><div class="status"><span>LIVE ORDERS</span><b>BLOCKED</b></div><div class="status"><span>EXITABILITY</span><b id="exit">—</b></div><div class="status"><span>MANIPULATION</span><b id="manip">—</b></div></article>
+  <article><h3>📈 Net Flow</h3><div class="metric"><span>Volume 5M</span><b id="v5m">—</b></div><div class="metric"><span>Volume 1H</span><b id="v1h">—</b></div><div class="metric"><span>TXNS / min</span><b id="txns">—</b></div><div class="metric"><span>BUY / SELL</span><b id="flow">—</b></div></article>
+  <article><h3>🧠 Smart Money Tracker</h3><div class="metric"><span>Smart Money</span><b id="smart">—</b></div><div class="metric"><span>Dev DNA</span><b id="dev">—</b></div><div class="metric"><span>Clusters</span><b id="cluster">—</b></div></article>
+  <article><h3>🚨 Manipulation Watch</h3><div class="status"><span>LIVE ORDERS</span><b>BLOCKED</b></div><div class="status"><span>EXITABILITY</span><b id="exit">—</b></div><div class="status"><span>MANIPULATION</span><b id="manip">—</b></div></article>
 </section>
 <section class="card"><h3>📡 Evidence</h3><p id="evidence" class="muted">No snapshot loaded.</p><pre id="raw">—</pre></section>
 </main>
 <script src="/app.js"></script>
+<script>if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});</script>
 </body></html>
