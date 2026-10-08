@@ -136,7 +136,7 @@ class SnapshotHandler(BaseHTTPRequestHandler):
 
 def serve(host: str | None = None, port: int | None = None) -> None:
     host = host or os.getenv("SNAPSHOT_HOST", "0.0.0.0")
-    port = port or int(os.getenv("SNAPSHOT_PORT", "8080"))
+    port = port or int(os.getenv("PORT", os.getenv("SNAPSHOT_PORT", "8080")) )
     server = ThreadingHTTPServer((host, port), SnapshotHandler)
     server.serve_forever()
 
