@@ -17,6 +17,10 @@ class TokenSnapshot:
     unique_sellers: int | None
     holder_count: int | None
     market_cap_usd: float | None = None
+    volume_5m_usd: float | None = None
+    volume_1h_usd: float | None = None
+    txn_count_5m: int | None = None
+    txn_count_1h: int | None = None
 
     def __post_init__(self) -> None:
         if not self.token_address.strip():
@@ -35,6 +39,14 @@ class TokenSnapshot:
                 raise ValueError(f"{name} cannot be negative.")
         if self.market_cap_usd is not None and self.market_cap_usd < 0:
             raise ValueError("Market cap cannot be negative.")
+        for name in ("volume_5m_usd", "volume_1h_usd"):
+            value = getattr(self, name)
+            if value is not None and value < 0:
+                raise ValueError(f"{name} cannot be negative.")
+        for name in ("txn_count_5m", "txn_count_1h"):
+            value = getattr(self, name)
+            if value is not None and value < 0:
+                raise ValueError(f"{name} cannot be negative.")
 
 
 @dataclass(frozen=True)
