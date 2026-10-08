@@ -1,65 +1,129 @@
 <!doctype html>
 <html lang="id">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#06080d"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="MEMECOIN HUNTER"><link rel="manifest" href="/manifest.webmanifest"><title>MEMECOIN HUNTER</title><link rel="stylesheet" href="/styles.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#05070c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MEMECOIN HUNTER">
+<link rel="manifest" href="/manifest.webmanifest?v=ui5">
+<title>MEMECOIN HUNTER — Intelligence Cockpit</title>
+<link rel="stylesheet" href="/styles.css?v=ui5">
 </head>
 <body>
+<div class="noise"></div>
 <div class="app-shell">
 <header class="topbar">
-  <div class="brand"><div class="brand-mark">M</div><div><div class="eyebrow">SOLANA INTELLIGENCE</div><h1>MEMECOIN HUNTER</h1></div></div>
-  <div class="top-actions"><span id="connection" class="live-dot">● CONNECTING</span><button id="refresh" aria-label="Refresh">↻</button></div>
+  <div class="brand"><div class="brand-mark">M<span>H</span></div><div><div class="eyebrow">SOLANA INTELLIGENCE NETWORK</div><h1>MEMECOIN HUNTER</h1></div></div>
+  <div class="top-actions"><span id="connection" class="status-live">● CONNECTING</span><span class="mode">PAPER / DRY RUN</span><button id="refresh" aria-label="Refresh">↻</button></div>
 </header>
 
 <main>
-<section class="hero">
-  <div class="hero-copy"><span class="eyebrow">OPPORTUNITY RADAR</span><h2 id="hero-token">WAITING FOR MARKET</h2><p id="hero-reason">Scanning real Solana market data. No synthetic signals.</p>
-    <div class="hero-tags"><span id="hero-decision" class="pill watch">WATCH</span><span id="hero-evidence" class="pill">RADAR ONLY</span></div>
+<section class="command-hero">
+  <div class="hero-grid">
+    <div class="hero-copy">
+      <div class="eyebrow">AUTONOMOUS OPPORTUNITY RADAR</div>
+      <h2 id="hero-token">SCANNING SOLANA</h2>
+      <p id="hero-reason">Filtering real market evidence. No synthetic signals.</p>
+      <div class="hero-tags"><span id="hero-decision" class="pill watch">WATCH</span><span id="hero-evidence" class="pill">RADAR ONLY</span><span class="pill locked">LIVE LOCKED</span></div>
+      <div class="scanline"></div>
+    </div>
+    <div class="hero-visual">
+      <canvas id="radar-canvas" aria-label="Animated intelligence radar"></canvas>
+      <div class="radar-core"><span id="core-score">—</span><small>EDGE</small></div>
+      <div class="orbit o1"></div><div class="orbit o2"></div><div class="orbit o3"></div>
+    </div>
+    <div class="hero-score"><span>ASYMMETRIC EDGE</span><strong id="hero-score">—</strong><small>/ 1.00</small><div class="score-state" id="score-state">WAITING FOR EVIDENCE</div></div>
   </div>
-  <div class="hero-score"><span>EDGE</span><strong id="hero-score">—</strong><small>/ 1.00</small></div>
 </section>
 
-<section class="quick-stats">
- <div><span>MC</span><b id="hero-mc">—</b></div><div><span>LIQUIDITY</span><b id="hero-liq">—</b></div><div><span>VOL 5M</span><b id="hero-v5m">—</b></div><div><span>TX/MIN</span><b id="hero-tx">—</b></div>
-</section>
-
-<section class="section">
- <div class="section-head"><div><span class="eyebrow">DISCOVERY</span><h3>Token Radar</h3></div><span class="section-status">REAL DATA</span></div>
- <div id="opportunities" class="radar-list"></div>
+<section class="metric-ribbon">
+ <div><span>MARKET CAP</span><b id="hero-mc">—</b></div><div><span>LIQUIDITY</span><b id="hero-liq">—</b></div><div><span>VOL 5M</span><b id="hero-v5m">—</b></div><div><span>TX / MIN</span><b id="hero-tx">—</b></div><div><span>MISSION</span><b>Rp50K → Rp300K</b></div>
 </section>
 
 <section class="section">
- <div class="section-head"><div><span class="eyebrow">FLOW INTELLIGENCE</span><h3>Net Flow</h3></div><span id="flow-state" class="section-status">RADAR ONLY</span></div>
- <article class="flow-card">
-   <div class="flow-head"><div><span>5M VOLUME</span><b id="v5m">—</b></div><div><span>1H VOLUME</span><b id="v1h">—</b></div><div><span>TX/MIN</span><b id="txns">—</b></div></div>
-   <div class="flow-track"><i id="buy-bar"></i><i id="sell-bar"></i></div>
-   <div class="flow-legend"><span><i class="buy-dot"></i> BUY <b id="buy-value">—</b></span><span><i class="sell-dot"></i> SELL <b id="sell-value">—</b></span></div>
- </article>
+ <div class="section-head"><div><span class="eyebrow">01 / DISCOVERY</span><h3>Token Radar</h3></div><span class="section-status"><i></i> REAL DATA</span></div>
+ <div id="opportunities" class="radar-grid"></div>
 </section>
 
-<section class="intel-grid">
- <article class="intel-card"><div class="card-head"><span class="icon green">◉</span><div><span class="eyebrow">SMART MONEY</span><h3>Wallet Intelligence</h3></div><em id="smart">NOT EVALUATED</em></div>
-  <div class="signal"><span>Smart Money</span><b id="smart-detail">NOT EVALUATED</b></div><div class="signal"><span>Dev DNA</span><b id="dev">NOT EVALUATED</b></div><div class="signal"><span>Wallet Clusters</span><b id="cluster">NOT EVALUATED</b></div><div class="signal"><span>Independent Signals</span><b id="independent">—</b></div>
- </article>
- <article class="intel-card"><div class="card-head"><span class="icon red">!</span><div><span class="eyebrow">FORENSICS</span><h3>Manipulation Watch</h3></div><em id="manip">NOT EVALUATED</em></div>
-  <div class="signal"><span>Liquidity</span><b id="liquidity">—</b></div><div class="signal"><span>Exitability</span><b id="exit">NOT EVALUATED</b></div><div class="signal"><span>Funding / Coordination</span><b id="coordination">NOT EVALUATED</b></div><div class="signal"><span>Dev Sell Risk</span><b id="devsell">—</b></div>
- </article>
+<section class="section">
+ <div class="section-head"><div><span class="eyebrow">02 / EARLY-FLOW ENGINE</span><h3>Live Market Pulse</h3></div><span id="flow-state" class="section-status">RADAR ONLY</span></div>
+ <div class="flow-layout">
+  <article class="glass-card flow-chart-card">
+   <div class="card-top"><div><span class="eyebrow">NET FLOW / 5 MIN</span><h4 id="flow-title">Waiting for on-chain flow</h4></div><span class="live-badge">STREAM</span></div>
+   <canvas id="flow-canvas"></canvas>
+   <div class="chart-axis"><span>−5m</span><span>−4m</span><span>−3m</span><span>−2m</span><span>−1m</span><span>NOW</span></div>
+   <div class="flow-legend"><span class="green">● BUY <b id="buy-value">—</b></span><span class="red">● SELL <b id="sell-value">—</b></span><span>TX/MIN <b id="txns">—</b></span></div>
+  </article>
+  <article class="glass-card pulse-card">
+   <div class="card-top"><div><span class="eyebrow">FLOW VELOCITY</span><h4>Acceleration</h4></div><span class="pulse-dot"></span></div>
+   <div class="velocity"><div class="velocity-ring"><span id="velocity-value">—</span><small>FLOW</small></div><div class="velocity-bars"><label>VOLUME 5M <b id="v5m">—</b></label><i id="v5m-bar"></i><label>VOLUME 1H <b id="v1h">—</b></label><i id="v1h-bar"></i><label>BUY / SELL <b id="buy-sell-ratio">—</b></label><i id="ratio-bar"></i></div></div>
+   <div class="micro-grid"><div><span>BUYERS</span><b id="buyers">—</b></div><div><span>SELLERS</span><b id="sellers">—</b></div><div><span>UNIQUE</span><b id="unique-wallets">—</b></div></div>
+  </article>
+ </div>
 </section>
 
-<section class="decision-layout">
- <article class="edge-card"><div class="card-head"><span class="icon purple">ϟ</span><div><span class="eyebrow">DECISION ENGINE</span><h3>Asymmetric Edge</h3></div><em id="edge-status">WAIT</em></div>
-  <div class="edge-main"><div class="ring"><strong id="edge-score">—</strong><span>EDGE</span></div><div class="edge-bars"><label>FLOW <b id="edge-flow">—</b></label><div><i id="edge-flow-bar"></i></div><label>WALLETS <b id="edge-wallet">—</b></label><div><i id="edge-wallet-bar"></i></div><label>NARRATIVE <b id="edge-narrative">—</b></label><div><i id="edge-narrative-bar"></i></div><label>DEV RISK <b id="edge-dev">—</b></label><div><i id="edge-dev-bar"></i></div></div></div>
- </article>
- <article class="decision-card"><div class="card-head"><span class="icon amber">✓</span><div><span class="eyebrow">RISK CONTROLLER</span><h3>Decision</h3></div><em>LIVE LOCKED</em></div>
-  <div id="decision" class="decision watch">🟡 WATCH</div><p id="decision-reason">Full evidence pipeline required.</p><div class="execution"><span>EXECUTION</span><b>🔒 BLOCKED</b></div>
- </article>
+<section class="section">
+ <div class="section-head"><div><span class="eyebrow">03 / SMART MONEY</span><h3>Wallet Intelligence Graph</h3></div><span class="section-status">ON-CHAIN EVIDENCE</span></div>
+ <div class="smart-layout">
+  <article class="glass-card network-card">
+   <div class="network-head"><div><span class="eyebrow">ECONOMIC CLUSTERS</span><h4>Smart Money Flow</h4></div><span id="smart" class="state-chip">NOT EVALUATED</span></div>
+   <canvas id="network-canvas"></canvas>
+   <div class="network-overlay"><div><span>INDEPENDENT SIGNALS</span><b id="independent">—</b></div><div><span>CLUSTERS</span><b id="cluster-count">—</b></div><div><span>SMART MONEY</span><b id="smart-count">—</b></div></div>
+   <div class="network-note">Nodes appear only from evidence returned by the backend. No fabricated wallet identities.</div>
+  </article>
+  <article class="glass-card wallet-profile">
+   <div class="card-top"><div><span class="eyebrow">WALLET FORENSICS</span><h4>Signal Board</h4></div></div>
+   <div class="profile-row"><span class="avatar a1">SM</span><div><b>Smart Money</b><small id="smart-detail">NOT EVALUATED</small></div></div>
+   <div class="profile-row"><span class="avatar a2">DV</span><div><b>Dev DNA</b><small id="dev">NOT EVALUATED</small></div></div>
+   <div class="profile-row"><span class="avatar a3">WG</span><div><b>Wallet Graph</b><small id="cluster">NOT EVALUATED</small></div></div>
+   <div class="profile-row"><span class="avatar a4">FM</span><div><b>Funding Map</b><small id="coordination">NOT EVALUATED</small></div></div>
+   <div class="profile-footer"><span>Reliability</span><b id="wallet-reliability">—</b></div>
+  </article>
+ </div>
 </section>
 
-<section class="section evidence"><div class="section-head"><div><span class="eyebrow">AUDIT TRAIL</span><h3>Evidence Stream</h3></div><button id="toggle-raw">RAW JSON</button></div><div id="evidence" class="evidence-line">No snapshot loaded.</div><pre id="raw" hidden>—</pre></section>
+<section class="section">
+ <div class="section-head"><div><span class="eyebrow">04 / MANIPULATION & EXITABILITY</span><h3>Forensic Threat Map</h3></div><span id="manip" class="section-status">NOT EVALUATED</span></div>
+ <div class="threat-grid">
+  <article class="glass-card threat-card"><div class="threat-visual"><canvas id="threat-canvas"></canvas><div class="threat-score" id="threat-score">—</div></div><div class="threat-list"><div><span>LIQUIDITY</span><b id="liquidity">—</b></div><div><span>EXITABILITY</span><b id="exit">NOT EVALUATED</b></div><div><span>FUNDING / COORDINATION</span><b id="coordination2">NOT EVALUATED</b></div><div><span>DEV SELL RISK</span><b id="devsell">—</b></div></div></article>
+  <article class="glass-card ladder-card"><div class="card-top"><div><span class="eyebrow">LIQUIDITY / EXIT</span><h4>Exitability Ladder</h4></div><span id="exit-badge" class="state-chip">NOT EVALUATED</span></div><div class="ladder"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="ladder-labels"><span>DEEP</span><span>SHALLOW</span><span>BLOCKED</span></div><div class="exit-stats"><div><span>PRICE IMPACT</span><b id="price-impact">—</b></div><div><span>SLIPPAGE</span><b id="slippage">—</b></div><div><span>POSITION SIZE</span><b id="position-size">—</b></div></div></article>
+ </div>
+</section>
+
+<section class="section">
+ <div class="section-head"><div><span class="eyebrow">05 / ASYMMETRIC EDGE</span><h3>Decision Matrix</h3></div><span id="edge-status" class="section-status">WAIT</span></div>
+ <div class="edge-layout">
+  <article class="glass-card edge-card">
+   <div class="edge-ring-wrap"><div class="edge-ring"><strong id="edge-score">—</strong><span>EDGE</span></div><div class="edge-copy"><b id="edge-verdict">WAIT FOR EVIDENCE</b><p id="edge-reason">Every trade must pass evidence + risk veto.</p></div></div>
+   <div class="edge-bars"><div><label>FLOW <b id="edge-flow">—</b></label><i id="edge-flow-bar"></i></div><div><label>WALLETS <b id="edge-wallet">—</b></label><i id="edge-wallet-bar"></i></div><div><label>NARRATIVE <b id="edge-narrative">—</b></label><i id="edge-narrative-bar"></i></div><div><label>DEV RISK <b id="edge-dev">—</b></label><i id="edge-dev-bar"></i></div></div>
+  </article>
+  <article class="glass-card decision-card"><div class="decision-glow"></div><div class="card-top"><div><span class="eyebrow">06 / RISK VETO</span><h4>Execution Controller</h4></div><span class="lock">🔒 LIVE LOCKED</span></div><div id="decision" class="big-decision watch">🟡 WATCH</div><p id="decision-reason">Full evidence pipeline required.</p><div class="veto-grid"><div><span>EV</span><b id="ev">—</b></div><div><span>DAILY RISK</span><b>LIMITED</b></div><div><span>SLIPPAGE</span><b>CONTROLLED</b></div><div><span>KILL SWITCH</span><b>ARMED</b></div></div><div class="execution-bar"><span>EXECUTION</span><b>BLOCKED — PAPER / DRY RUN</b></div></article>
+ </div>
+</section>
+
+<section class="section">
+ <div class="section-head"><div><span class="eyebrow">07 / CAPITAL MISSION</span><h3>Mission Engine</h3></div><span class="section-status">RISK OVERRIDES TARGET</span></div>
+ <article class="glass-card mission-card"><div class="mission-track"><div class="mission-line"><i></i></div><div class="mission-step active"><b>Rp50K</b><small>START</small></div><div class="mission-step"><b>Rp300K</b><small>PHASE 1</small></div><div class="mission-step"><b>Rp800K</b><small>EXPANSION</small></div><div class="mission-step"><b>Rp1.5M</b><small>PHASE 2</small></div><div class="mission-step"><b>Rp5M+</b><small>LONG RUN</small></div></div><p>Mission targets are objectives, not profit guarantees. The risk engine can block every trade.</p></article>
+</section>
+
+<section class="section evidence">
+ <div class="section-head"><div><span class="eyebrow">08 / AUDIT TRAIL</span><h3>Evidence Stream</h3></div><button id="toggle-raw">RAW JSON</button></div>
+ <div class="evidence-grid"><div class="evidence-line" id="evidence">No snapshot loaded.</div><div class="audit-orb"><span id="audit-count">0</span><small>LIVE EVENTS</small></div></div><pre id="raw" hidden>—</pre>
+</section>
+
+<section class="unfinished">
+ <div class="unfinished-scan"></div>
+ <div class="eyebrow">BUILD STATUS</div>
+ <h3>BELUM SEPENUHNYA SELESAI, GUYS.</h3>
+ <p>Sistem MEMECOIN HUNTER masih dalam tahap pembangunan, validasi, dan pengumpulan evidence real. Dashboard ini menampilkan apa yang benar-benar tersedia — bukan data palsu.</p>
+ <div class="build-tags"><span>REAL DATA</span><span>PAPER / DRY RUN</span><span>LIVE LOCKED</span><span>EVIDENCE FIRST</span></div>
+</section>
 </main>
 
-<nav class="bottom-nav"><a class="active">⌂<span>Radar</span></a><a>◉<span>Flow</span></a><a>◎<span>Wallets</span></a><a>⚠<span>Risk</span></a></nav>
+<nav class="bottom-nav"><a class="active">⌂<span>Radar</span></a><a>ϟ<span>Flow</span></a><a>◎<span>Wallets</span></a><a>⚠<span>Risk</span></a></nav>
 </div>
-<script src="/app.js"></script><script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{});</script>
+<script src="/app.js?v=ui5"></script>
+<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js?v=ui5").catch(()=>{});</script>
 </body></html>
