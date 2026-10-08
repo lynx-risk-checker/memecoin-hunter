@@ -110,9 +110,8 @@ class SolanaLogStream:
         if mentions is not None and not mentions.strip():
             raise ValueError("mentions cannot be empty.")
         request_id = 1
-        params: list[Any] = [{"commitment": self.commitment}]
-        if mentions:
-            params[0]["mentions"] = [mentions]
+        filter_value: Any = {"mentions": [mentions]} if mentions else "all"
+        config = {"commitment": self.commitment}
 
         while True:
             try:
@@ -124,7 +123,7 @@ class SolanaLogStream:
                         "jsonrpc": "2.0",
                         "id": request_id,
                         "method": "logsSubscribe",
-                        "params": ["all", params[0]],
+                        "params": [filter_value, config],
                     }))
                     request_id += 1
 
