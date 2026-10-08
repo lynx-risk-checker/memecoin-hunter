@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from unittest.mock import patch
 
 from src.data.dexscreener import DexScreenerClient
 from src.radar.models import TokenCandidate
@@ -56,9 +57,9 @@ def test_dexscreener_maps_m5_h1_volume_and_transactions():
         },
     }]
 
-    client.latest_profiles = lambda: profiles
-    client.token_pairs = lambda _: pairs
-    result = client.discover()
+    with patch.object(DexScreenerClient, "latest_profiles", return_value=profiles):
+        with patch.object(DexScreenerClient, "token_pairs", return_value=pairs):
+            result = client.discover()
 
     assert result[0].volume_5m_usd == 25000.0
     assert result[0].volume_1h_usd == 100000.0
