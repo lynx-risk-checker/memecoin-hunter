@@ -7,7 +7,7 @@ name = "memecoin-hunter"
 version = "0.1.0"
 description = "Evidence-first Solana spot meme-coin research and paper-trading engine"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = ["websockets>=13,<16"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8,<9"]
