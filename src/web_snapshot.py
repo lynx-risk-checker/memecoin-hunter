@@ -10,6 +10,8 @@ from typing import Any
 
 from src.data.dexscreener import DexScreenerClient, DexScreenerError
 from src.data.solana_rpc import SolanaRPCClient, SolanaRPCError
+from src.wallets.history import collect_wallet_transactions
+from src.wallets.swap_evidence import extract_balance_flow_swaps
 from src.radar.token_radar import RadarPolicy, filter_candidates
 
 
@@ -29,6 +31,7 @@ def build_snapshot(
     observed_at = datetime.now(timezone.utc).isoformat()
     rpc_url = os.getenv("SOLANA_RPC_URL", "").strip()
     rpc_status: dict[str, Any] = {"status": "NOT_CONFIGURED"}
+    rpc: Any = rpc_client
     if rpc_client is not None:
         try:
             rpc_status = {"status": "CONNECTED", "health": rpc_client.get_health(), "slot": rpc_client.get_slot()}
@@ -55,8 +58,37 @@ def build_snapshot(
             "opportunities": [],
         }
 
+    watched_wallets = list(dict.fromkeys(
+        wallet.strip()
+        for wallet in os.getenv("WATCHED_WALLET_ADDRESSES", "").split(",")
+        if wallet.strip()
+    ))[:10]
+    wallet_transactions: dict[str, tuple[Any, ...]] = {}
+    wallet_collection_status = "NOT_CONFIGURED" if not watched_wallets else "UNAVAILABLE"
+    if watched_wallets and rpc is not None and rpc_status.get("status") == "CONNECTED":
+        try:
+            for wallet in watched_wallets:
+                wallet_transactions[wallet] = tuple(
+                    item.transaction for item in collect_wallet_transactions(rpc, wallet, limit=5)
+                )
+            wallet_collection_status = "COLLECTED"
+        except (SolanaRPCError, ValueError, OSError) as exc:
+            wallet_collection_status = "UNAVAILABLE"
+            rpc_status = {**rpc_status, "wallet_collection_error": str(exc)}
+
     opportunities: list[dict[str, Any]] = []
     for candidate in candidates:
+        observed_swaps = []
+        if wallet_collection_status == "COLLECTED":
+            for wallet, transactions in wallet_transactions.items():
+                observed_swaps.extend(
+                    extract_balance_flow_swaps(
+                        wallet, transactions, target_mint=candidate.address, quote_mint="SOL"
+                    )
+                )
+        onchain_buys = [swap for swap in observed_swaps if swap.direction == "BUY"]
+        onchain_sells = [swap for swap in observed_swaps if swap.direction == "SELL"]
+
         txns_per_minute = (
             candidate.txn_count_5m / 5.0
             if candidate.txn_count_5m is not None
@@ -86,14 +118,20 @@ def build_snapshot(
                 "cluster_status": "NOT_EVALUATED",
                 "exitability": "NOT_EVALUATED",
                 "manipulation_status": "NOT_EVALUATED",
-                "evidence_status": "MARKET_ACTIVITY_ONLY",
+                "evidence_status": "ONCHAIN_WALLET_FLOW_OBSERVED" if observed_swaps else "MARKET_ACTIVITY_ONLY",
+                "onchain_flow_status": wallet_collection_status,
+                "onchain_buy_txns": len(onchain_buys) if wallet_collection_status == "COLLECTED" else None,
+                "onchain_sell_txns": len(onchain_sells) if wallet_collection_status == "COLLECTED" else None,
+                "tracked_wallet_buyers": len({swap_wallet for swap_wallet in wallet_transactions if any(swap.signature == tx.signature and swap.direction == "BUY" for tx in onchain_buys for swap in extract_balance_flow_swaps(swap_wallet, wallet_transactions[swap_wallet], target_mint=candidate.address, quote_mint="SOL"))}) if wallet_collection_status == "COLLECTED" else None,
+                "tracked_wallet_sellers": len({swap_wallet for swap_wallet in wallet_transactions if any(swap.signature == tx.signature and swap.direction == "SELL" for tx in onchain_sells for swap in extract_balance_flow_swaps(swap_wallet, wallet_transactions[swap_wallet], target_mint=candidate.address, quote_mint="SOL"))}) if wallet_collection_status == "COLLECTED" else None,
+                "onchain_signatures": list(dict.fromkeys(swap.signature for swap in observed_swaps if swap.signature))[:5],
             }
         )
 
     return {
         "service": "memecoin-hunter",
         "source": "dexscreener",
-        "sources": {"dexscreener": {"status": "CONNECTED"}, "solana_rpc": rpc_status},
+        "sources": {"dexscreener": {"status": "CONNECTED"}, "solana_rpc": rpc_status, "watched_wallets": {"status": wallet_collection_status, "configured_count": len(watched_wallets), "collected_count": len(wallet_transactions)}},
         "observed_at": observed_at,
         "status": "READY",
         "mode": "PAPER / DRY RUN",
