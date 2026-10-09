@@ -20,6 +20,10 @@ class FakeClient:
                 volume_1h_usd=5000,
                 txn_count_5m=25,
                 txn_count_1h=100,
+                buy_txns_5m=17,
+                sell_txns_5m=8,
+                buy_txns_1h=70,
+                sell_txns_1h=30,
             )
         ]
 
@@ -35,7 +39,12 @@ def test_build_snapshot_exposes_real_radar_fields_without_inventing_edge():
     assert item["volume_1h_usd"] == 5000.0
     assert item["txn_count_5m"] == 25
     assert item["txns_per_minute"] == 5.0
-    assert item["decision"] == "🟡 WATCH"
+    assert item["buy_txns_5m"] == 17
+    assert item["sell_txns_5m"] == 8
+    assert item["buy_txns_1h"] == 70
+    assert item["sell_txns_1h"] == 30
+    assert item["decision"] == "WAIT"
+    assert item["evidence_status"] == "MARKET_ACTIVITY_ONLY"
     assert item["smart_money_status"] == "NOT_EVALUATED"
 
 
