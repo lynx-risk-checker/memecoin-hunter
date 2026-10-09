@@ -149,17 +149,27 @@ class DexScreenerClient:
             volume_1h_usd = self._number(volume.get("h1")) if isinstance(volume, dict) else None
             txn_count_5m = None
             txn_count_1h = None
+            buy_txns_5m = sell_txns_5m = None
+            buy_txns_1h = sell_txns_1h = None
             if isinstance(txns, dict):
                 m5 = txns.get("m5")
                 h1 = txns.get("h1")
                 if isinstance(m5, dict):
                     buys = self._number(m5.get("buys"))
                     sells = self._number(m5.get("sells"))
+                    if buys is not None:
+                        buy_txns_5m = int(buys)
+                    if sells is not None:
+                        sell_txns_5m = int(sells)
                     if buys is not None and sells is not None:
                         txn_count_5m = int(buys + sells)
                 if isinstance(h1, dict):
                     buys = self._number(h1.get("buys"))
                     sells = self._number(h1.get("sells"))
+                    if buys is not None:
+                        buy_txns_1h = int(buys)
+                    if sells is not None:
+                        sell_txns_1h = int(sells)
                     if buys is not None and sells is not None:
                         txn_count_1h = int(buys + sells)
 
@@ -177,6 +187,10 @@ class DexScreenerClient:
                     volume_1h_usd=volume_1h_usd,
                     txn_count_5m=txn_count_5m,
                     txn_count_1h=txn_count_1h,
+                    buy_txns_5m=buy_txns_5m,
+                    sell_txns_5m=sell_txns_5m,
+                    buy_txns_1h=buy_txns_1h,
+                    sell_txns_1h=sell_txns_1h,
                 )
             )
             seen.add(address)
