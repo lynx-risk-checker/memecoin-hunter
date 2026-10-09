@@ -16,6 +16,7 @@ def test_discover_maps_solana_profile_and_pair():
             "pairCreatedAt": 1_700_000_000_000,
             "liquidity": {"usd": 1234.5},
             "marketCap": 9876.5,
+            "txns": {"m5": {"buys": 17, "sells": 8}, "h1": {"buys": 90, "sells": 40}},
         }
     ]
 
@@ -28,6 +29,11 @@ def test_discover_maps_solana_profile_and_pair():
     assert result[0].source == "dexscreener"
     assert result[0].liquidity_usd == 1234.5
     assert result[0].market_cap_usd == 9876.5
+    assert result[0].buy_txns_5m == 17
+    assert result[0].sell_txns_5m == 8
+    assert result[0].buy_txns_1h == 90
+    assert result[0].sell_txns_1h == 40
+    assert result[0].txn_count_5m == 25
     assert result[0].age_seconds is not None
 
 
