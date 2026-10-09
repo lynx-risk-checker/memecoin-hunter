@@ -25,6 +25,51 @@ canvas.chart{width:100%;height:150px;display:block}.flow-values{display:grid;gri
 @keyframes sweep{from{left:-5%}to{left:105%}}@keyframes ladder{to{transform:scaleY(.7)}}@keyframes pulse{50%{opacity:.45}}
 @media(max-width:720px){#app{padding:0 8px}.hero{grid-template-columns:1fr;min-height:500px;padding:14px}.hero-score{position:absolute;right:16px;top:15px}.hero-score b{font-size:36px}.hero-copy{padding-right:95px}.hero h2{font-size:27px}.hero canvas{height:230px}.grid,.threat-grid{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.metric:last-child{grid-column:1/-1}.radar-list{grid-template-columns:1fr 1fr}.score-box{grid-template-columns:105px 1fr}.score-ring{width:98px;height:98px}.mission{grid-column:auto}}
 @media(max-width:390px){.radar-list{grid-template-columns:1fr}.mini-stats{grid-template-columns:repeat(2,1fr)}.decision-grid{grid-template-columns:1fr 1fr}}
+
+/* UI12: mobile readability and evidence-first panels */
+html{scroll-behavior:smooth;scroll-padding-top:82px}
+body{font-size:14px}
+.card{box-shadow:inset 0 1px #ffffff08,0 12px 32px #0005;transition:border-color .2s,transform .2s}
+.card:hover{border-color:#2b4650}
+.eyebrow{font-size:9px;letter-spacing:.16em}
+.card-head h3{font-size:15px;letter-spacing:-.025em}
+.badge{font-size:8px;padding:5px 8px}
+.row{font-size:11px;padding:10px 0}
+.row span,.metric span,.mini-stats span,.flow-values span{font-size:8px;letter-spacing:.08em}
+.row b,.mini-stats b,.flow-values b{font-size:11px}
+.hero-copy p{font-size:13px;line-height:1.6}
+.chip{font-size:9px;padding:6px 8px}
+.token-card{border:1px solid #1a2a37;border-radius:10px;background:linear-gradient(145deg,#0b141c,#080c12);padding:11px;min-width:0}
+.token-card b{font-size:14px;letter-spacing:.01em}
+.token-card small{font-size:10px;line-height:1.6}
+.card canvas{filter:drop-shadow(0 0 6px #00ff9a10)}
+.evidence-note{padding:14px;border:1px solid #1c3540;border-radius:10px;background:linear-gradient(135deg,#09151b,#080d13);color:#8799aa;font-size:11px;line-height:1.6}
+.evidence-note b{display:block;color:#dce8f2;font-size:12px;margin-bottom:5px}
+.evidence-pulse{display:inline-block;width:7px;height:7px;border-radius:50%;background:#f6b73c;box-shadow:0 0 12px #f6b73c66;margin-right:7px;animation:pulse 1.5s infinite}
+.ladder{display:none!important}
+@media(max-width:720px){
+  header{padding:10px 12px;height:62px}
+  .brand small{font-size:8px}
+  .brand b{font-size:11px}
+  .status{font-size:8px}
+  .hero{min-height:410px}
+  .hero-copy{padding-right:70px}
+  .hero h2{font-size:25px;overflow-wrap:anywhere}
+  .hero-score b{font-size:32px}
+  .card{padding:13px}
+  .card-head{gap:8px}
+  .card-head h3{font-size:14px}
+  .metric{padding:10px}
+  .metric b{font-size:12px}
+  .token-card b{font-size:13px}
+  .row span{font-size:9px}
+  .row b{font-size:10px;text-align:right}
+  .bottom span{font-size:8px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition:none!important}
+}
+
 </style></head>
 <body><div id="app">
 <header><div class="brand"><div class="logo">MH</div><div><small>SOLANA INTELLIGENCE</small><b>MEMECOIN HUNTER</b></div></div><div class="status"><i class="dot"></i><span id="connection">CONNECTING • PAPER</span><button id="refresh">↻</button></div></header>
@@ -32,13 +77,13 @@ canvas.chart{width:100%;height:150px;display:block}.flow-values{display:grid;gri
 <section class="hero"><div class="hero-copy"><div class="eyebrow">EARLY OPPORTUNITY</div><h2 id="hero-token">SCANNING SOLANA</h2><p id="hero-reason">Menunggu snapshot real market.</p><div class="chips"><span class="chip amber" id="hero-decision">WATCH</span><span class="chip" id="hero-evidence">RADAR ONLY</span><span class="chip lock">LIVE LOCKED</span></div></div><canvas id="radar" aria-label="radar"></canvas><div class="hero-score"><small>ASYMMETRIC EDGE</small><b id="hero-score">—</b><small>/ 1.00</small><div class="score-state" id="score-state">WAITING FOR EVIDENCE</div></div></section>
 <section class="metrics"><div class="metric"><span>MARKET CAP</span><b id="hero-mc">—</b></div><div class="metric"><span>LIQUIDITY</span><b id="hero-liq">—</b></div><div class="metric"><span>VOL 5M</span><b id="hero-v5m">—</b></div><div class="metric"><span>TX / MIN</span><b id="hero-tx">—</b></div><div class="metric"><span>MISSION</span><b>Rp50K → Rp300K</b></div></section>
 <div class="grid">
-<section id="radar-section" class="card"><div class="card-head"><div><div class="eyebrow">01 / DISCOVERY</div><h3>⚗ TOKEN RADAR</h3></div><span class="badge">REAL DATA</span></div><div id="opportunities" class="radar-list"><div class="token-card"><b>WAITING</b><small>Backend snapshot pending</small></div><div class="token-card"><b>—</b><small>No synthetic signal</small></div></div><div class="mini-stats"><div><span>VOL 5M</span><b id="v5m">—</b></div><div><span>VOL 1H</span><b id="v1h">—</b></div><div><span>TX/MIN</span><b id="txns">—</b></div><div><span>EVIDENCE</span><b id="flow-title">RADAR</b></div></div></section>
+<section id="radar-section" class="card"><div class="card-head"><div><div class="eyebrow">01 / DISCOVERY</div><h3>⚗ TOKEN RADAR</h3></div><span class="badge">DEXSCREENER SNAPSHOT</span></div><div id="opportunities" class="radar-list"><div class="token-card"><b>WAITING</b><small>Backend snapshot pending</small></div><div class="token-card"><b>—</b><small>No synthetic signal</small></div></div><div class="mini-stats"><div><span>VOL 5M</span><b id="v5m">—</b></div><div><span>VOL 1H</span><b id="v1h">—</b></div><div><span>TX/MIN</span><b id="txns">—</b></div><div><span>EVIDENCE</span><b id="flow-title">RADAR</b></div></div></section>
 <section id="edge-section" class="card"><div class="card-head"><div><div class="eyebrow">05 / EDGE</div><h3>⚡ EDGE SCORE</h3></div><span class="badge" id="edge-status">WAIT</span></div><div class="score-box"><div class="score-ring"><b id="edge-score">—</b><small>EDGE / 100</small></div><div class="bars"><div class="bar"><label>FLOW <b id="edge-flow">—</b></label><div class="bar-track"><i id="edge-flow-bar"></i></div></div><div class="bar"><label>WALLETS <b id="edge-wallet">—</b></label><div class="bar-track"><i id="edge-wallet-bar"></i></div></div><div class="bar"><label>NARRATIVE <b id="edge-narrative">—</b></label><div class="bar-track"><i id="edge-narrative-bar"></i></div></div><div class="bar"><label>DEV RISK <b id="edge-dev">—</b></label><div class="bar-track"><i id="edge-dev-bar"></i></div></div></div></div></section>
 <section id="flow-section" class="card"><div class="card-head"><div><div class="eyebrow">02 / FLOW</div><h3>📊 NET FLOW & VELOCITY</h3></div><span class="badge">STREAM</span></div><canvas class="chart" id="flow-canvas"></canvas><div class="flow-values"><div><span>BUY TXNS · 5M</span><b class="green" id="buy-value">—</b></div><div><span>SELL TXNS · 5M</span><b class="red" id="sell-value">—</b></div><div><span>BUY/SELL</span><b id="buy-sell-ratio">—</b></div></div></section>
 <section id="risk-section" class="card"><div class="card-head"><div><div class="eyebrow">06 / RISK</div><h3>🛡️ RISK VETO</h3></div><span class="badge red">LIVE LOCKED</span></div><div class="decision" id="decision">🟡 WATCH</div><div id="decision-reason" style="font-size:8px;color:#718196;margin-bottom:10px">Full evidence pipeline required.</div><div class="veto"><div>◌ LIQUIDITY<b class="amber">OBSERVED, NOT SIMULATED</b></div><div>◌ HONEYPOT<b class="red">NOT CHECKED</b></div><div>◌ FREEZE AUTH<b class="red">NOT CHECKED</b></div><div>◌ SYNC SELL<b class="red">NOT EVALUATED</b></div></div><div class="decision-grid" style="margin-top:10px"><div>BUY ALLOWED</div><div class="active">WATCH</div><div>WAIT</div><div>BUY BLOCKED</div></div></section>
 <section id="wallets-section" class="card"><div class="card-head"><div><div class="eyebrow">03 / SMART MONEY</div><h3>👥 WALLET INTELLIGENCE</h3></div><span class="badge" id="smart">NOT EVALUATED</span></div><canvas class="chart" id="network-canvas"></canvas><div class="mini-stats"><div><span>INDEPENDENT</span><b id="independent">—</b></div><div><span>CLUSTERS</span><b id="cluster-count">—</b></div><div><span>SMART MONEY</span><b id="smart-count">—</b></div><div><span>RELIABILITY</span><b id="wallet-reliability">—</b></div></div></section>
 <section class="card"><div class="card-head"><div><div class="eyebrow">04 / FORENSICS</div><h3>🧬 DEV DNA & MANIPULATION</h3></div><span class="badge" id="manip">NOT EVALUATED</span></div><div class="list"><div class="row"><span>DEV STATUS</span><b id="dev">NOT EVALUATED</b></div><div class="row"><span>CLUSTER STATUS</span><b id="cluster">NOT EVALUATED</b></div><div class="row"><span>COORDINATION</span><b id="coordination">NOT EVALUATED</b></div><div class="row"><span>DEV SELL RISK</span><b id="devsell">—</b></div><div class="row"><span>MANIPULATION SCORE</span><b id="threat-score">—</b></div></div></section>
-<section class="card"><div class="card-head"><div><div class="eyebrow">04B / EXITABILITY</div><h3>🚨 LIQUIDITY LADDER</h3></div><span class="badge" id="exit-badge">NOT EVALUATED</span></div><div class="ladder"><i style="--h:20%"></i><i style="--h:38%"></i><i style="--h:55%"></i><i style="--h:72%"></i><i style="--h:88%"></i><i style="--h:78%"></i><i style="--h:64%"></i><i style="--h:48%"></i><i style="--h:34%"></i><i style="--h:23%"></i></div><div class="mini-stats"><div><span>LIQUIDITY</span><b id="liquidity">—</b></div><div><span>EXIT</span><b id="exit">—</b></div><div><span>IMPACT</span><b id="price-impact">—</b></div><div><span>SLIPPAGE</span><b id="slippage">—</b></div></div></section>
+<section class="card"><div class="card-head"><div><div class="eyebrow">04B / EXITABILITY</div><h3>🚨 LIQUIDITY LADDER</h3></div><span class="badge" id="exit-badge">NOT EVALUATED</span></div><div class="evidence-note"><b><span class="evidence-pulse"></span>ORDER-BOOK DEPTH NOT CONNECTED</b>Grafik kedalaman likuiditas belum ditampilkan karena snapshot radar tidak menyediakan order book Solana yang terverifikasi. Estimasi exit dan slippage tetap menunggu bukti transaksi serta pool yang sesuai.</div><div class="mini-stats"><div><span>OBSERVED LIQUIDITY</span><b id="liquidity">—</b></div><div><span>EXITABILITY</span><b id="exit">NOT EVALUATED</b></div><div><span>PRICE IMPACT</span><b id="price-impact">—</b></div><div><span>SLIPPAGE</span><b id="slippage">—</b></div></div></section>
 <section id="mission-section" class="card mission"><div class="card-head"><div><div class="eyebrow">07 / CAPITAL MISSION</div><h3>🎯 MISSION ENGINE</h3></div><span class="badge">RISK OVERRIDES</span></div><div class="mission-line"><i></i></div><div class="mission-points"><div><b>Rp50K</b><small>START</small></div><div><b>Rp300K</b><small>PHASE 1</small></div><div><b>Rp800K</b><small>EXPANSION</small></div><div><b>Rp1.5M</b><small>PHASE 2</small></div><div><b>Rp5M+</b><small>LONG RUN</small></div></div></section>
 </div>
 <section class="footer-note"><div class="eyebrow">BUILD STATUS</div><h3>BELUM SEPENUHNYA SELESAI, GUYS.</h3><p>Sistem MEMECOIN HUNTER masih dalam tahap pembangunan, validasi, dan pengumpulan evidence real. Dashboard menampilkan data yang benar-benar tersedia — bukan data palsu.</p></section>
