@@ -79,13 +79,15 @@ def build_snapshot(
     opportunities: list[dict[str, Any]] = []
     for candidate in candidates:
         observed_swaps = []
+        wallets_by_direction: dict[str, set[str]] = {"BUY": set(), "SELL": set()}
         if wallet_collection_status == "COLLECTED":
             for wallet, transactions in wallet_transactions.items():
-                observed_swaps.extend(
-                    extract_balance_flow_swaps(
-                        wallet, transactions, target_mint=candidate.address, quote_mint="SOL"
-                    )
+                wallet_swaps = extract_balance_flow_swaps(
+                    wallet, transactions, target_mint=candidate.address, quote_mint="SOL"
                 )
+                observed_swaps.extend(wallet_swaps)
+                for swap in wallet_swaps:
+                    wallets_by_direction[swap.direction].add(wallet)
         onchain_buys = [swap for swap in observed_swaps if swap.direction == "BUY"]
         onchain_sells = [swap for swap in observed_swaps if swap.direction == "SELL"]
 
@@ -122,8 +124,8 @@ def build_snapshot(
                 "onchain_flow_status": wallet_collection_status,
                 "onchain_buy_txns": len(onchain_buys) if wallet_collection_status == "COLLECTED" else None,
                 "onchain_sell_txns": len(onchain_sells) if wallet_collection_status == "COLLECTED" else None,
-                "tracked_wallet_buyers": len({swap_wallet for swap_wallet in wallet_transactions if any(swap.signature == tx.signature and swap.direction == "BUY" for tx in onchain_buys for swap in extract_balance_flow_swaps(swap_wallet, wallet_transactions[swap_wallet], target_mint=candidate.address, quote_mint="SOL"))}) if wallet_collection_status == "COLLECTED" else None,
-                "tracked_wallet_sellers": len({swap_wallet for swap_wallet in wallet_transactions if any(swap.signature == tx.signature and swap.direction == "SELL" for tx in onchain_sells for swap in extract_balance_flow_swaps(swap_wallet, wallet_transactions[swap_wallet], target_mint=candidate.address, quote_mint="SOL"))}) if wallet_collection_status == "COLLECTED" else None,
+                "tracked_wallet_buyers": len(wallets_by_direction["BUY"]) if wallet_collection_status == "COLLECTED" else None,
+                "tracked_wallet_sellers": len(wallets_by_direction["SELL"]) if wallet_collection_status == "COLLECTED" else None,
                 "onchain_signatures": list(dict.fromkeys(swap.signature for swap in observed_swaps if swap.signature))[:5],
             }
         )
