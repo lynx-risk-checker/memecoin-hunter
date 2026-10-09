@@ -18,6 +18,10 @@ class TokenCandidate:
     volume_1h_usd: float | None = None
     txn_count_5m: int | None = None
     txn_count_1h: int | None = None
+    buy_txns_5m: int | None = None
+    sell_txns_5m: int | None = None
+    buy_txns_1h: int | None = None
+    sell_txns_1h: int | None = None
 
     def __post_init__(self) -> None:
         if not self.address.strip():
@@ -34,7 +38,7 @@ class TokenCandidate:
             value = getattr(self, name)
             if value is not None and value < 0:
                 raise ValueError(f"{name} cannot be negative.")
-        for name in ("txn_count_5m", "txn_count_1h"):
+        for name in ("txn_count_5m", "txn_count_1h", "buy_txns_5m", "sell_txns_5m", "buy_txns_1h", "sell_txns_1h"):
             value = getattr(self, name)
             if value is not None and value < 0:
                 raise ValueError(f"{name} cannot be negative.")
