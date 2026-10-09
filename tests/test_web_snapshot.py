@@ -33,6 +33,8 @@ def test_build_snapshot_exposes_real_radar_fields_without_inventing_edge():
     assert snapshot["status"] == "READY"
     assert snapshot["execution"] == "LOCKED"
     assert snapshot["validation_status"] == "INSUFFICIENT_EVIDENCE"
+    assert snapshot["sources"]["dexscreener"]["status"] == "CONNECTED"
+    assert snapshot["sources"]["solana_rpc"]["status"] == "NOT_CONFIGURED"
     item = snapshot["opportunities"][0]
     assert item["symbol"] == "TEST"
     assert item["volume_5m_usd"] == 1000.0
@@ -60,3 +62,20 @@ def test_build_snapshot_fails_closed_on_data_error():
         assert str(exc) == "network"
     else:
         raise AssertionError("unexpected errors must not be hidden")
+
+
+
+def test_build_snapshot_reports_configured_solana_rpc_health():
+    class FakeRPC:
+        def get_health(self):
+            return "ok"
+
+        def get_slot(self):
+            return 123456
+
+    snapshot = build_snapshot(FakeClient(), max_tokens=1, rpc_client=FakeRPC())
+    assert snapshot["sources"]["solana_rpc"] == {
+        "status": "CONNECTED",
+        "health": "ok",
+        "slot": 123456,
+    }
