@@ -9,6 +9,7 @@ from urllib.parse import urlsplit
 from typing import Any
 
 from src.data.dexscreener import DexScreenerClient, DexScreenerError
+from src.data.solana_rpc import SolanaRPCClient, SolanaRPCError
 from src.radar.token_radar import RadarPolicy, filter_candidates
 
 
@@ -21,10 +22,24 @@ def build_snapshot(
     *,
     max_tokens: int = 10,
     policy: RadarPolicy | None = None,
+    rpc_client: SolanaRPCClient | None = None,
 ) -> dict[str, Any]:
     client = client or DexScreenerClient()
     policy = policy or RadarPolicy()
     observed_at = datetime.now(timezone.utc).isoformat()
+    rpc_url = os.getenv("SOLANA_RPC_URL", "").strip()
+    rpc_status: dict[str, Any] = {"status": "NOT_CONFIGURED"}
+    if rpc_client is not None:
+        try:
+            rpc_status = {"status": "CONNECTED", "health": rpc_client.get_health(), "slot": rpc_client.get_slot()}
+        except (SolanaRPCError, ValueError, OSError) as exc:
+            rpc_status = {"status": "UNAVAILABLE", "error": str(exc)}
+    elif rpc_url:
+        try:
+            rpc = SolanaRPCClient(rpc_url, timeout_seconds=2.5)
+            rpc_status = {"status": "CONNECTED", "health": rpc.get_health(), "slot": rpc.get_slot()}
+        except (SolanaRPCError, ValueError, OSError) as exc:
+            rpc_status = {"status": "UNAVAILABLE", "error": str(exc)}
     try:
         candidates = client.discover(max_tokens=max_tokens)
         candidates = filter_candidates(candidates, policy)
@@ -32,6 +47,7 @@ def build_snapshot(
         return {
             "service": "memecoin-hunter",
             "source": "dexscreener",
+            "sources": {"dexscreener": {"status": "UNAVAILABLE"}, "solana_rpc": rpc_status},
             "observed_at": observed_at,
             "status": "DATA_UNAVAILABLE",
             "validation_status": "INSUFFICIENT_EVIDENCE",
@@ -77,6 +93,7 @@ def build_snapshot(
     return {
         "service": "memecoin-hunter",
         "source": "dexscreener",
+        "sources": {"dexscreener": {"status": "CONNECTED"}, "solana_rpc": rpc_status},
         "observed_at": observed_at,
         "status": "READY",
         "mode": "PAPER / DRY RUN",
