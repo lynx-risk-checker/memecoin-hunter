@@ -1,3 +1,4 @@
+from dataclasses import replace
 from datetime import datetime, timezone
 
 from src.radar.models import TokenCandidate
@@ -79,3 +80,23 @@ def test_build_snapshot_reports_configured_solana_rpc_health():
         "health": "ok",
         "slot": 123456,
     }
+
+
+
+def test_snapshot_displays_real_candidates_when_all_fail_radar_policy():
+    class OlderCandidateClient:
+        def discover(self, max_tokens=10):
+            return [replace(FakeClient().discover()[0], age_seconds=600)]
+
+    snapshot = build_snapshot(OlderCandidateClient(), max_tokens=1)
+    assert snapshot["discovery"] == {
+        "discovered_candidate_count": 1,
+        "qualifying_candidate_count": 0,
+        "displayed_candidate_count": 1,
+        "display_mode": "FILTERED_FALLBACK",
+    }
+    item = snapshot["opportunities"][0]
+    assert item["symbol"] == "TEST"
+    assert item["radar_eligibility"] == "FILTERED_BY_RADAR_POLICY"
+    assert item["decision"] == "WAIT"
+    assert snapshot["execution"] == "LOCKED"
