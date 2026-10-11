@@ -48,3 +48,34 @@ def filter_candidates(
                 continue
         result.append(candidate)
     return result
+
+
+def candidate_filter_reasons(
+    candidate: TokenCandidate, policy: RadarPolicy
+) -> list[str]:
+    """Return the exact policy checks that exclude a candidate.
+
+    Missing optional measurements are reported only when the active policy
+    requires them. This function explains filtering; it never changes eligibility.
+    """
+    reasons: list[str] = []
+    if candidate.age_seconds is not None and candidate.age_seconds > policy.max_age_seconds:
+        reasons.append("PAIR_AGE_EXCEEDS_MAX_AGE")
+    if policy.require_liquidity and candidate.liquidity_usd is None:
+        reasons.append("LIQUIDITY_UNKNOWN")
+    elif candidate.liquidity_usd is not None and candidate.liquidity_usd < policy.min_liquidity_usd:
+        reasons.append("LIQUIDITY_BELOW_MINIMUM")
+    if policy.min_volume_5m_usd > 0 and (
+        candidate.volume_5m_usd is None or candidate.volume_5m_usd < policy.min_volume_5m_usd
+    ):
+        reasons.append("VOLUME_5M_BELOW_MINIMUM_OR_UNKNOWN")
+    if policy.min_volume_1h_usd > 0 and (
+        candidate.volume_1h_usd is None or candidate.volume_1h_usd < policy.min_volume_1h_usd
+    ):
+        reasons.append("VOLUME_1H_BELOW_MINIMUM_OR_UNKNOWN")
+    if policy.min_txns_5m_per_minute > 0 and (
+        candidate.txn_count_5m is None
+        or candidate.txn_count_5m / 5.0 < policy.min_txns_5m_per_minute
+    ):
+        reasons.append("TXNS_5M_PER_MINUTE_BELOW_MINIMUM_OR_UNKNOWN")
+    return reasons
