@@ -98,5 +98,6 @@ def test_snapshot_displays_real_candidates_when_all_fail_radar_policy():
     item = snapshot["opportunities"][0]
     assert item["symbol"] == "TEST"
     assert item["radar_eligibility"] == "FILTERED_BY_RADAR_POLICY"
+    assert item["radar_filter_reasons"] == ["PAIR_AGE_EXCEEDS_MAX_AGE"]
     assert item["decision"] == "WAIT"
     assert snapshot["execution"] == "LOCKED"
