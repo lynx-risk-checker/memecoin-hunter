@@ -12,7 +12,7 @@ from src.data.dexscreener import DexScreenerClient, DexScreenerError
 from src.data.solana_rpc import SolanaRPCClient, SolanaRPCError
 from src.wallets.history import collect_wallet_transactions
 from src.wallets.swap_evidence import extract_balance_flow_swaps
-from src.radar.token_radar import RadarPolicy, filter_candidates
+from src.radar.token_radar import RadarPolicy, candidate_filter_reasons, filter_candidates
 
 
 def _number(value: float | int | None) -> float | None:
@@ -114,6 +114,7 @@ def build_snapshot(
                     "Real DEX candidate shown for visibility, but it did not pass the current radar policy. Entry remains blocked."
                 ),
                 "radar_eligibility": "QUALIFIES_FOR_RADAR" if radar_eligible else "FILTERED_BY_RADAR_POLICY",
+                "radar_filter_reasons": [] if radar_eligible else candidate_filter_reasons(candidate, policy),
                 "liquidity_usd": _number(candidate.liquidity_usd),
                 "market_cap_usd": _number(candidate.market_cap_usd),
                 "age_seconds": _number(candidate.age_seconds),
