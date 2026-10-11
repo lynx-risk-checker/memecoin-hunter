@@ -141,7 +141,7 @@ $("refresh").onclick=refresh;
 const route=(el,target,group)=>{el.addEventListener("click",()=>{const node=$(target);if(node)node.scrollIntoView({behavior:"smooth",block:"start"});group.forEach(x=>x.classList.toggle("active",x===el));});};
 const topTabs=[...document.querySelectorAll(".tabs .tab")];
 [["radar-section",topTabs[0]],["edge-section",topTabs[1]],["wallets-section",topTabs[2]]].forEach(([target,el])=>route(el,target,topTabs));
-const bottomTabs=[...document.querySelectorAll(".bottom>div")];
+const bottomTabs=[...document.querySelectorAll(".bottom button")];
 [["radar-section",bottomTabs[0]],["radar-section",bottomTabs[1]],["wallets-section",bottomTabs[2]],["risk-section",bottomTabs[3]]].forEach(([target,el])=>route(el,target,bottomTabs));
 let tick=0;function loop(t){radar(t);chart(t);network(t);requestAnimationFrame(loop)}requestAnimationFrame(loop);refresh();setInterval(refresh,12000);window.onresize=()=>{};</script>
 <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js?v=ui16").catch(()=>{});</script></body></html>
