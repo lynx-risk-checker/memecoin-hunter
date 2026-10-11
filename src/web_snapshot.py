@@ -44,8 +44,13 @@ def build_snapshot(
         except (SolanaRPCError, ValueError, OSError) as exc:
             rpc_status = {"status": "UNAVAILABLE", "error": str(exc)}
     try:
-        candidates = client.discover(max_tokens=max_tokens)
-        candidates = filter_candidates(candidates, policy)
+        discovered_candidates = client.discover(max_tokens=max_tokens)
+        candidates = filter_candidates(discovered_candidates, policy)
+        # Keep genuine discovered market candidates visible when the strict
+        # early-radar policy rejects every candidate. They remain WAIT-only and
+        # are explicitly marked as filtered; never manufacture placeholder data.
+        display_candidates = candidates if candidates else discovered_candidates[:max_tokens]
+        eligible_addresses = {candidate.address for candidate in candidates}
     except (DexScreenerError, ValueError) as exc:
         return {
             "service": "memecoin-hunter",
@@ -77,7 +82,8 @@ def build_snapshot(
             rpc_status = {**rpc_status, "wallet_collection_error": str(exc)}
 
     opportunities: list[dict[str, Any]] = []
-    for candidate in candidates:
+    for candidate in display_candidates:
+        radar_eligible = candidate.address in eligible_addresses
         observed_swaps = []
         wallets_by_direction: dict[str, set[str]] = {"BUY": set(), "SELL": set()}
         if wallet_collection_status == "COLLECTED":
@@ -102,7 +108,12 @@ def build_snapshot(
                 "symbol": candidate.symbol,
                 "name": candidate.name,
                 "decision": "WAIT",
-                "reason": "Market radar only. Wallet/on-chain flow, expected value, and security evidence are not yet evaluated; entry remains blocked.",
+                "reason": (
+                    "Market radar only. Wallet/on-chain flow, expected value, and security evidence are not yet evaluated; entry remains blocked."
+                    if radar_eligible else
+                    "Real DEX candidate shown for visibility, but it did not pass the current radar policy. Entry remains blocked."
+                ),
+                "radar_eligibility": "QUALIFIES_FOR_RADAR" if radar_eligible else "FILTERED_BY_RADAR_POLICY",
                 "liquidity_usd": _number(candidate.liquidity_usd),
                 "market_cap_usd": _number(candidate.market_cap_usd),
                 "age_seconds": _number(candidate.age_seconds),
@@ -139,6 +150,12 @@ def build_snapshot(
         "mode": "PAPER / DRY RUN",
         "execution": "LOCKED",
         "validation_status": "INSUFFICIENT_EVIDENCE",
+        "discovery": {
+            "discovered_candidate_count": len(discovered_candidates),
+            "qualifying_candidate_count": len(candidates),
+            "displayed_candidate_count": len(opportunities),
+            "display_mode": "QUALIFIED" if candidates else ("FILTERED_FALLBACK" if discovered_candidates else "EMPTY"),
+        },
         "opportunities": opportunities,
     }
 
