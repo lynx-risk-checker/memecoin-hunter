@@ -101,3 +101,24 @@ def test_snapshot_displays_real_candidates_when_all_fail_radar_policy():
     assert item["radar_filter_reasons"] == ["PAIR_AGE_EXCEEDS_MAX_AGE"]
     assert item["decision"] == "WAIT"
     assert snapshot["execution"] == "LOCKED"
+
+
+def test_snapshot_route_accepts_ui_query_parameters(monkeypatch):
+    from src import web_snapshot
+
+    calls = []
+    expected = {"status": "READY", "sources": {"solana_rpc": {"status": "NOT_CONFIGURED"}}}
+    monkeypatch.setattr(web_snapshot, "build_snapshot", lambda client: expected)
+
+    class HandlerStub:
+        path = "/snapshot?ui=16&t=123"
+        client = FakeClient()
+
+        def _write_json(self, status, payload):
+            calls.append((status, payload))
+
+        def _serve_static(self, path):
+            raise AssertionError(f"unexpected static route: {path}")
+
+    web_snapshot.SnapshotHandler.do_GET(HandlerStub())
+    assert calls == [(200, expected)]
