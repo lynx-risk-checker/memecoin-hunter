@@ -212,3 +212,12 @@ Every panel must distinguish at minimum: CONNECTED/COLLECTED, STALE, UNAVAILABLE
 - Profitability, competitive edge and live readiness remain BELUM TERVERIFIKASI.
 - DRY RUN and PAPER TRADING stay ON; LIVE EXECUTION stays LOCKED.
 - No merge to main without explicit Founder approval.
+
+
+## Founder roadmap update — 2026-10-13
+
+The detailed additive technical/strategy checkpoint is maintained in [`docs/ROADMAP_TECHNICAL_STRATEGY_ADDENDUM_2026-10-13.md`](ROADMAP_TECHNICAL_STRATEGY_ADDENDUM_2026-10-13.md). It formalizes the status matrix and acceptance gates for Early Wallet/Launch Cohort, independent Smart Money/Wallet Graph, confirmed-swap realized PnL, Narrative Attention/On-chain Lead–Lag, Capital Rotation, liquidity-aware position/exit simulation, the global Wealth Casebook, point-in-time winner/loser dataset, paper trading, out-of-sample/walk-forward validation, and iPhone dashboard verification.
+
+**Current strategic order:** (1) verify deployment snapshot/version and production RPC on the iPhone-serving service; (2) finish WebSocket-to-evidence-backed BUY/SELL and rolling 5-minute flow; (3) verify swap semantics and quote-asset PnL; (4) connect cohorts and wallet independence; (5) real quote/exit simulation; (6) OHLCV and dashboard data wiring; (7) sourced narrative/rotation; (8) point-in-time casebook/dataset; (9) at least 100 valid paper trades and OOS/walk-forward validation; (10) release/safety gate.
+
+This checkpoint is documentation and prioritization only. It does not claim new modules are implemented or runtime-verified. Profitability remains **BELUM TERVERIFIKASI**; DRY RUN/PAPER TRADING stay ON; LIVE EXECUTION stays LOCKED; no merge to `main` without explicit Founder approval.
