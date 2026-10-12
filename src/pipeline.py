@@ -61,11 +61,14 @@ def evaluate_candidate(
         prior_reasons = tuple(
             reason for reason in decision.reasons if reason != "RISK_APPROVED"
         )
+        combined_reasons = tuple(
+            dict.fromkeys(prior_reasons + protection.reasons + ("PROTECTION_VETO",))
+        )
         decision = PipelineDecision(
             edge=decision.edge,
             risk_allowed=False,
             decision=EdgeDecision.BUY_BLOCKED,
-            reasons=prior_reasons + protection.reasons + ("PROTECTION_VETO",),
+            reasons=combined_reasons,
         )
 
     return PipelineResult(context.token, decision, protection)
