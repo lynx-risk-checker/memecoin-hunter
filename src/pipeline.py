@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from src.exit import ExitSignal, ProtectionState, evaluate_protection
 from src.strategy.decision_pipeline import PipelineDecision, assess
-from src.strategy.edge import EdgeInput
+from src.strategy.edge import EdgeDecision, EdgeInput
 
 
 @dataclass(frozen=True)
@@ -54,4 +54,18 @@ def evaluate_candidate(
         manipulation_blocked=context.edge.manipulation_blocked,
         exitability=context.exitability,
     )
+
+    # Protection is a final veto for a new entry. A favorable Edge/Risk
+    # result must never override an emergency protection condition.
+    if protection.emergency:
+        prior_reasons = tuple(
+            reason for reason in decision.reasons if reason != "RISK_APPROVED"
+        )
+        decision = PipelineDecision(
+            edge=decision.edge,
+            risk_allowed=False,
+            decision=EdgeDecision.BUY_BLOCKED,
+            reasons=prior_reasons + protection.reasons + ("PROTECTION_VETO",),
+        )
+
     return PipelineResult(context.token, decision, protection)
