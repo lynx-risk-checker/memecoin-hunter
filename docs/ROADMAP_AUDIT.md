@@ -62,3 +62,34 @@ A smoke pass is not evidence of profitability, common economic ownership, manipu
 ## Current checkpoint
 
 The branch is now materially ahead of the original foundation and continues to advance and is not behind. The latest completed structural work includes persistent paper journaling, route-quote validation, a production decision orchestrator, developer DNA scoring, adaptive research scoring, an explicit validation gate, and a mobile PWA cockpit shell. These are implementation milestones; they do not substitute for real-market runtime evidence.
+
+
+## Founder checkpoint — 2026-10-12
+
+### Repository audit
+
+- Working branch: `agent/memecoin-hunter-foundation`; changes remain isolated from `main`.
+- Latest previously recorded foundation checkpoint: `ccec695b4782ce54ba05fa1415b0292d793d0887`.
+- Branch had advanced beyond that checkpoint; the prior reported dashboard commit `63ed88f343f67f47c7e9b09a9d9deca2204250e9` loads the versioned `web/app.js` asset.
+- Combined status for `63ed88f343f67f47c7e9b09a9d9deca2204250e9` reported `success` from the Railway-linked check. This is not proof that the deployed service has the required runtime variables.
+- Current source `src/web_snapshot.py` already uses `urlsplit(self.path).path`, so query parameters on `/snapshot?ui=...&t=...` are stripped before route matching. Do not reapply the old query-string fix.
+
+### Verified blocker
+
+- `build_snapshot()` reads `SOLANA_RPC_URL` from the process environment. If it is empty, the response intentionally reports `sources.solana_rpc.status = NOT_CONFIGURED` while the DEX radar may still report `READY`.
+- The repository's `.env.example` leaves `SOLANA_RPC_URL=` blank by design. A successful Codespaces smoke test does not populate the Railway service environment.
+- Therefore, Solana RPC configuration on the actual iPhone-serving deployment remains **BELUM TERVERIFIKASI / reported NOT_CONFIGURED** until the deployment's runtime variable is set and the public snapshot reports RPC `CONNECTED` with a real slot.
+- Never put the RPC URL/API key in source code, dashboard output, commits, or this document. Configure it as a secret/environment variable in the hosting provider.
+
+### Change in this checkpoint
+
+- Added regression test `test_snapshot_route_accepts_ui_query_parameters` to guard the existing query-aware route behavior.
+- Commit: `7ca5609b61a6eb3f291c59f4b2a6c22aa0b7aa1a`.
+- Test status for this new commit: **BELUM TERVERIFIKASI** until GitHub Actions completes or Founder runs `pytest -q` in Codespaces.
+
+### Next runtime proof required
+
+1. Configure `SOLANA_RPC_URL` in the Railway service that serves the iPhone dashboard, without exposing the value.
+2. Redeploy/restart that service if the host does not automatically redeploy environment changes.
+3. Request the public `/snapshot` endpoint and verify `sources.solana_rpc.status = CONNECTED` plus a numeric `slot`.
+4. Confirm the iPhone dashboard reflects that same result. Until these checks pass, production RPC is not verified.
