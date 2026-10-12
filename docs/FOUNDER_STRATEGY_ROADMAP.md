@@ -8,6 +8,7 @@
 
 - Preserve capital first; survival overrides the mission target.
 - No single wallet, influencer, narrative, or indicator is sufficient to authorize a buy.
+- Combine the three research overlays as complementary lenses, not as claims about secret/private methods: **Gabriel Rey = capital defense + macro/core-reserve context; Bevan Pramudito = large-scale wallet graphing + narrative rotation + airdrop research + strict sizing; Orangie = fast attention sensing + new-token discovery + wallet/social-alert timing + rapid invalidation/exit discipline.** Public information describes observable approaches; proprietary details are not assumed or copied.
 - A cluster of linked wallets counts as one economic signal when evidence suggests common funding, coordination, or ownership.
 - Small-cap positions must be sized as if the full position could go to zero.
 - No averaging down automatically, no revenge trades, no all-in positions, and no chasing after a missed move.
@@ -44,6 +45,7 @@ Use macro context to determine whether the overall posture should be normal, def
 
 ### Engineering work
 - Create a regime panel for BTC trend/volatility, distance from major cycle events, global liquidity proxies, Fed policy/rate data, and institutional-flow data when reliable sources are available.
+- **Gabriel Rey overlay:** use macro/BTC-cycle context to size the system's overall risk posture, not to time individual memecoins deterministically. Core-reserve allocation (BTC or traditional assets) remains a separate Founder-controlled wealth-preservation policy.
 - Label every macro field with source, observation time, freshness, and missing-data state.
 - Treat Bitcoin’s four-year cycle as context, not a deterministic clock. The 2024 halving occurred in April 2024; the next is estimated for 2028, but exact timing and market response are uncertain. See [Bitcoin.org halving overview](https://bitcoin.org/en/halving).
 - Define regime states: `NORMAL`, `DEFENSIVE`, `HALTED`. Macro conditions may lower risk budgets or veto new entries, but must never override token-level safety checks.
@@ -69,8 +71,10 @@ Identify early buying pressure and independent, historically credible wallets wi
 6. **Dev DNA and manipulation:** investigate prior launches, dev selling, liquidity removal, concentrated ownership, synchronized activity, and likely wash/coordinated flows.
 7. **Liquidity and exitability:** require current quote/route evidence, estimated price impact, slippage, depth, and a plausible exit before considering a position.
 8. **Narrative rotation:** score narrative attention velocity and persistence from available public sources, then require on-chain confirmation. Social attention alone is not a buy signal.
-9. **Airdrop farming:** treat this as a separate research track with a capped time/fee budget. Token allocation is uncertain; never count a possible airdrop as guaranteed income or expose the core reserve to speculative protocols.
-10. **Decision sequence:** `RADAR → FORENSICS → WALLET/CLUSTER → DEV/MANIPULATION → LIQUIDITY/EXITABILITY → EDGE → RISK VETO → PAPER`. Any missing critical evidence results in `WATCH`, `WAIT`, or `BUY BLOCKED`.
+9. **Airdrop farming (Bevan overlay):** treat this as a separate research track with a capped time/fee budget. Token allocation is uncertain; never count a possible airdrop as guaranteed income or expose the core reserve to speculative protocols.
+10. **Orangie-style attention and speed layer:** monitor public social/news sources, new-token/pair feeds, and wallet alerts together. Score attention velocity, novelty, source credibility, repeat mentions, and on-chain confirmation; capture first-seen time and alert latency. A social mention alone is not a buy signal. Fast-entry/sniping is **research-only** until real quotes, execution-latency measurements, failed-transaction handling, priority-fee costs, slippage, and exit liquidity are validated. Never chase a move after the edge window has passed.
+11. **Pre-wallet lead/anti-copycat research:** compare the timing of tracked wallets with earlier buyers and recurring counterparties. This can identify candidate wallets that act before a popular tracked wallet, but treat it as a hypothesis—not proof of insider status or a durable edge. Validate over repeated, timestamped samples and account for cluster links.
+12. **Decision sequence:** `RADAR → FORENSICS → WALLET/CLUSTER → DEV/MANIPULATION → LIQUIDITY/EXITABILITY → EDGE → RISK VETO → PAPER`. Any missing critical evidence results in `WATCH`, `WAIT`, or `BUY BLOCKED`.
 
 ### Gate to advance
 - Real confirmed transaction stream is joined to transaction parsing and successful-transaction filtering.
@@ -106,19 +110,21 @@ The real DexScreener snapshot supplied by the Founder showed:
 - Smart Money, dev, cluster, exitability, and manipulation were all `NOT_EVALUATED`; evidence status was `RADAR_ONLY`.
 - Decision remained `WATCH`. This is a successful radar snapshot, not an entry signal and not evidence of profitability.
 - Current macro regime: **BELUM TERVERIFIKASI**.
+- Orangie-style social-attention/new-pair alert integration and any fast-execution/sniping capability: **BELUM TERVERIFIKASI**; no automated live entry is enabled.
 - Real confirmed DEX swap semantics, wallet-level realized PnL, and continuous paper-trading profitability: **BELUM TERVERIFIKASI**.
 - The cockpit must not display missing fields as zero or fabricate buy/sell series, wallet counts, or performance metrics.
 
 ## Immediate priority order
 
 1. Fix and runtime-verify snapshot URL routing and the mobile cockpit’s real-data rendering.
-2. Wire WebSocket log events to `getTransaction`, successful-transaction filtering, parser, and rolling flow metrics.
-3. Resolve why real confirmed-transaction discovery returned zero parsed transactions before drawing conclusions about a token.
-4. Validate explicit DEX swap semantics and realized PnL from real evidence.
-5. Complete cluster independence, liquidity/exitability, and risk-veto integration.
-6. Persist real paper decisions and performance metrics over a meaningful sample.
-7. Add macro regime data only with source/freshness provenance.
-8. Keep live execution locked until the validation gate and Founder authorization.
+2. Add an evidence-backed attention/new-token feed and alert-timing journal (Orangie overlay); do not wire alerts directly to orders.
+3. Wire WebSocket log events to `getTransaction`, successful-transaction filtering, parser, and rolling flow metrics.
+4. Resolve why real confirmed-transaction discovery returned zero parsed transactions before drawing conclusions about a token.
+5. Validate explicit DEX swap semantics and realized PnL from real evidence.
+6. Complete cluster independence, liquidity/exitability, and risk-veto integration.
+7. Persist real paper decisions and performance metrics over a meaningful sample.
+8. Add macro regime data only with source/freshness provenance.
+9. Keep live execution locked until the validation gate and Founder authorization.
 
 ## Safety and evidence policy
 
