@@ -21,7 +21,9 @@ class SwapEvidence:
 
     @property
     def price_usd(self) -> float | None:
-        return self.price_quote_per_token if self.quote_mint in {"SOL", "USDC", "USDT"} else None
+        # SOL-denominated prices are not USD prices. Converting them requires
+        # an independently observed SOL/USD quote at the transaction time.
+        return self.price_quote_per_token if self.quote_mint in {"USDC", "USDT"} else None
 
 
 def extract_balance_flow_swaps(
