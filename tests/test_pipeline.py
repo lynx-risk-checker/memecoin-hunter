@@ -34,9 +34,7 @@ def _evaluate(context: CandidateContext):
         ({"liquidity_drop_pct": 50}, "LIQUIDITY_COLLAPSE"),
         ({"dev_sell_ratio": 0.70}, "DEV_SELL_PRESSURE"),
         (
-            {
-                "edge": EdgeInput(1.0, 2.0, 1.0, 10.0, True, True, 1.0),
-            },
+            {"edge": EdgeInput(1.0, 2.0, 1.0, 10.0, True, True, 1.0)},
             "MANIPULATION_RISK",
         ),
         ({"exitability": False}, "EXITABILITY_LOST"),
@@ -53,6 +51,7 @@ def test_every_protection_trigger_vetoes_entry(overrides, expected_reason) -> No
     assert expected_reason in result.decision.reasons
     assert "PROTECTION_VETO" in result.decision.reasons
     assert "RISK_APPROVED" not in result.decision.reasons
+    assert len(result.decision.reasons) == len(set(result.decision.reasons))
 
 
 def test_candidate_pipeline_allows_safe_paper_candidate() -> None:
