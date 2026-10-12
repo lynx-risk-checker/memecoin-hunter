@@ -93,3 +93,11 @@ The branch is now materially ahead of the original foundation and continues to a
 2. Redeploy/restart that service if the host does not automatically redeploy environment changes.
 3. Request the public `/snapshot` endpoint and verify `sources.solana_rpc.status = CONNECTED` plus a numeric `slot`.
 4. Confirm the iPhone dashboard reflects that same result. Until these checks pass, production RPC is not verified.
+
+
+### Public snapshot supplied by Founder (2026-10-12 review)
+
+- The supplied response has `observed_at = 2026-10-08T18:14:42.356331+00:00`, only `source: dexscreener`, and no top-level `sources.solana_rpc` object.
+- It reports candidate decision `WATCH`, while the current branch snapshot builder emits `decision: WAIT` and includes a top-level `sources` map for DEX Screener, Solana RPC, and watched wallets.
+- This schema mismatch is evidence that the supplied response is from an older code path/version or a different server instance; the exact deployment source is **BELUM TERVERIFIKASI**. Do not assume the current branch is what the iPhone endpoint is serving.
+- The next check must therefore verify both deployment version and runtime configuration: current-format snapshot + RPC `CONNECTED` + numeric slot. Until then, production end-to-end status remains **BELUM TERVERIFIKASI**.
