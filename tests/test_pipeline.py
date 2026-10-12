@@ -20,8 +20,32 @@ def test_candidate_pipeline_blocks_when_protection_fails() -> None:
         max_position_usd=10,
         max_slippage_bps=100,
     )
-    assert result.decision.decision == EdgeDecision.BUY_ALLOWED
+    assert result.decision.decision == EdgeDecision.BUY_BLOCKED
+    assert result.decision.risk_allowed is False
     assert result.protection.emergency is True
+    assert "LIQUIDITY_COLLAPSE" in result.decision.reasons
+    assert "PROTECTION_VETO" in result.decision.reasons
+
+
+def test_candidate_pipeline_blocks_when_mission_is_halted() -> None:
+    result = evaluate_candidate(
+        CandidateContext(
+            token="TOKEN",
+            edge=EdgeInput(1.0, 2.0, 1.0, 10.0, True, False, 1.0),
+            position_usd=5.0,
+            slippage_bps=50,
+            protection_state=ProtectionState.HALTED,
+        ),
+        dry_run=True,
+        paper_trading=True,
+        daily_loss=0,
+        max_daily_loss=10,
+        max_position_usd=10,
+        max_slippage_bps=100,
+    )
+    assert result.decision.decision == EdgeDecision.BUY_BLOCKED
+    assert result.decision.risk_allowed is False
+    assert "MISSION_HALTED" in result.decision.reasons
 
 
 def test_candidate_pipeline_allows_safe_paper_candidate() -> None:
