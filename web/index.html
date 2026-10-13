@@ -172,6 +172,21 @@ header{height:66px;border-bottom-color:#244153}
  .network-frame{min-height:240px}
 }
 
+
+/* UI25: visible animated candidate scanner; explicitly not a price-data visualization */
+.candidate-visual{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;overflow:hidden;margin:9px 0 7px;padding:9px 8px;border:1px solid #1b443b;border-radius:8px;background:linear-gradient(100deg,#061b18,#08111a 70%);min-height:55px}
+.candidate-visual:before{content:"";position:absolute;top:0;bottom:0;left:-20%;width:22%;background:linear-gradient(90deg,transparent,#00ff9a22,transparent);animation:candidateSweep 2.6s linear infinite;pointer-events:none}
+.candidate-visual svg{width:100%;height:31px;display:block;overflow:visible;position:relative}
+.candidate-visual .wave{fill:none;stroke:#00ff9a;stroke-width:1.8;stroke-linecap:round;stroke-dasharray:5 4;animation:candidateDash 1.6s linear infinite;filter:drop-shadow(0 0 4px #00ff9a55)}
+.candidate-visual .wave-secondary{fill:none;stroke:#55d8ff;stroke-width:1;stroke-dasharray:2 5;animation:candidateDash 2.4s linear infinite reverse;opacity:.8}
+.candidate-visual .scan-bars{display:flex;align-items:center;gap:3px;height:30px}
+.candidate-visual .scan-bars i{display:block;width:3px;height:var(--bar-height);border-radius:2px;background:#00ff9a;opacity:.8;transform-origin:center;animation:candidateBar 1s ease-in-out infinite alternate}
+.candidate-visual .scan-bars i:nth-child(2n){animation-delay:.22s;background:#55d8ff}.candidate-visual .scan-bars i:nth-child(3n){animation-delay:.41s}
+.candidate-visual small{grid-column:1/-1;position:relative;color:#648d85;font:700 7px ui-monospace,monospace;letter-spacing:.12em}
+.candidate-visual .scan-state{position:relative;color:#00ff9a;font:800 7px ui-monospace,monospace;white-space:nowrap}
+@keyframes candidateSweep{to{left:110%}}@keyframes candidateDash{to{stroke-dashoffset:-36}}@keyframes candidateBar{to{transform:scaleY(.48);opacity:.42}}
+@media(prefers-reduced-motion:reduce){.candidate-visual:before,.candidate-visual .wave,.candidate-visual .wave-secondary,.candidate-visual .scan-bars i{animation:none!important}}
+
 </style></head>
 <body><div id="app">
 <header><div class="brand"><div class="logo">MH</div><div><small>SOLANA INTELLIGENCE</small><b>MEMECOIN HUNTER</b></div></div><div class="status"><span class="connection-item"><i class="dot"></i><span id="connection">DEX: CONNECTING</span></span><span class="connection-item rpc-status"><i class="dot rpc-dot"></i><span id="rpc-connection">RPC: CHECKING</span></span><button id="refresh" aria-label="Refresh market snapshot">↻</button></div></header>
@@ -192,5 +207,5 @@ header{height:66px;border-bottom-color:#244153}
 </div>
 <section class="footer-note"><div class="eyebrow">SYSTEM STATUS · IN PROGRESS</div><h3>EVIDENCE-FIRST INTELLIGENCE TERMINAL</h3><p>Sistem MEMECOIN HUNTER masih dalam tahap pembangunan, validasi, dan pengumpulan evidence real. Dashboard menampilkan data yang benar-benar tersedia — bukan data palsu.</p></section>
 </div><nav class="bottom" aria-label="Quick navigation"><button class="active" type="button" data-target="radar-section">◉<span>RADAR</span></button><button type="button" data-target="radar-section">◈<span>TOKENS</span></button><button type="button" data-target="wallets-section">◎<span>WALLETS</span></button><button type="button" data-target="risk-section">⚙<span>RISK</span></button></nav>
-<script src="/app.js?v=ui24"></script>
-<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js?v=ui24").catch(()=>{});</script></body></html>
+<script src="/app.js?v=ui25"></script>
+<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js?v=ui25").catch(()=>{});</script></body></html>
