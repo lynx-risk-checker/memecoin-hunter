@@ -5,7 +5,9 @@ import os
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import parse_qs, urlencode, urlsplit
+import urllib.error
+import urllib.request
 from typing import Any
 
 from src.data.dexscreener import DexScreenerClient, DexScreenerError
@@ -161,6 +163,44 @@ def build_snapshot(
     }
 
 
+def build_candles(client: DexScreenerClient, token_address: str, timeframe: str = "minute") -> dict[str, Any]:
+    """Fetch real OHLCV candles from GeckoTerminal for a verified DexScreener Solana pool."""
+    intervals = {"minute": ("minute", "1"), "5m": ("minute", "5"), "hour": ("hour", "1"), "day": ("day", "1")}
+    if timeframe not in intervals:
+        return {"status": "INVALID_TIMEFRAME", "source": "geckoterminal", "candles": []}
+    if not token_address or len(token_address) > 64:
+        return {"status": "INVALID_TOKEN", "source": "geckoterminal", "candles": []}
+    try:
+        pairs = client.token_pairs([token_address])
+        pair = client._best_solana_pair(pairs, token_address)
+        if not pair or not isinstance(pair.get("pairAddress"), str):
+            return {"status": "POOL_NOT_FOUND", "source": "geckoterminal", "token": token_address, "candles": []}
+        candle_interval, aggregate = intervals[timeframe]
+        query = urlencode({"aggregate": aggregate, "limit": "120", "currency": "usd", "token": "base"})
+        url = f"https://api.geckoterminal.com/api/v2/networks/solana/pools/{pair['pairAddress']}/ohlcv/{candle_interval}?{query}"
+        request = urllib.request.Request(url, headers={"Accept": "application/json", "User-Agent": "memecoin-hunter/0.1 (+read-only)"}, method="GET")
+        with urllib.request.urlopen(request, timeout=8.0) as response:
+            body = json.loads(response.read().decode("utf-8"))
+        attributes = body.get("data", {}).get("attributes", {}) if isinstance(body, dict) else {}
+        raw_rows = attributes.get("ohlcv_list", []) if isinstance(attributes, dict) else []
+        candles = []
+        for row in raw_rows if isinstance(raw_rows, list) else []:
+            if not isinstance(row, list) or len(row) < 6:
+                continue
+            try:
+                timestamp, open_price, high, low, close, volume = row[:6]
+                values = [float(open_price), float(high), float(low), float(close), float(volume)]
+                if not all(__import__("math").isfinite(value) for value in values):
+                    continue
+                candles.append({"time": int(timestamp), "open": values[0], "high": values[1], "low": values[2], "close": values[3], "volume": max(0.0, values[4])})
+            except (TypeError, ValueError, OverflowError):
+                continue
+        candles.sort(key=lambda item: item["time"])
+        return {"status": "CONNECTED" if candles else "NO_CANDLES", "source": "geckoterminal", "token": token_address, "pair_address": pair["pairAddress"], "timeframe": timeframe, "observed_at": datetime.now(timezone.utc).isoformat(), "candles": candles}
+    except (DexScreenerError, urllib.error.URLError, TimeoutError, json.JSONDecodeError, ValueError, OSError):
+        return {"status": "UNAVAILABLE", "source": "geckoterminal", "token": token_address, "timeframe": timeframe, "candles": []}
+
+
 WEB_ROOT = Path(__file__).resolve().parent.parent / "web"
 STATIC_FILES = {
     "/": ("index.html", "text/html; charset=utf-8"),
@@ -205,6 +245,12 @@ class SnapshotHandler(BaseHTTPRequestHandler):
         path = urlsplit(self.path).path
         if path == "/snapshot":
             self._write_json(200, build_snapshot(self.client))
+            return
+        if path == "/candles":
+            query = parse_qs(urlsplit(self.path).query)
+            token = query.get("token", [""])[0].strip()
+            timeframe = query.get("timeframe", ["minute"])[0].strip()
+            self._write_json(200, build_candles(self.client, token, timeframe))
             return
         if self._serve_static(path):
             return
