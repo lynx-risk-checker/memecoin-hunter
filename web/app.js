@@ -6,20 +6,76 @@ const pct=v=>typeof v==="number"?Math.max(0,Math.min(1,v))*100:0;
 function resize(c){const r=c.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,3),width=Math.max(1,Math.round(r.width*d)),height=Math.max(1,Math.round(r.height*d));if(c.width!==width||c.height!==height){c.width=width;c.height=height}return[c.getContext("2d"),r.width,r.height,d]}
 function radar(t){const c=$("radar"),[x,w,h,d]=resize(c);x.clearRect(0,0,c.width,c.height);x.save();x.scale(d,d);const cx=w/2,cy=h/2,r=Math.min(w,h)*.42,a=t*.0005;for(let i=1;i<5;i++){x.beginPath();x.arc(cx,cy,r*i/4,0,7);x.strokeStyle="rgba(0,255,154,.13)";x.stroke()}x.save();x.translate(cx,cy);x.rotate(a);x.beginPath();x.moveTo(0,0);x.lineTo(r,0);x.lineTo(r,.15*r);x.closePath();x.fillStyle="rgba(0,255,154,.12)";x.fill();x.restore();x.beginPath();x.arc(cx,cy,6+2*Math.sin(t/300),0,7);x.fillStyle="#9dffdb";x.shadowBlur=25;x.shadowColor="#00ff9a";x.fill();x.restore()}
 function chart(t){const c=$("flow-canvas"),[x,w,h,d]=resize(c);x.clearRect(0,0,c.width,c.height);x.save();x.scale(d,d);for(let i=0;i<5;i++){x.beginPath();x.moveTo(0,i*h/4);x.lineTo(w,i*h/4);x.strokeStyle="#ffffff0a";x.stroke()}const o=window.__data?.opportunities?.[0]||window.__data||{},wallets=window.__data?.sources?.watched_wallets||{},buys=o.onchain_buy_txns,sells=o.onchain_sell_txns;const valid=wallets.status==="COLLECTED"&&typeof buys==="number"&&typeof sells==="number";if(valid){const max=Math.max(buys,sells,1),left=12,right=w-12,barW=right-left;x.font="800 9px ui-monospace";x.textAlign="left";x.fillStyle="#00ff9a";x.fillText("BUY TXNS",left,Math.max(14,h*.30));x.fillStyle="#ef526f";x.fillText("SELL TXNS",left,Math.max(14,h*.64));x.fillStyle="#00ff9a55";x.fillRect(left,h*.34,barW*(buys/max),12);x.fillStyle="#00ff9a";x.fillRect(left,h*.34,Math.max(buys?2:0,barW*(buys/max)),12);x.fillStyle="#ef526f55";x.fillRect(left,h*.68,barW*(sells/max),12);x.fillStyle="#ef526f";x.fillRect(left,h*.68,Math.max(sells?2:0,barW*(sells/max)),12);x.fillStyle="#65758a";x.textAlign="right";x.fillText("RECENT HISTORY · COUNTS ONLY",right,h-5)}else{x.font="800 9px ui-monospace";x.fillStyle="#65758a";x.textAlign="center";x.fillText("REAL BUY/SELL FLOW PENDING",w/2,h/2-5);x.font="8px ui-monospace";x.fillText("NO SYNTHETIC VOLUME OR 5-MINUTE SERIES",w/2,h/2+12)}x.restore()}
-function network(t){const c=$("network-canvas"),[x,w,h,d]=resize(c);x.clearRect(0,0,c.width,c.height);x.save();x.scale(d,d);const o=window.__data?.opportunities?.[0]||window.__data||{},graph=o.wallet_graph||window.__data?.wallet_graph,nodes=Array.isArray(graph?.nodes)?graph.nodes:[],edges=Array.isArray(graph?.edges)?graph.edges:[];const key=n=>String(n?.id??n?.address??"");const byId=new Map(nodes.map(n=>[key(n),n]).filter(([id])=>id));if(nodes.length&&edges.length){const cx=w/2,cy=h/2,r=Math.min(w,h)*.34,positions=new Map();nodes.forEach((node,i)=>{const angle=(i/nodes.length)*Math.PI*2+t*.000015;positions.set(key(node),{x:cx+Math.cos(angle)*r,y:cy+Math.sin(angle)*r})});edges.forEach(edge=>{const a=positions.get(String(edge.source??edge.from??"")),b=positions.get(String(edge.target??edge.to??""));if(!a||!b||!byId.has(String(edge.source??edge.from??""))||!byId.has(String(edge.target??edge.to??"")))return;x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.strokeStyle=edge.evidence_status==="CONFIRMED_EVIDENCE"?"#00ff9a88":"#f6b73c66";x.lineWidth=1.2;x.stroke()});nodes.forEach(node=>{const p=positions.get(key(node));x.beginPath();x.arc(p.x,p.y,5,0,Math.PI*2);x.fillStyle=node.evidence_status==="CONFIRMED_EVIDENCE"?"#00ff9a":"#f6b73c";x.fill();x.strokeStyle="#d8fff0";x.stroke()});x.font="8px ui-monospace";x.fillStyle="#65758a";x.textAlign="center";x.fillText(nodes.length+" EVIDENCED NODES · "+edges.length+" REPORTED RELATIONS",w/2,h-6)}else{const cx=w/2,cy=h/2,r=Math.min(w,h)*.28;for(let ring=1;ring<=3;ring++){x.beginPath();x.ellipse(cx,cy,r*ring/2,r*ring/3,t*.00008*ring,0,Math.PI*2);x.strokeStyle="rgba(55,216,255,"+(0.13/ring)+")";x.stroke()}for(let i=0;i<14;i++){const a=t*.00022+i*Math.PI*2/14,rr=r*(.45+.35*Math.sin(t*.0007+i));const px=cx+Math.cos(a)*rr,py=cy+Math.sin(a)*rr*.65;x.beginPath();x.moveTo(cx,cy);x.lineTo(px,py);x.strokeStyle="rgba(0,255,154,.10)";x.stroke();x.beginPath();x.arc(px,py,2.2+Math.sin(t*.004+i)*.7,0,Math.PI*2);x.fillStyle=i%3===0?"#55d8ff":"#00ff9a";x.shadowBlur=10;x.shadowColor=x.fillStyle;x.fill();x.shadowBlur=0}x.font="800 9px ui-monospace";x.fillStyle="#a2b4c4";x.textAlign="center";x.fillText("ANIMATED SCAN · WALLET GRAPH PENDING",w/2,h/2-4);x.font="8px ui-monospace";x.fillStyle="#65758a";x.fillText("DECORATIVE MOTION · NO VERIFIED WALLET SIGNALS",w/2,h/2+13)}x.restore()}
+function network(t){
+ const c=$("network-canvas");if(!c)return;const [x,w,h,d]=resize(c);x.clearRect(0,0,c.width,c.height);x.save();x.scale(d,d);
+ const o=window.__data?.opportunities?.[0]||window.__data||{},graph=o.wallet_graph||window.__data?.wallet_graph;
+ const nodes=Array.isArray(graph?.nodes)?graph.nodes:[],edges=Array.isArray(graph?.edges)?graph.edges:[];
+ const key=n=>String(n?.id??n?.address??""),byId=new Map(nodes.map(n=>[key(n),n]).filter(([id])=>id));
+ const cx=w/2,cy=h*.47,r=Math.min(w*.39,h*.34);
+ if(nodes.length&&edges.length){
+   const positions=new Map(),phase=t*.000012;
+   nodes.forEach((node,i)=>{const angle=(i/Math.max(1,nodes.length))*Math.PI*2+phase;const ring=i%4===0?.58:i%3===0?.82:1;positions.set(key(node),{x:cx+Math.cos(angle)*r*ring,y:cy+Math.sin(angle)*r*ring*.72})});
+   // Fine orbital rings and a restrained radar sweep frame the evidence-backed graph.
+   for(let ring=1;ring<=3;ring++){x.beginPath();x.ellipse(cx,cy,r*ring/3,r*ring/4,phase*.3,0,Math.PI*2);x.strokeStyle="#55d8ff"+(ring===3?"18":"12");x.lineWidth=1;x.stroke()}
+   edges.forEach((edge,i)=>{
+     const source=String(edge.source??edge.from??""),target=String(edge.target??edge.to??""),a=positions.get(source),b=positions.get(target);
+     if(!a||!b||!byId.has(source)||!byId.has(target))return;
+     const confirmed=edge.evidence_status==="CONFIRMED_EVIDENCE";
+     x.beginPath();x.moveTo(a.x,a.y);const mx=(a.x+b.x)/2+(cy-(a.y+b.y)/2)*.12,my=(a.y+b.y)/2+(cx-(a.x+b.x)/2)*.12;x.quadraticCurveTo(mx,my,b.x,b.y);
+     x.strokeStyle=confirmed?"#00ff9a88":"#f6b73c66";x.lineWidth=confirmed?1.5:1;x.stroke();
+     // Moving pulse is attached only to a reported graph edge, never invented as a wallet event.
+     const p=((t*.00012+i*.173)%1),px=(1-p)*(1-p)*a.x+2*(1-p)*p*mx+p*p*b.x,py=(1-p)*(1-p)*a.y+2*(1-p)*p*my+p*p*b.y;
+     x.beginPath();x.arc(px,py,2,0,Math.PI*2);x.fillStyle=confirmed?"#c8ffeb":"#ffd98a";x.shadowBlur=8;x.shadowColor=x.fillStyle;x.fill();x.shadowBlur=0;
+   });
+   nodes.forEach((node,i)=>{const p=positions.get(key(node));if(!p)return;const confirmed=node.evidence_status==="CONFIRMED_EVIDENCE",rad=confirmed?5.5:4.5;
+     x.beginPath();x.arc(p.x,p.y,rad+Math.sin(t*.003+i)*.65,0,Math.PI*2);x.fillStyle=confirmed?"#00ff9a":"#f6b73c";x.shadowBlur=confirmed?16:8;x.shadowColor=x.fillStyle;x.fill();x.shadowBlur=0;x.strokeStyle="#d8fff0aa";x.lineWidth=1;x.stroke();
+     if(node.label||node.address||node.id){x.font="8px ui-monospace";x.fillStyle="#9aafbd";x.textAlign=p.x>cx?"left":"right";x.fillText(String(node.label??node.address??node.id).slice(0,10),p.x+(p.x>cx?8:-8),p.y-7)}
+   });
+   x.font="800 8px ui-monospace";x.fillStyle="#8da7b6";x.textAlign="center";x.fillText(nodes.length+" REPORTED NODES · "+edges.length+" REPORTED RELATIONS",w/2,h-7);
+   x.font="7px ui-monospace";x.fillStyle="#5d7c8b";x.fillText("GREEN = CONFIRMED EVIDENCE · AMBER = UNVERIFIED",w/2,12);
+ }else{
+   // Visual-only scanning animation while verified graph data is absent; no wallet nodes or links are asserted.
+   for(let ring=1;ring<=4;ring++){x.beginPath();x.ellipse(cx,cy,r*ring/4,r*ring/3,t*.00008*(ring%2?1:-1),0,Math.PI*2);x.strokeStyle="rgba(55,216,255,"+(0.16/ring)+")";x.stroke()}
+   const sweep=(t*.00035)%(Math.PI*2);x.beginPath();x.moveTo(cx,cy);x.arc(cx,cy,r,sweep-.25,sweep);x.closePath();x.fillStyle="#00ff9a0d";x.fill();
+   for(let i=0;i<18;i++){const a=t*.00018+i*Math.PI*2/18,rr=r*(.38+.42*(.5+.5*Math.sin(t*.00065+i*1.7))),px=cx+Math.cos(a)*rr,py=cy+Math.sin(a)*rr*.68;
+     x.beginPath();x.moveTo(cx,cy);x.lineTo(px,py);x.strokeStyle="rgba(0,255,154,.09)";x.stroke();x.beginPath();x.arc(px,py,1.8+Math.sin(t*.003+i)*.45,0,Math.PI*2);x.fillStyle=i%4===0?"#55d8ff":"#00ff9a";x.shadowBlur=9;x.shadowColor=x.fillStyle;x.fill();x.shadowBlur=0;
+   }
+   x.beginPath();x.arc(cx,cy,14+Math.sin(t*.003)*2,0,Math.PI*2);x.strokeStyle="#00ff9a77";x.stroke();x.beginPath();x.arc(cx,cy,3,0,Math.PI*2);x.fillStyle="#caffed";x.fill();
+   x.font="800 9px ui-monospace";x.fillStyle="#b4c6d3";x.textAlign="center";x.fillText("SMART MONEY GRAPH · AWAITING EVIDENCE",w/2,cy-5);
+   x.font="8px ui-monospace";x.fillStyle="#71869a";x.fillText("DECORATIVE SCAN ONLY · NO VERIFIED WALLET SIGNALS",w/2,cy+13);
+ }
+ x.restore();
+}
 
 let selectedTimeframe="minute", candleToken="", candleRequest=0, lastCandles=[];
 const priceMoney=v=>typeof v==="number"?new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:v<1?8:4}).format(v):"—";
 function drawCandles(){
  const c=$("price-canvas");if(!c)return;const [ctx,w,h,d]=resize(c);ctx.clearRect(0,0,c.width,c.height);ctx.save();ctx.scale(d,d);
- const pad={l:8,r:58,t:12,b:22},cw=Math.max(1,w-pad.l-pad.r),ch=Math.max(1,h-pad.t-pad.b);
- for(let i=0;i<5;i++){const y=pad.t+ch*i/4;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.strokeStyle="#ffffff0d";ctx.stroke()}
+ const pad={l:9,r:61,t:13,b:37},cw=Math.max(1,w-pad.l-pad.r),ch=Math.max(1,h-pad.t-pad.b);
+ // Institutional terminal grid, with restrained axis guides.
+ for(let i=0;i<5;i++){const y=pad.t+ch*i/4;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.strokeStyle=i===4?"#55d8ff20":"#ffffff0d";ctx.lineWidth=1;ctx.stroke()}
  if(!lastCandles.length){ctx.fillStyle="#71869a";ctx.textAlign="center";ctx.font="10px ui-monospace";ctx.fillText("REAL OHLCV CANDLES UNAVAILABLE",w/2,h/2-3);ctx.font="8px ui-monospace";ctx.fillText("Waiting for a verified pool + source response",w/2,h/2+14);ctx.restore();return}
  const min=Math.min(...lastCandles.map(v=>v.low)),max=Math.max(...lastCandles.map(v=>v.high)),span=max-min||Math.max(max*.02,1e-8),y=v=>pad.t+(max-v)/span*ch;
- const step=cw/lastCandles.length,bodyW=Math.max(2,Math.min(9,step*.62));
- lastCandles.forEach((v,i)=>{const x=pad.l+step*(i+.5),up=v.close>=v.open,colour=up?"#00e89a":"#ef526f";ctx.beginPath();ctx.moveTo(x,y(v.high));ctx.lineTo(x,y(v.low));ctx.strokeStyle=colour;ctx.lineWidth=1;ctx.stroke();const top=y(Math.max(v.open,v.close)),bottom=y(Math.min(v.open,v.close));ctx.fillStyle=colour;ctx.fillRect(x-bodyW/2,top,bodyW,Math.max(1,bottom-top));});
- const last=lastCandles[lastCandles.length-1],ly=y(last.close);ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(pad.l,ly);ctx.lineTo(w-pad.r+3,ly);ctx.strokeStyle="#8ca8b8aa";ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=last.close>=last.open?"#00e89a":"#ef526f";ctx.fillRect(w-pad.r+3,ly-8,pad.r-5,16);ctx.fillStyle="#04100c";ctx.font="bold 8px ui-monospace";ctx.textAlign="center";ctx.fillText(priceMoney(last.close),w-pad.r/2,ly+3);
- ctx.fillStyle="#71869a";ctx.font="8px ui-monospace";ctx.textAlign="left";ctx.fillText(new Date(lastCandles[0].time*1000).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}),pad.l,h-5);ctx.textAlign="right";ctx.fillText(new Date(last.time*1000).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}),w-pad.r,h-5);ctx.restore();
+ const step=cw/lastCandles.length,bodyW=Math.max(2,Math.min(9,step*.64));
+ // Real reported volume is drawn as subdued histogram bars beneath the price field.
+ const maxVolume=Math.max(0,...lastCandles.map(v=>Number.isFinite(v.volume)?v.volume:0));
+ const volumeBase=h-19,volumeH=24;
+ lastCandles.forEach((v,i)=>{
+   const px=pad.l+step*(i+.5),up=v.close>=v.open,colour=up?"#00e89a":"#ef526f";
+   if(maxVolume>0&&Number.isFinite(v.volume)&&v.volume>=0){const bh=Math.max(v.volume>0?1:0,(v.volume/maxVolume)*volumeH);ctx.fillStyle=up?"#00e89a30":"#ef526f30";ctx.fillRect(px-bodyW/2,volumeBase-bh,bodyW,bh)}
+   ctx.beginPath();ctx.moveTo(px,y(v.high));ctx.lineTo(px,y(v.low));ctx.strokeStyle=colour;ctx.lineWidth=1;ctx.stroke();
+   const top=y(Math.max(v.open,v.close)),bottom=y(Math.min(v.open,v.close)),bh=Math.max(1,bottom-top);
+   ctx.fillStyle=colour;ctx.shadowBlur=bh>2?5:0;ctx.shadowColor=colour;ctx.fillRect(px-bodyW/2,top,bodyW,bh);ctx.shadowBlur=0;
+   if(bh>3){ctx.fillStyle=up?"#baffdf":"#ffd4dc";ctx.fillRect(px-bodyW/2,top,bodyW,1)}
+ });
+ const last=lastCandles[lastCandles.length-1],ly=y(last.close);
+ ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(pad.l,ly);ctx.lineTo(w-pad.r+3,ly);ctx.strokeStyle="#b5d2e0aa";ctx.stroke();ctx.setLineDash([]);
+ const lastUp=last.close>=last.open;ctx.fillStyle=lastUp?"#00e89a":"#ef526f";ctx.shadowBlur=12;ctx.shadowColor=ctx.fillStyle;ctx.fillRect(w-pad.r+3,ly-8,pad.r-5,16);ctx.shadowBlur=0;
+ ctx.fillStyle="#04100c";ctx.font="bold 8px ui-monospace";ctx.textAlign="center";ctx.fillText(priceMoney(last.close),w-pad.r/2,ly+3);
+ ctx.fillStyle="#71869a";ctx.font="8px ui-monospace";ctx.textAlign="left";ctx.fillText(new Date(lastCandles[0].time*1000).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}),pad.l,h-5);
+ ctx.textAlign="right";ctx.fillText(new Date(last.time*1000).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}),w-pad.r,h-5);
+ ctx.textAlign="left";ctx.fillStyle="#536d7c";ctx.fillText("VOL",pad.l,volumeBase-7);
+ ctx.restore();
 }
 async function loadCandles(force=false){
  const token=window.__selectedToken||window.__data?.opportunities?.[0]?.token;if(!token){lastCandles=[];set("candle-status","OHLCV: NO TOKEN");drawCandles();return}
