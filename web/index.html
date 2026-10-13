@@ -127,6 +127,51 @@ body{font-size:14px}
 #price-token-select{display:block;max-width:100%;width:min(100%,260px);margin-top:9px;padding:8px 10px;border:1px solid #263d4d;border-radius:8px;background:#080f17;color:#dce9f2;font-size:11px;outline:none}#price-token-select:focus{border-color:#00ff9a}
 @media(max-width:720px){.live-strip{padding:9px}.live-strip strong{font-size:9px}.live-strip small{font-size:8px}.price-terminal{padding:10px}.price-head h3{font-size:14px}.price-last b{font-size:15px}.price-chart-wrap{height:235px}.timeframes button{padding:7px 11px}}
 @media(prefers-reduced-motion:reduce){.live-pulse,.network-frame:before,.network-frame:after{animation:none!important}}
+
+/* UI24.1 — visible institutional terminal pass: deliberately overrides the legacy shell */
+#app{max-width:1240px;padding:0 14px}
+header{height:66px;border-bottom-color:#244153}
+.brand .logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(145deg,#10251f,#09121a);border-color:#2b725b;box-shadow:0 0 28px #00ff9a20}
+.brand b{font-size:14px;letter-spacing:.1em}
+.tabs{height:42px}
+.tab{font-size:10px}
+.hero{min-height:265px;border-color:#2b594e;background:radial-gradient(ellipse at 55% 45%,#0b3b3033,transparent 38%),linear-gradient(125deg,#0d1b23,#071016 64%,#0c201b);margin:14px 0 12px;padding:22px}
+.hero h2{font-size:clamp(29px,4vw,43px)}
+.metrics{margin-bottom:16px;border-color:#294153}
+.metric{padding:12px 13px;background:linear-gradient(145deg,#0c151e,#080e14)}
+.metric span{font-size:7px}
+.metric b{font-size:12px}
+.price-terminal{position:relative;margin:0 0 18px;padding:18px;border:1px solid #28644f;border-radius:17px;background:radial-gradient(ellipse at 82% 0%,#0d453333,transparent 48%),linear-gradient(145deg,#0d1922,#070b11 72%);box-shadow:0 20px 65px #0009,0 0 0 1px #00ff9a08,inset 0 1px #ffffff10}
+.price-terminal:before{content:"MARKET STRUCTURE / VERIFIED OHLCV";display:block;margin:-2px 0 14px;color:#58dba8;font:800 8px ui-monospace,monospace;letter-spacing:.18em}
+.price-head{align-items:center;padding-bottom:13px;border-bottom:1px solid #203747}
+.price-head h3{font-size:19px;letter-spacing:-.035em}
+.price-head select{display:block;max-width:100%;margin-top:8px;padding:8px 10px;border:1px solid #294657;border-radius:8px;background:#08111a;color:#c8d8e3;font-size:11px}
+.price-last b{font-size:23px;color:#aaffd9}
+.timeframes{margin:14px 0 8px}
+.timeframes button{min-width:48px;padding:8px 12px;border-radius:8px}
+.price-chart-wrap{height:320px;border:1px solid #142a37;border-radius:11px;background:linear-gradient(180deg,#09131b,#060a10);padding:6px}
+.chart-state{margin-top:10px;padding-top:10px;border-top:1px solid #1b2c39;font-size:8px}
+.grid{gap:12px}
+.card{border-color:#203545;border-radius:14px}
+.card h3{font-size:14px}
+.network-frame{min-height:260px;border-color:#245241;background:radial-gradient(circle at 50% 50%,#0d3a2e66,transparent 58%),#060c12}
+#network-canvas{height:250px}
+.footer-note{border-color:#274c40;background:linear-gradient(145deg,#0b1716,#0b0d12)}
+.footer-note h3{letter-spacing:.04em;color:#ccefe2}
+@media(max-width:720px){
+ #app{padding:0 9px}
+ header{height:58px}
+ .hero{margin:9px 0 11px;padding:15px;min-height:490px}
+ .price-terminal{padding:13px;border-radius:14px}
+ .price-head{align-items:flex-start;flex-direction:column}
+ .price-last{text-align:left;min-width:0;margin-top:8px}
+ .price-last b{font-size:21px}
+ .price-chart-wrap{height:280px;padding:3px}
+ .chart-state{gap:7px;line-height:1.5}
+ #network-canvas{height:230px}
+ .network-frame{min-height:240px}
+}
+
 </style></head>
 <body><div id="app">
 <header><div class="brand"><div class="logo">MH</div><div><small>SOLANA INTELLIGENCE</small><b>MEMECOIN HUNTER</b></div></div><div class="status"><span class="connection-item"><i class="dot"></i><span id="connection">DEX: CONNECTING</span></span><span class="connection-item rpc-status"><i class="dot rpc-dot"></i><span id="rpc-connection">RPC: CHECKING</span></span><button id="refresh" aria-label="Refresh market snapshot">↻</button></div></header>
@@ -145,7 +190,7 @@ body{font-size:14px}
 <section class="card"><div class="card-head"><div><div class="eyebrow">04B / EXITABILITY</div><h3>🚨 LIQUIDITY LADDER</h3></div><span class="badge" id="exit-badge">NOT EVALUATED</span></div><div class="evidence-note"><b><span class="evidence-pulse"></span>ORDER-BOOK DEPTH NOT CONNECTED</b>Grafik kedalaman likuiditas belum ditampilkan karena snapshot radar tidak menyediakan order book Solana yang terverifikasi. Estimasi exit dan slippage tetap menunggu bukti transaksi serta pool yang sesuai.</div><div class="mini-stats"><div><span>OBSERVED LIQUIDITY</span><b id="liquidity">—</b></div><div><span>EXITABILITY</span><b id="exit">NOT EVALUATED</b></div><div><span>PRICE IMPACT</span><b id="price-impact">—</b></div><div><span>SLIPPAGE</span><b id="slippage">—</b></div></div></section>
 <section id="mission-section" class="card mission"><div class="card-head"><div><div class="eyebrow">07 / CAPITAL MISSION</div><h3>🎯 MISSION ENGINE</h3></div><span class="badge">RISK OVERRIDES</span></div><div class="mission-line"><i id="mission-progress" style="width:0%"></i></div><div class="mission-points"><div><b>Rp1.000</b><small>START</small></div><div><b>Rp1,5 jt</b><small>PHASE 1</small></div><div><b>Rp5 jt</b><small>PHASE 2</small></div><div><b>Rp25 jt</b><small>PHASE 3</small></div><div><b>Rp100 jt</b><small>PHASE 4</small></div><div><b>Rp500 jt</b><small>PHASE 5</small></div><div><b>Rp1 M</b><small>PHASE 6</small></div></div><div class="evidence-note"><b>CAPITAL PROGRESS: NOT AVAILABLE</b>Progress remains unset until a verified paper-trading ledger supplies the current capital. Targets are mission milestones, not performance claims.</div></section>
 </div>
-<section class="footer-note"><div class="eyebrow">BUILD STATUS</div><h3>BELUM SEPENUHNYA SELESAI, GUYS.</h3><p>Sistem MEMECOIN HUNTER masih dalam tahap pembangunan, validasi, dan pengumpulan evidence real. Dashboard menampilkan data yang benar-benar tersedia — bukan data palsu.</p></section>
+<section class="footer-note"><div class="eyebrow">SYSTEM STATUS · IN PROGRESS</div><h3>EVIDENCE-FIRST INTELLIGENCE TERMINAL</h3><p>Sistem MEMECOIN HUNTER masih dalam tahap pembangunan, validasi, dan pengumpulan evidence real. Dashboard menampilkan data yang benar-benar tersedia — bukan data palsu.</p></section>
 </div><nav class="bottom" aria-label="Quick navigation"><button class="active" type="button" data-target="radar-section">◉<span>RADAR</span></button><button type="button" data-target="radar-section">◈<span>TOKENS</span></button><button type="button" data-target="wallets-section">◎<span>WALLETS</span></button><button type="button" data-target="risk-section">⚙<span>RISK</span></button></nav>
 <script src="/app.js?v=ui24"></script>
 <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js?v=ui24").catch(()=>{});</script></body></html>
