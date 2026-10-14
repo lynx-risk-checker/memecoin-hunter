@@ -268,6 +268,12 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .workspace-page>.metrics{margin-top:8px;margin-bottom:12px}
 .workspace-page>.price-terminal{margin-top:8px}
 #workspace-nav button{touch-action:manipulation}
+#workspace-pages{padding-bottom:calc(82px + env(safe-area-inset-bottom))}
+#page-tokens #dev-section{margin-top:12px}
+#page-wallets #flow-section{margin-top:0}
+#page-settings .footer-note{margin-top:16px}
+.workspace-page .network-frame{min-height:230px}
+.workspace-page canvas{max-width:100%}
 
 </style></head>
 <body><div id="app">
@@ -310,9 +316,8 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 </div><nav class="bottom" id="workspace-nav" aria-label="Workspace navigation">
 <button class="active" type="button" data-page="radar"><span class="nav-icon">◉</span><span>RADAR</span></button>
 <button type="button" data-page="tokens"><span class="nav-icon">▥</span><span>TOKENS</span></button>
-<button type="button" data-page="flow"><span class="nav-icon">⌁</span><span>FLOW</span></button>
 <button type="button" data-page="wallets"><span class="nav-icon">◎</span><span>WALLETS</span></button>
-<button type="button" data-page="more"><span class="nav-icon">☷</span><span>MORE</span></button>
+<button type="button" data-page="settings"><span class="nav-icon">⚙</span><span>SETTINGS</span></button>
 </nav>
-<script src="/app.js?v=ui30"></script>
-<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js?v=ui30").catch(()=>{});</script></body></html>
+<script src="/app.js?v=ui31"></script>
+<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js?v=ui31").catch(()=>{});</script></body></html>
