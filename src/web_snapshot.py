@@ -533,6 +533,7 @@ def build_developer_dna(
             evidence_status = "INSUFFICIENT_EVIDENCE"
         return {
             "status": status,
+            "evidence_status": evidence_status,
             "source": "solana-rpc",
             "commitment": "confirmed",
             "token": token,
