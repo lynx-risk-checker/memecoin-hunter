@@ -104,7 +104,7 @@ $("refresh").onclick=refresh;
  const shell=document.querySelector("#app");
  const header=shell.querySelector("header");
  const oldGrid=shell.querySelector(".grid");
- const hero=shell.querySelector(".hero");
+ const hero=shell.querySelector(".command-hero");
  const price=document.getElementById("price-terminal");
  const radar=document.getElementById("radar-section");
  const edge=document.getElementById("edge-section");
@@ -134,15 +134,15 @@ $("refresh").onclick=refresh;
  const capitalPage=makePage("capital","Capital & Validation","Paper trading, jurnal, misi modal, dan validasi strategi. Hasil belum boleh diasumsikan.","07 / CAPITAL");
  const systemsPage=makePage("systems","Research Modules","Cakupan roadmap dan status riset. Kartu ini bukan klaim bahwa engine sudah aktif.","08 / ROADMAP");
  shell.insertBefore(host,footer);
- page.radar.appendChild(hero);page.radar.appendChild(radar);
- page.tokens.appendChild(price);
- const flowWrap=document.createElement("div");flowWrap.className="grid";flowWrap.appendChild(flow);page.flow.appendChild(flowWrap);
- const edgeWrap=document.createElement("div");edgeWrap.className="grid";edgeWrap.appendChild(edge);edgePage.appendChild(edgeWrap);
- const walletWrap=document.createElement("div");walletWrap.className="grid";walletWrap.appendChild(wallets);page.wallets.appendChild(walletWrap);
- const riskWrap=document.createElement("div");riskWrap.className="grid";riskWrap.appendChild(risk);riskPage.appendChild(riskWrap);
+ if(hero)page.radar.appendChild(hero);if(radar)page.radar.appendChild(radar);
+ if(price)page.tokens.appendChild(price);
+ const flowWrap=document.createElement("div");flowWrap.className="grid";if(flow){flowWrap.appendChild(flow);page.flow.appendChild(flowWrap);}
+ const edgeWrap=document.createElement("div");edgeWrap.className="grid";if(edge){edgeWrap.appendChild(edge);edgePage.appendChild(edgeWrap);}
+ const walletWrap=document.createElement("div");walletWrap.className="grid";if(wallets){walletWrap.appendChild(wallets);page.wallets.appendChild(walletWrap);}
+ const riskWrap=document.createElement("div");riskWrap.className="grid";if(risk){riskWrap.appendChild(risk);riskPage.appendChild(riskWrap);}
  if(exitSection){const ew=document.createElement("div");ew.className="grid";ew.appendChild(exitSection);riskPage.appendChild(ew);}
- capitalPage.appendChild(mission);
- systemsPage.appendChild(matrix);
+ if(mission)capitalPage.appendChild(mission);
+ if(matrix)systemsPage.appendChild(matrix);
  if(devSection)systemsPage.appendChild(devSection);
  const links=[
   ["EDGE ANALYSIS","Asymmetric Edge, flow/wallet/narrative components.","↗","edge"],
