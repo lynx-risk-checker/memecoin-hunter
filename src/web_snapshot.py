@@ -734,6 +734,11 @@ class SnapshotHandler(BaseHTTPRequestHandler):
             token = query.get("token", [""])[0].strip()
             self._write_json(200, build_token_forensics(token, client=self.client))
             return
+        if path == "/dev-dna":
+            query = parse_qs(urlsplit(self.path).query)
+            token = query.get("token", [""])[0].strip()
+            self._write_json(200, build_developer_dna(token))
+            return
         if path == "/holders":
             query = parse_qs(urlsplit(self.path).query)
             token = query.get("token", [""])[0].strip()
