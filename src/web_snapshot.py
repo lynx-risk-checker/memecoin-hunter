@@ -385,6 +385,193 @@ def _base58_encode(raw: bytes) -> str:
     return "1" * zeroes + (encoded or ("" if zeroes else "1"))
 
 
+
+def _mint_initialization_instructions(raw: dict[str, Any]) -> list[dict[str, Any]]:
+    """Return parsed SPL mint-initialization instructions without guessing binary layouts."""
+    transaction = raw.get("transaction")
+    message = transaction.get("message") if isinstance(transaction, dict) else None
+    meta = raw.get("meta")
+    if not isinstance(message, dict):
+        return []
+    result: list[dict[str, Any]] = []
+
+    def collect(instructions: Any) -> None:
+        if not isinstance(instructions, list):
+            return
+        for instruction in instructions:
+            if not isinstance(instruction, dict):
+                continue
+            parsed = instruction.get("parsed")
+            if not isinstance(parsed, dict):
+                continue
+            kind = parsed.get("type")
+            info = parsed.get("info")
+            if (
+                isinstance(kind, str)
+                and kind.lower() in {"initializemint", "initializemint2"}
+                and isinstance(info, dict)
+                and isinstance(info.get("mint"), str)
+            ):
+                result.append({
+                    "mint": info["mint"],
+                    "mint_authority": info.get("mintAuthority") if isinstance(info.get("mintAuthority"), str) else None,
+                    "program_id": instruction.get("programId") if isinstance(instruction.get("programId"), str) else None,
+                    "instruction_type": kind,
+                })
+
+    collect(message.get("instructions"))
+    if isinstance(meta, dict):
+        inner = meta.get("innerInstructions")
+        if isinstance(inner, list):
+            for group in inner:
+                if isinstance(group, dict):
+                    collect(group.get("instructions"))
+    return result
+
+
+def build_developer_dna(
+    token_address: str,
+    *,
+    rpc_client: SolanaRPCClient | None = None,
+    signature_limit: int = 100,
+    history_limit: int = 40,
+) -> dict[str, Any]:
+    """Observe mint initialization and signer candidates; never equate them with proven developers."""
+    token = token_address.strip()
+    observed_at = datetime.now(timezone.utc).isoformat()
+    if not token or len(token) > 64:
+        return {"status": "INVALID_TOKEN", "token": token, "observed_at": observed_at, "risk_score": None}
+    if not 1 <= signature_limit <= 1000 or not 1 <= history_limit <= 100:
+        return {"status": "INVALID_LIMIT", "token": token, "observed_at": observed_at, "risk_score": None}
+
+    rpc_url = os.getenv("SOLANA_RPC_URL", "").strip()
+    rpc = rpc_client
+    if rpc is None:
+        if not rpc_url:
+            return {
+                "status": "NOT_CONFIGURED", "source": "solana-rpc", "token": token,
+                "observed_at": observed_at, "evidence_status": "INSUFFICIENT_EVIDENCE",
+                "risk_score": None, "classification": "NOT_SCORED",
+            }
+        rpc = SolanaRPCClient(rpc_url, timeout_seconds=5.0)
+
+    try:
+        signatures = rpc.get_signatures_for_address(token, limit=signature_limit, commitment="confirmed")
+        scanned = 0
+        unavailable = 0
+        failed = 0
+        initialization: dict[str, Any] | None = None
+        creator_candidate: str | None = None
+        signer_candidates: list[str] = []
+
+        for item in signatures:
+            signature = item.get("signature") if isinstance(item, dict) else None
+            if not isinstance(signature, str) or not signature:
+                continue
+            scanned += 1
+            if isinstance(item, dict) and item.get("err") is not None:
+                failed += 1
+                continue
+            raw = rpc.get_transaction(signature, commitment="confirmed")
+            if raw is None:
+                unavailable += 1
+                continue
+            meta = raw.get("meta")
+            if not isinstance(meta, dict) or meta.get("err") is not None:
+                failed += 1
+                continue
+            matches = [entry for entry in _mint_initialization_instructions(raw) if entry["mint"] == token]
+            if not matches:
+                continue
+            transaction = raw.get("transaction")
+            message = transaction.get("message") if isinstance(transaction, dict) else None
+            keys = message.get("accountKeys", []) if isinstance(message, dict) else []
+            signer_candidates = [
+                key["pubkey"] for key in keys
+                if isinstance(key, dict) and key.get("signer") is True and isinstance(key.get("pubkey"), str)
+            ] if isinstance(keys, list) else []
+            creator_candidate = signer_candidates[0] if signer_candidates else None
+            initialization = {
+                **matches[0],
+                "signature": signature,
+                "slot": raw.get("slot") if isinstance(raw.get("slot"), int) else None,
+                "block_time": raw.get("blockTime") if isinstance(raw.get("blockTime"), int) else None,
+                "signer_candidate": creator_candidate,
+                "signer_candidates": signer_candidates,
+            }
+            break
+
+        history_sampled = 0
+        history_unavailable = 0
+        other_mints: set[str] = set()
+        if creator_candidate:
+            history = rpc.get_signatures_for_address(
+                creator_candidate, limit=history_limit, commitment="confirmed"
+            )
+            for item in history:
+                signature = item.get("signature") if isinstance(item, dict) else None
+                if not isinstance(signature, str) or not signature:
+                    continue
+                history_sampled += 1
+                raw = rpc.get_transaction(signature, commitment="confirmed")
+                if raw is None:
+                    history_unavailable += 1
+                    continue
+                meta = raw.get("meta")
+                if not isinstance(meta, dict) or meta.get("err") is not None:
+                    continue
+                for entry in _mint_initialization_instructions(raw):
+                    if entry["mint"] != token:
+                        other_mints.add(entry["mint"])
+
+        complete = len(signatures) < signature_limit and unavailable == 0
+        if initialization:
+            status = "INITIALIZATION_OBSERVED"
+            evidence_status = "SIGNER_CANDIDATE_ONLY"
+        else:
+            status = "NO_INITIALIZATION_IN_BOUNDED_SAMPLE"
+            evidence_status = "INSUFFICIENT_EVIDENCE"
+        return {
+            "status": status,
+            "source": "solana-rpc",
+            "commitment": "confirmed",
+            "token": token,
+            "observed_at": observed_at,
+            "signature_limit": signature_limit,
+            "signatures_scanned": scanned,
+            "transactions_unavailable": unavailable,
+            "failed_transactions": failed,
+            "sample_exhaustive": len(signatures) < signature_limit,
+            "data_complete": complete,
+            "initialization": initialization,
+            "mint_authority": initialization.get("mint_authority") if initialization else None,
+            "signer_candidate": creator_candidate,
+            "signer_history": {
+                "status": "OBSERVED_BOUNDED_SAMPLE" if creator_candidate else "NOT_AVAILABLE",
+                "signatures_scanned": history_sampled,
+                "transactions_unavailable": history_unavailable,
+                "other_mint_initializations_observed": len(other_mints),
+                "sample_mints": sorted(other_mints)[:10],
+            },
+            "risk_score": None,
+            "classification": "NOT_SCORED",
+            "validation_status": "INSUFFICIENT_EVIDENCE",
+            "limitations": [
+                "The initialization transaction signer is a candidate, not proof of developer identity or control.",
+                "Mint authority is reported separately and is not assumed to be the deployer.",
+                "A bounded signature sample can miss older initialization or launch history.",
+                "Observed mint initializations do not establish profitability, rug history, or manipulation.",
+            ],
+        }
+    except (SolanaRPCError, ValueError, OSError, TypeError) as exc:
+        return {
+            "status": "UNAVAILABLE", "source": "solana-rpc", "token": token,
+            "observed_at": observed_at, "error": str(exc),
+            "evidence_status": "INSUFFICIENT_EVIDENCE", "risk_score": None,
+            "classification": "NOT_SCORED",
+        }
+
+
 def build_token_holders(token_address: str, rpc_client: SolanaRPCClient | None = None) -> dict[str, Any]:
     """Fetch real largest token accounts and decode their on-chain token authorities."""
     token = token_address.strip()
