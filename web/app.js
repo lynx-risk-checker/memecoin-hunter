@@ -34,15 +34,13 @@ function network(t){
    x.font="800 8px ui-monospace";x.fillStyle="#8da7b6";x.textAlign="center";x.fillText(nodes.length+" REPORTED NODES · "+edges.length+" REPORTED RELATIONS",w/2,h-7);
    x.font="7px ui-monospace";x.fillStyle="#5d7c8b";x.fillText("GREEN = CONFIRMED EVIDENCE · AMBER = UNVERIFIED",w/2,12);
  }else{
-   // Visual-only scanning animation while verified graph data is absent; no wallet nodes or links are asserted.
-   for(let ring=1;ring<=4;ring++){x.beginPath();x.ellipse(cx,cy,r*ring/4,r*ring/3,t*.00008*(ring%2?1:-1),0,Math.PI*2);x.strokeStyle="rgba(55,216,255,"+(0.16/ring)+")";x.stroke()}
-   const sweep=(t*.00035)%(Math.PI*2);x.beginPath();x.moveTo(cx,cy);x.arc(cx,cy,r,sweep-.25,sweep);x.closePath();x.fillStyle="#00ff9a0d";x.fill();
-   for(let i=0;i<18;i++){const a=t*.00018+i*Math.PI*2/18,rr=r*(.38+.42*(.5+.5*Math.sin(t*.00065+i*1.7))),px=cx+Math.cos(a)*rr,py=cy+Math.sin(a)*rr*.68;
-     x.beginPath();x.moveTo(cx,cy);x.lineTo(px,py);x.strokeStyle="rgba(0,255,154,.09)";x.stroke();x.beginPath();x.arc(px,py,1.8+Math.sin(t*.003+i)*.45,0,Math.PI*2);x.fillStyle=i%4===0?"#55d8ff":"#00ff9a";x.shadowBlur=9;x.shadowColor=x.fillStyle;x.fill();x.shadowBlur=0;
-   }
-   x.beginPath();x.arc(cx,cy,14+Math.sin(t*.003)*2,0,Math.PI*2);x.strokeStyle="#00ff9a77";x.stroke();x.beginPath();x.arc(cx,cy,3,0,Math.PI*2);x.fillStyle="#caffed";x.fill();
-   x.font="800 9px ui-monospace";x.fillStyle="#b4c6d3";x.textAlign="center";x.fillText("SMART MONEY GRAPH · AWAITING EVIDENCE",w/2,cy-5);
-   x.font="8px ui-monospace";x.fillStyle="#71869a";x.fillText("DECORATIVE SCAN ONLY · NO VERIFIED WALLET SIGNALS",w/2,cy+13);
+   // No fabricated wallet nodes or edges: render a clear evidence state instead.
+   x.fillStyle="#0a1119";x.fillRect(0,0,w,h);
+   x.strokeStyle="#263746";x.lineWidth=1;x.strokeRect(10,10,Math.max(0,w-20),Math.max(0,h-20));
+   x.font="800 9px ui-monospace";x.fillStyle="#b4c6d3";x.textAlign="center";
+   x.fillText("WALLET GRAPH · INSUFFICIENT EVIDENCE",w/2,cy-5);
+   x.font="8px ui-monospace";x.fillStyle="#71869a";
+   x.fillText("WAITING FOR VERIFIED WALLET NODES + TRANSACTION EDGES",w/2,cy+13);
  }
  x.restore();
 }
@@ -165,7 +163,7 @@ window.__mhRedrawWorkspace=()=>{const t=performance.now();if(typeof radar==="fun
  function go(key){
   const target=document.getElementById("page-"+key);if(!target)return;
   document.querySelectorAll(".workspace-page").forEach(p=>p.classList.toggle("is-active",p===target));
-  nav.querySelectorAll("button[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===key));
+  nav.querySelectorAll("button[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===key || (b.dataset.page==="settings" && ["edge","risk","capital","systems"].includes(key))));
   const crumb=document.getElementById("page-breadcrumb");if(crumb)crumb.textContent=target.querySelector("h2")?.textContent?.toUpperCase()||key.toUpperCase();
   history.replaceState(null,"","#"+key);
   window.scrollTo({top:0,behavior:"smooth"});
