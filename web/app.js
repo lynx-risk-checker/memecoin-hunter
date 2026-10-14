@@ -147,6 +147,7 @@ async function loadTokenForensics(token=window.__selectedToken||window.__data?.o
   const data=await response.json();if(requestId!==forensicsRequest||forensicsToken!==token)return;
   const summary=data.summary||{};
   const status=(data.status||"UNKNOWN")+" · "+(data.evidence_status||data.validation_status||"INSUFFICIENT_EVIDENCE");
+  set("matrix-flow-state",data.status==="CONNECTED"?(data.data_complete===false?"RPC SAMPLE INCOMPLETE":"LIVE RPC SAMPLE"):String(data.status||"UNAVAILABLE"));
   set("forensics-status",status+" · "+(data.transactions_parsed??0)+" TX PARSED / "+(data.signatures_scanned??0)+" SIGNATURES");
   set("forensics-buy",typeof summary.buy_candidates==="number"?String(summary.buy_candidates):"—");
   set("forensics-sell",typeof summary.sell_candidates==="number"?String(summary.sell_candidates):"—");
@@ -158,7 +159,7 @@ async function loadTokenForensics(token=window.__selectedToken||window.__data?.o
   if(list)list.innerHTML=events.length?'<div class="row"><span>RECENT BALANCE-FLOW CANDIDATES</span><b>'+events.length+' EVENTS</b></div>'+events.map(event=>'<div class="row"><span>'+esc(event.direction)+' · '+esc(String(event.wallet||"").slice(0,5)+"…"+String(event.wallet||"").slice(-4))+' · <a class="green" target="_blank" rel="noopener noreferrer" href="https://explorer.solana.com/tx/'+encodeURIComponent(event.signature||"")+'?cluster=mainnet-beta">TX ↗</a></span><b>'+esc(Number(event.token_delta_ui).toFixed(4))+' TOKEN</b></div>').join(""):'<div class="row"><span>RECENT FLOW CANDIDATES</span><b>'+esc(data.status==="NOT_CONFIGURED"?"RPC NOT CONFIGURED":data.status==="UNAVAILABLE"?"RPC UNAVAILABLE":"NO MATCHING CANDIDATES")+'</b></div>';
   if(data.data_complete===false)set("forensics-status",($("forensics-status")?.textContent||status)+" · SAMPLE INCOMPLETE");
  }catch(error){
-  if(requestId===forensicsRequest){set("forensics-status","5M FORENSICS · UNAVAILABLE · "+String(error.message||error));set("forensics-buy","—");set("forensics-sell","—");set("forensics-buy-sol","—");set("forensics-sell-sol","—");set("forensics-window","NO VERIFIED WINDOW");const list=$("forensics-events");if(list)list.innerHTML='<div class="row"><span>FORENSIC EVIDENCE</span><b>UNAVAILABLE</b></div>';}
+  if(requestId===forensicsRequest){set("matrix-flow-state","RPC UNAVAILABLE");set("forensics-status","5M FORENSICS · UNAVAILABLE · "+String(error.message||error));set("forensics-buy","—");set("forensics-sell","—");set("forensics-buy-sol","—");set("forensics-sell-sol","—");set("forensics-window","NO VERIFIED WINDOW");const list=$("forensics-events");if(list)list.innerHTML='<div class="row"><span>FORENSIC EVIDENCE</span><b>UNAVAILABLE</b></div>';}
  }finally{if(requestId===forensicsRequest)forensicsBusy=false}
 }
 
