@@ -48,3 +48,10 @@ def test_build_token_holders_rejects_empty_token_without_rpc_call():
     assert result["status"] == "INVALID_TOKEN"
     assert result["holders"] == []
     assert rpc.calls == []
+
+
+def test_base58_encoding_preserves_leading_zero_bytes():
+    from src.web_snapshot import _base58_encode
+
+    assert _base58_encode(bytes(32)) == "1" * 32
+    assert _base58_encode(bytes([0, 1])) == "12"
