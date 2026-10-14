@@ -73,7 +73,7 @@ def test_forensics_endpoint_aggregates_recent_confirmed_balance_flow_as_candidat
         client=FakeDexClient(),
         rpc_client=rpc,
         now_epoch=now,
-        signature_limit=100,
+        signature_limit=40,
     )
 
     assert result["status"] == "CONNECTED"
