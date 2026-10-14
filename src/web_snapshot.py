@@ -15,6 +15,7 @@ from typing import Any
 from src.data.dexscreener import DexScreenerClient, DexScreenerError
 from src.data.solana_rpc import SolanaRPCClient, SolanaRPCError
 from src.data.solana_stream import SolanaLogStream
+from src.data.tx_parser import parse_transaction
 from src.wallets.history import collect_wallet_transactions
 from src.wallets.swap_evidence import extract_balance_flow_swaps
 from src.radar.token_radar import RadarPolicy, candidate_filter_reasons, filter_candidates
@@ -164,6 +165,172 @@ def build_snapshot(
         },
         "opportunities": opportunities,
     }
+
+
+
+def build_token_forensics(
+    token_address: str,
+    *,
+    client: DexScreenerClient | None = None,
+    rpc_client: SolanaRPCClient | None = None,
+    now_epoch: int | None = None,
+    signature_limit: int = 100,
+) -> dict[str, Any]:
+    """Build an evidence-labelled trailing five-minute flow view from confirmed RPC transactions.
+
+    This deliberately reports token/SOL balance-flow candidates, not confirmed DEX swaps:
+    a balance delta alone does not establish instruction semantics or economic intent.
+    """
+    token = token_address.strip()
+    observed_at = datetime.now(timezone.utc).isoformat()
+    if not token or len(token) > 64:
+        return {"status": "INVALID_TOKEN", "source": "solana-rpc", "token": token, "events": []}
+    if not 1 <= signature_limit <= 1000:
+        return {"status": "INVALID_LIMIT", "source": "solana-rpc", "token": token, "events": []}
+
+    rpc_url = os.getenv("SOLANA_RPC_URL", "").strip()
+    rpc = rpc_client
+    if rpc is None:
+        if not rpc_url:
+            return {
+                "status": "NOT_CONFIGURED", "source": "solana-rpc",
+                "token": token, "observed_at": observed_at, "events": [],
+                "validation_status": "INSUFFICIENT_EVIDENCE",
+            }
+        rpc = SolanaRPCClient(rpc_url, timeout_seconds=5.0)
+
+    client = client or DexScreenerClient()
+    try:
+        pairs = client.token_pairs([token])
+        pair = client._best_solana_pair(pairs, token)
+        if not pair or not isinstance(pair.get("pairAddress"), str):
+            return {
+                "status": "POOL_NOT_FOUND", "source": "solana-rpc",
+                "token": token, "observed_at": observed_at, "events": [],
+                "validation_status": "INSUFFICIENT_EVIDENCE",
+            }
+        pool = pair["pairAddress"]
+        signatures = rpc.get_signatures_for_address(pool, limit=signature_limit, commitment="confirmed")
+        now = int(now_epoch if now_epoch is not None else datetime.now(timezone.utc).timestamp())
+        cutoff = now - 300
+        events: list[dict[str, Any]] = []
+        scanned = 0
+        parsed = 0
+        failed = 0
+        skipped_unavailable = 0
+        buy_candidates = 0
+        sell_candidates = 0
+        buy_token_ui = 0.0
+        sell_token_ui = 0.0
+        buy_sol_ui = 0.0
+        sell_sol_ui = 0.0
+        buyers: set[str] = set()
+        sellers: set[str] = set()
+
+        for item in signatures:
+            if not isinstance(item, dict) or not isinstance(item.get("signature"), str):
+                continue
+            scanned += 1
+            block_time = item.get("blockTime")
+            if isinstance(block_time, int) and block_time < cutoff:
+                continue
+            if item.get("err") is not None:
+                failed += 1
+                continue
+            raw = rpc.get_transaction(item["signature"], commitment="confirmed")
+            if raw is None:
+                skipped_unavailable += 1
+                continue
+            try:
+                tx = parse_transaction(raw, signature=item["signature"])
+            except (TypeError, ValueError, KeyError):
+                skipped_unavailable += 1
+                continue
+            if not tx.success or tx.block_time is None or tx.block_time < cutoff or tx.block_time > now:
+                continue
+            parsed += 1
+            token_by_owner: dict[str, float] = {}
+            sol_by_owner: dict[str, float] = {}
+            for delta in tx.token_deltas:
+                if delta.mint == token and delta.owner:
+                    token_by_owner[delta.owner] = token_by_owner.get(delta.owner, 0.0) + delta.ui_delta
+            for delta in tx.sol_deltas:
+                sol_by_owner[delta.account] = delta.sol_delta
+
+            for owner, token_delta in token_by_owner.items():
+                sol_delta = sol_by_owner.get(owner, 0.0)
+                if token_delta > 0 and sol_delta < 0:
+                    buy_candidates += 1
+                    buy_token_ui += token_delta
+                    buy_sol_ui += abs(sol_delta)
+                    buyers.add(owner)
+                    direction = "BUY_CANDIDATE"
+                elif token_delta < 0 and sol_delta > 0:
+                    sell_candidates += 1
+                    sell_token_ui += abs(token_delta)
+                    sell_sol_ui += sol_delta
+                    sellers.add(owner)
+                    direction = "SELL_CANDIDATE"
+                else:
+                    continue
+                events.append({
+                    "signature": tx.signature,
+                    "slot": tx.slot,
+                    "block_time": tx.block_time,
+                    "wallet": owner,
+                    "direction": direction,
+                    "token_delta_ui": token_delta,
+                    "sol_delta_ui": sol_delta,
+                    "evidence_class": "TOKEN_SOL_BALANCE_FLOW_CANDIDATE",
+                    "dex_swap_confirmed": False,
+                })
+
+        complete = not skipped_unavailable and bool(signatures)
+        return {
+            "status": "CONNECTED" if signatures else "NO_RECENT_TRANSACTIONS",
+            "source": "solana-rpc",
+            "source_method": "getSignaturesForAddress + getTransaction",
+            "commitment": "confirmed",
+            "token": token,
+            "pool_address": pool,
+            "observed_at": observed_at,
+            "window_seconds": 300,
+            "window_start_epoch": cutoff,
+            "window_end_epoch": now,
+            "signature_limit": signature_limit,
+            "signatures_scanned": scanned,
+            "transactions_parsed": parsed,
+            "failed_transactions_skipped": failed,
+            "transactions_unavailable_or_unparseable": skipped_unavailable,
+            "data_complete": complete,
+            "summary": {
+                "buy_candidates": buy_candidates,
+                "sell_candidates": sell_candidates,
+                "unique_buyers_candidate": len(buyers),
+                "unique_sellers_candidate": len(sellers),
+                "buy_token_ui": buy_token_ui,
+                "sell_token_ui": sell_token_ui,
+                "buy_sol_ui": buy_sol_ui,
+                "sell_sol_ui": sell_sol_ui,
+                "net_token_flow_ui": buy_token_ui - sell_token_ui,
+            },
+            "events": sorted(events, key=lambda event: event["block_time"]),
+            "evidence_status": "BALANCE_FLOW_CANDIDATES_ONLY",
+            "validation_status": "INSUFFICIENT_EVIDENCE",
+            "limitations": [
+                "Token/SOL balance deltas are candidate flow, not proof of a DEX swap.",
+                "DEX program/instruction semantics are not yet verified by this endpoint.",
+                "Only the latest bounded signature sample is examined; completeness is false when transactions could not be parsed.",
+                "Wallet identity and independence are not inferred from token flow alone.",
+            ],
+        }
+    except (DexScreenerError, SolanaRPCError, ValueError, OSError, TimeoutError) as exc:
+        return {
+            "status": "UNAVAILABLE", "source": "solana-rpc",
+            "token": token, "observed_at": observed_at, "events": [],
+            "validation_status": "INSUFFICIENT_EVIDENCE",
+            "error": str(exc),
+        }
 
 
 def build_candles(client: DexScreenerClient, token_address: str, timeframe: str = "minute") -> dict[str, Any]:
@@ -371,6 +538,11 @@ class SnapshotHandler(BaseHTTPRequestHandler):
             token = query.get("token", [""])[0].strip()
             timeframe = query.get("timeframe", ["minute"])[0].strip()
             self._write_json(200, build_candles(self.client, token, timeframe))
+            return
+        if path == "/forensics":
+            query = parse_qs(urlsplit(self.path).query)
+            token = query.get("token", [""])[0].strip()
+            self._write_json(200, build_token_forensics(token, client=self.client))
             return
         if path == "/holders":
             query = parse_qs(urlsplit(self.path).query)
