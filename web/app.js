@@ -45,7 +45,7 @@ function network(t){
  x.restore();
 }
 
-let selectedTimeframe="minute", candleToken="", candleRequest=0, lastCandles=[];
+let selectedTimeframe="minute", candleToken="", candleRequest=0, lastCandles=[], candleZoom=70, candleOffset=0;
 const priceMoney=v=>typeof v==="number"?new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:v<1?8:4}).format(v):"—";
 function drawCandles(){
  const c=$("price-canvas");if(!c)return;const [ctx,w,h,d]=resize(c);ctx.clearRect(0,0,c.width,c.height);ctx.save();ctx.scale(d,d);
@@ -53,12 +53,15 @@ function drawCandles(){
  // Institutional terminal grid, with restrained axis guides.
  for(let i=0;i<5;i++){const y=pad.t+ch*i/4;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.strokeStyle=i===4?"#55d8ff20":"#ffffff0d";ctx.lineWidth=1;ctx.stroke()}
  if(!lastCandles.length){ctx.fillStyle="#71869a";ctx.textAlign="center";ctx.font="10px ui-monospace";ctx.fillText("REAL OHLCV CANDLES UNAVAILABLE",w/2,h/2-3);ctx.font="8px ui-monospace";ctx.fillText("Waiting for a verified pool + source response",w/2,h/2+14);ctx.restore();return}
- const min=Math.min(...lastCandles.map(v=>v.low)),max=Math.max(...lastCandles.map(v=>v.high)),span=max-min||Math.max(max*.02,1e-8),y=v=>pad.t+(max-v)/span*ch;
- const step=cw/lastCandles.length,bodyW=Math.max(2,Math.min(9,step*.64));
+ const count=Math.max(10,Math.min(lastCandles.length,candleZoom));
+ candleOffset=Math.max(0,Math.min(candleOffset,Math.max(0,lastCandles.length-count)));
+ const end=lastCandles.length-candleOffset,visibleCandles=lastCandles.slice(Math.max(0,end-count),end);
+ const min=Math.min(...visibleCandles.map(v=>v.low)),max=Math.max(...visibleCandles.map(v=>v.high)),span=max-min||Math.max(max*.02,1e-8),y=v=>pad.t+(max-v)/span*ch;
+ const step=cw/visibleCandles.length,bodyW=Math.max(2,Math.min(9,step*.64));
  // Real reported volume is drawn as subdued histogram bars beneath the price field.
- const maxVolume=Math.max(0,...lastCandles.map(v=>Number.isFinite(v.volume)?v.volume:0));
+ const maxVolume=Math.max(0,...visibleCandles.map(v=>Number.isFinite(v.volume)?v.volume:0));
  const volumeBase=h-19,volumeH=24;
- lastCandles.forEach((v,i)=>{
+ visibleCandles.forEach((v,i)=>{
    const px=pad.l+step*(i+.5),up=v.close>=v.open,colour=up?"#00e89a":"#ef526f";
    if(maxVolume>0&&Number.isFinite(v.volume)&&v.volume>=0){const bh=Math.max(v.volume>0?1:0,(v.volume/maxVolume)*volumeH);ctx.fillStyle=up?"#00e89a30":"#ef526f30";ctx.fillRect(px-bodyW/2,volumeBase-bh,bodyW,bh)}
    ctx.beginPath();ctx.moveTo(px,y(v.high));ctx.lineTo(px,y(v.low));ctx.strokeStyle=colour;ctx.lineWidth=1;ctx.stroke();
@@ -66,21 +69,30 @@ function drawCandles(){
    ctx.fillStyle=colour;ctx.shadowBlur=bh>2?5:0;ctx.shadowColor=colour;ctx.fillRect(px-bodyW/2,top,bodyW,bh);ctx.shadowBlur=0;
    if(bh>3){ctx.fillStyle=up?"#baffdf":"#ffd4dc";ctx.fillRect(px-bodyW/2,top,bodyW,1)}
  });
- const last=lastCandles[lastCandles.length-1],ly=y(last.close);
+ const last=visibleCandles[visibleCandles.length-1],ly=y(last.close);
  ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(pad.l,ly);ctx.lineTo(w-pad.r+3,ly);ctx.strokeStyle="#b5d2e0aa";ctx.stroke();ctx.setLineDash([]);
  const lastUp=last.close>=last.open;ctx.fillStyle=lastUp?"#00e89a":"#ef526f";ctx.shadowBlur=12;ctx.shadowColor=ctx.fillStyle;ctx.fillRect(w-pad.r+3,ly-8,pad.r-5,16);ctx.shadowBlur=0;
  ctx.fillStyle="#04100c";ctx.font="bold 8px ui-monospace";ctx.textAlign="center";ctx.fillText(priceMoney(last.close),w-pad.r/2,ly+3);
- ctx.fillStyle="#71869a";ctx.font="8px ui-monospace";ctx.textAlign="left";ctx.fillText(new Date(lastCandles[0].time*1000).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}),pad.l,h-5);
+ ctx.fillStyle="#71869a";ctx.font="8px ui-monospace";ctx.textAlign="left";ctx.fillText(new Date(visibleCandles[0].time*1000).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}),pad.l,h-5);
  ctx.textAlign="right";ctx.fillText(new Date(last.time*1000).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}),w-pad.r,h-5);
  ctx.textAlign="left";ctx.fillStyle="#536d7c";ctx.fillText("VOL",pad.l,volumeBase-7);
  ctx.restore();
+}
+const priceCanvas=$("price-canvas");
+if(priceCanvas&&!priceCanvas.dataset.interactive){
+ priceCanvas.dataset.interactive="1";priceCanvas.style.touchAction="pan-y";
+ let drag=null;
+ priceCanvas.addEventListener("pointerdown",event=>{if(!lastCandles.length)return;drag={x:event.clientX,offset:candleOffset};priceCanvas.setPointerCapture?.(event.pointerId)});
+ priceCanvas.addEventListener("pointermove",event=>{if(!drag)return;const rect=priceCanvas.getBoundingClientRect(),step=Math.max(1,rect.width/Math.max(10,candleZoom));candleOffset=Math.max(0,Math.min(Math.max(0,lastCandles.length-candleZoom),drag.offset+Math.round((drag.x-event.clientX)/step)));drawCandles()});
+ const endDrag=()=>{drag=null};priceCanvas.addEventListener("pointerup",endDrag);priceCanvas.addEventListener("pointercancel",endDrag);
+ priceCanvas.addEventListener("wheel",event=>{if(!lastCandles.length)return;event.preventDefault();candleZoom=Math.max(10,Math.min(120,candleZoom+(event.deltaY>0?10:-10)));candleOffset=Math.min(candleOffset,Math.max(0,lastCandles.length-candleZoom));drawCandles()},{passive:false});
 }
 async function loadCandles(force=false){
  const token=window.__selectedToken||window.__data?.opportunities?.[0]?.token;if(!token){lastCandles=[];set("candle-status","OHLCV: NO TOKEN");drawCandles();return}
  if(!force&&token===candleToken&&window.__candlesBusy)return;
  candleToken=token;const requestId=++candleRequest;window.__candlesBusy=true;set("price-token",(window.__data?.opportunities?.find(item=>item.token===token)?.symbol||"TOKEN")+" · "+selectedTimeframe.toUpperCase());set("candle-status","OHLCV: FETCHING REAL POOL DATA");
  try{const r=await fetch("/candles?token="+encodeURIComponent(token)+"&timeframe="+encodeURIComponent(selectedTimeframe)+"&t="+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);const payload=await r.json();if(requestId!==candleRequest)return;
- lastCandles=payload.status==="CONNECTED"&&Array.isArray(payload.candles)?payload.candles.filter(v=>[v.time,v.open,v.high,v.low,v.close,v.volume].every(Number.isFinite)):[];
+ lastCandles=payload.status==="CONNECTED"&&Array.isArray(payload.candles)?payload.candles.filter(v=>[v.time,v.open,v.high,v.low,v.close,v.volume].every(Number.isFinite)):[];candleOffset=Math.min(candleOffset,Math.max(0,lastCandles.length-candleZoom));
  set("candle-status",payload.status==="CONNECTED"?"OHLCV: CONNECTED · "+lastCandles.length+" CANDLES":"OHLCV: "+payload.status);
  set("candle-source",payload.pair_address?"POOL "+payload.pair_address.slice(0,5)+"…"+payload.pair_address.slice(-5)+" · GECKOTERMINAL":"GECKOTERMINAL · VERIFIED POOL REQUIRED");
  if(lastCandles.length){const first=lastCandles[0],last=lastCandles[lastCandles.length-1],change=first.close?((last.close-first.open)/first.open*100):0;set("price-last",priceMoney(last.close));set("price-change",(change>=0?"+":"")+change.toFixed(2)+"% · "+(change>=0?"UP":"DOWN"));set("candle-range",lastCandles.length+" bars · "+new Date(last.time*1000).toLocaleString());}
