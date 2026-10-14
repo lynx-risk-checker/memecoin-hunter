@@ -217,7 +217,7 @@ if(window.__selectedToken&&window.__lastHolderToken!==window.__selectedToken)loa
  if(window.__selectedToken&&forensicsToken!==window.__selectedToken)loadTokenForensics(window.__selectedToken);
 if(window.__selectedToken&&window.__lastStreamToken!==window.__selectedToken){window.__lastStreamToken=window.__selectedToken;connectTokenStream(window.__selectedToken);}
 }
-async function refresh(){try{const r=await fetch("/snapshot?ui=33&t="+Date.now(),{cache:"no-store"});if(!r.ok)throw Error(r.status);render(await r.json())}catch(e){set("connection","DEX: SNAPSHOT UNAVAILABLE");set("rpc-connection","RPC: UNKNOWN");set("hero-reason","Backend snapshot belum tersedia. Tidak ada data market palsu.");}}
+async function refresh(){try{const r=await fetch("/snapshot?ui=39&t="+Date.now(),{cache:"no-store"});if(!r.ok)throw Error(r.status);render(await r.json())}catch(e){set("connection","DEX: SNAPSHOT UNAVAILABLE");set("rpc-connection","RPC: UNKNOWN");set("hero-reason","Backend snapshot belum tersedia. Tidak ada data market palsu.");}}
 $("refresh").onclick=refresh;
 window.__mhRedrawWorkspace=()=>{const t=performance.now();if(typeof radar==="function")radar(t);if(typeof marketRadar==="function")marketRadar();if(typeof chart==="function")chart(t);if(typeof network==="function")network(t);if(typeof drawCandles==="function")drawCandles();};
 /* UI27 workspace router: each destination gets its own page and context. */
@@ -247,7 +247,7 @@ window.__mhRedrawWorkspace=()=>{const t=performance.now();if(typeof radar==="fun
   p.appendChild(heading);host.appendChild(p);return p;
  };
  const page={
-  radar:makePage("radar","Market Radar","Discovery ringkas untuk menemukan kandidat; keputusan tetap menunggu bukti yang cukup.","01 / DISCOVERY"),
+  radar:makePage("radar","Market Radar + 5M Forensics","Discovery dan bukti transaksi 5 menit tampil langsung di halaman utama; kandidat flow tetap bukan swap terkonfirmasi.","01 / DISCOVERY + FLOW"),
   tokens:makePage("tokens","Token Terminal","Pilih kandidat dan periksa OHLCV nyata dari pool yang terverifikasi. Tidak ada candle buatan.","02 / MARKET DATA"),
   wallets:makePage("wallets","Wallet Intelligence","On-chain flow, Smart Money, wallet terpantau, cluster, dan relasi berbasis evidence.","03 / WALLET INTELLIGENCE"),
   settings:makePage("settings","Settings & Research","Konfigurasi, diagnostik sistem, risk control, validasi, dan modul riset.","04 / SYSTEM CONTROL")
@@ -261,9 +261,10 @@ window.__mhRedrawWorkspace=()=>{const t=performance.now();if(typeof radar==="fun
  if(liveStrip)page.radar.appendChild(liveStrip);
  if(metrics)page.radar.appendChild(metrics);
  if(radar)page.radar.appendChild(radar);
+ // Founder-visible 5-minute on-chain evidence belongs on the first screen, not hidden under Wallets.
+ if(flow){const radarFlowWrap=document.createElement("div");radarFlowWrap.className="grid";radarFlowWrap.appendChild(flow);page.radar.appendChild(radarFlowWrap);}
  if(price)page.tokens.appendChild(price);
  if(devSection)page.tokens.appendChild(devSection);
- const flowWrap=document.createElement("div");flowWrap.className="grid";if(flow){flowWrap.appendChild(flow);page.wallets.appendChild(flowWrap);}
  const edgeWrap=document.createElement("div");edgeWrap.className="grid";if(edge){edgeWrap.appendChild(edge);edgePage.appendChild(edgeWrap);}
  const walletWrap=document.createElement("div");walletWrap.className="grid";if(wallets){walletWrap.appendChild(wallets);page.wallets.appendChild(walletWrap);}
  const riskWrap=document.createElement("div");riskWrap.className="grid";if(risk){riskWrap.appendChild(risk);riskPage.appendChild(riskWrap);}
