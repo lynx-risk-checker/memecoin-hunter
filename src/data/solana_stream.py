@@ -7,6 +7,7 @@ from typing import Any, AsyncIterator, Callable
 from urllib.parse import urlparse, urlunparse
 
 import websockets
+from websockets.exceptions import WebSocketException
 
 
 class SolanaWebSocketError(RuntimeError):
@@ -139,6 +140,6 @@ class SolanaLogStream:
                         yield event
             except asyncio.CancelledError:
                 raise
-            except (OSError, TimeoutError, SolanaWebSocketError, websockets.exceptions.WebSocketException):
+            except (OSError, TimeoutError, SolanaWebSocketError, WebSocketException):
                 if self.reconnect_delay:
                     await asyncio.sleep(self.reconnect_delay)
