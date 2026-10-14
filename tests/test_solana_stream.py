@@ -94,7 +94,7 @@ def test_stream_builds_mentions_subscription():
 
 def test_stream_reconnects_after_websocket_transport_error():
     import asyncio
-    import websockets
+    from websockets.exceptions import WebSocketException
 
     attempts = []
     sent = []
@@ -130,7 +130,7 @@ def test_stream_reconnects_after_websocket_transport_error():
     def factory(*args, **kwargs):
         attempts.append(1)
         if len(attempts) == 1:
-            raise websockets.exceptions.WebSocketException("temporary transport failure")
+            raise WebSocketException("temporary transport failure")
         return Context()
 
     async def run():
