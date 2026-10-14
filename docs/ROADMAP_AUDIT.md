@@ -242,3 +242,12 @@ This checkpoint is documentation and prioritization only. It does not claim new 
 - Bumped HTML/JS asset query versions and service-worker cache from UI38/v38 to UI39/v39 to reduce stale iPhone/PWA assets.
 - Railway logs from the deployed service show HTTP 200 for `/snapshot` and `/forensics` requests. This confirms route reachability only; it does not by itself prove valid live transaction evidence or that every installed iPhone PWA has refreshed.
 - Next acceptance check: open the public dashboard with a cache-busting query or refresh the installed PWA, confirm the 5M panel is on the first Radar screen, and inspect its selected-token evidence state. DEX instruction semantics, developer attribution, realized PnL, and live execution remain unverified/locked.
+
+
+## Developer DNA evidence adapter — 2026-10-15
+
+- Added `GET /dev-dna?token=<mint>` using the configured Solana RPC endpoint. It scans a bounded confirmed-signature sample for parsed SPL `initializeMint` / `initializeMint2` instructions.
+- When observed, the endpoint reports the initialization transaction, first signer candidate, and mint authority as distinct evidence fields; it samples that signer's bounded history for other observed mint initializations.
+- It explicitly returns `risk_score: null` and `classification: NOT_SCORED`. Signer identity, developer control, rug history, profitability, and manipulation are not inferred from initialization evidence alone.
+- Added a live Dev DNA panel in the Token Terminal with links to the candidate signer and mint authority. It loads when the selected token changes and does not claim a reputation score.
+- Acceptance limits: bounded signature samples can miss older initialization/history; no confirmed dev attribution, rug labels, or profitable-launch ground truth is integrated yet. Phase 4 remains **PARTIAL**.
