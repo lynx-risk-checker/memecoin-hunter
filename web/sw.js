@@ -1,4 +1,4 @@
-const CACHE_NAME="memecoin-hunter-v31";
+const CACHE_NAME="memecoin-hunter-v32";
 const APP_SHELL=["/","/index.html?v=ui30","/styles.css?v=ui30","/app.js?v=ui30","/manifest.webmanifest?v=ui30"];
 
 self.addEventListener("install",event=>{
