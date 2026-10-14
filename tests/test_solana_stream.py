@@ -100,11 +100,15 @@ def test_stream_reconnects_after_websocket_transport_error():
     sent = []
 
     class FakeSocket:
+        def __init__(self):
+            self.receives = 0
+
         async def send(self, payload):
             sent.append(json.loads(payload))
 
         async def recv(self):
-            if len(sent) == 1:
+            self.receives += 1
+            if self.receives == 1:
                 return json.dumps({"result": 3, "id": 1})
             return json.dumps({
                 "params": {
@@ -141,3 +145,4 @@ def test_stream_reconnects_after_websocket_transport_error():
     event = asyncio.run(run())
     assert len(attempts) == 2
     assert event.signature == "RECOVERED_SIG"
+    assert sent[-1]["method"] == "logsSubscribe"
