@@ -56,3 +56,36 @@ def test_static_asset_route_accepts_query_string():
         server.shutdown()
         thread.join(timeout=2)
         server.server_close()
+
+
+def test_forensics_route_passes_selected_token_and_returns_evidence(monkeypatch):
+    observed = []
+    payload = {
+        "status": "CONNECTED",
+        "source": "solana-rpc",
+        "token": "Mint111",
+        "window_seconds": 300,
+        "evidence_status": "BALANCE_FLOW_CANDIDATES_ONLY",
+        "events": [],
+    }
+
+    def fake_forensics(token, *, client=None):
+        observed.append(token)
+        return payload
+
+    monkeypatch.setattr(web_snapshot, "build_token_forensics", fake_forensics)
+    server = ThreadingHTTPServer(("127.0.0.1", 0), web_snapshot.SnapshotHandler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        status, content_type, body = _request(server, "/forensics?token=Mint111&t=123")
+        assert status == 200
+        assert content_type.startswith("application/json")
+        result = json.loads(body)
+        assert result["window_seconds"] == 300
+        assert result["evidence_status"] == "BALANCE_FLOW_CANDIDATES_ONLY"
+        assert observed == ["Mint111"]
+    finally:
+        server.shutdown()
+        thread.join(timeout=2)
+        server.server_close()
