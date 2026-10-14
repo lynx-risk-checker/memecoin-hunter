@@ -174,7 +174,7 @@ def build_token_forensics(
     client: DexScreenerClient | None = None,
     rpc_client: SolanaRPCClient | None = None,
     now_epoch: int | None = None,
-    signature_limit: int = 100,
+    signature_limit: int = 40,
 ) -> dict[str, Any]:
     """Build an evidence-labelled trailing five-minute flow view from confirmed RPC transactions.
 
@@ -285,7 +285,9 @@ def build_token_forensics(
                     "dex_swap_confirmed": False,
                 })
 
-        complete = not skipped_unavailable and bool(signatures)
+        oldest_signature_time = signatures[-1].get("blockTime") if signatures and isinstance(signatures[-1], dict) else None
+        sample_exhaustive = len(signatures) < signature_limit or (isinstance(oldest_signature_time, int) and oldest_signature_time < cutoff)
+        complete = not skipped_unavailable and sample_exhaustive
         return {
             "status": "CONNECTED" if signatures else "NO_RECENT_TRANSACTIONS",
             "source": "solana-rpc",
@@ -303,6 +305,7 @@ def build_token_forensics(
             "failed_transactions_skipped": failed,
             "transactions_unavailable_or_unparseable": skipped_unavailable,
             "data_complete": complete,
+            "sample_exhaustive": sample_exhaustive,
             "summary": {
                 "buy_candidates": buy_candidates,
                 "sell_candidates": sell_candidates,
