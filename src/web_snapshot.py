@@ -358,7 +358,7 @@ class SnapshotHandler(BaseHTTPRequestHandler):
             except Exception as exc:
                 try:
                     payload = json.dumps({"status": "UNAVAILABLE", "source": "solana-logsSubscribe", "error": str(exc)}, separators=(",", ":")).encode("utf-8")
-                    self.wfile.write(b"event: status\\ndata: " + payload + b"\\n\\n")
+                    self.wfile.write(b"event: status\ndata: " + payload + b"\n\n")
                     self.wfile.flush()
                 except (BrokenPipeError, ConnectionResetError, OSError):
                     pass
@@ -389,7 +389,7 @@ class SnapshotHandler(BaseHTTPRequestHandler):
             or "https://api.mainnet-beta.solana.com"
         )
         stream = SolanaLogStream(endpoint, commitment="confirmed", reconnect_delay=2.0)
-        self.wfile.write(b'event: status\\ndata: {"status":"CONNECTING","source":"solana-logsSubscribe"}\\n\\n')
+        self.wfile.write(b'event: status\ndata: {"status":"CONNECTING","source":"solana-logsSubscribe"}\n\n')
         self.wfile.flush()
         async for item in stream.events(mentions=token):
             payload = json.dumps({
@@ -402,7 +402,7 @@ class SnapshotHandler(BaseHTTPRequestHandler):
                 "logs": list(item.logs[:8]),
                 "observed_at": datetime.now(timezone.utc).isoformat(),
             }, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
-            self.wfile.write(b"event: tx\\ndata: " + payload + b"\\n\\n")
+            self.wfile.write(b"event: tx\ndata: " + payload + b"\n\n")
             self.wfile.flush()
 
     def log_message(self, format: str, *args: object) -> None:
