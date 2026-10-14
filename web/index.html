@@ -258,6 +258,17 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 @media(max-width:420px){.nav-live{font-size:7px}.page-heading h2{font-size:19px}.page-tag{font-size:7px;padding:7px}.more-grid{gap:8px}.more-link{padding:12px;min-height:112px}}
 @media(prefers-reduced-motion:reduce){.workspace-page{animation:none}}
 
+
+/* UI30: keep shared market summary inside RADAR and refresh canvases on route changes */
+#workspace-pages{display:block;min-width:0}
+.workspace-page{display:none!important;min-width:0}
+.workspace-page.is-active{display:block!important}
+.workspace-page>.hero{margin-top:8px}
+.workspace-page>.live-strip{margin-top:8px}
+.workspace-page>.metrics{margin-top:8px;margin-bottom:12px}
+.workspace-page>.price-terminal{margin-top:8px}
+#workspace-nav button{touch-action:manipulation}
+
 </style></head>
 <body><div id="app">
 <header><div class="brand"><div class="logo">MH</div><div><small>SOLANA INTELLIGENCE</small><b>MEMECOIN HUNTER</b></div></div><div class="status"><span class="connection-item"><i class="dot"></i><span id="connection">DEX: CONNECTING</span></span><span class="connection-item rpc-status"><i class="dot rpc-dot"></i><span id="rpc-connection">RPC: CHECKING</span></span><button id="refresh" aria-label="Refresh market snapshot">↻</button></div></header>
@@ -303,5 +314,5 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 <button type="button" data-page="wallets"><span class="nav-icon">◎</span><span>WALLETS</span></button>
 <button type="button" data-page="more"><span class="nav-icon">☷</span><span>MORE</span></button>
 </nav>
-<script src="/app.js?v=ui29"></script>
-<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js?v=ui29").catch(()=>{});</script></body></html>
+<script src="/app.js?v=ui30"></script>
+<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js?v=ui30").catch(()=>{});</script></body></html>
