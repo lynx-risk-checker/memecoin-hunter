@@ -232,3 +232,13 @@ This checkpoint is documentation and prioritization only. It does not claim new 
 - Candidate flow is **not** labelled as a confirmed DEX swap: program/instruction semantics, quote accounting, and realized PnL remain separate acceptance gates.
 - RPC sampling is bounded; the response reports `sample_exhaustive` / `data_complete` honestly when a signature limit is reached or transactions cannot be parsed.
 - Regression tests cover recent candidate aggregation and the no-RPC-configured state. GitHub Actions passed the endpoint implementation/test commit; the latest UI syntax and final deployment must still be verified independently.
+
+
+## Founder-visible dashboard update — 2026-10-15
+
+- Moved the live 5-minute on-chain forensic card from the Wallets workspace onto the first Radar screen so the delivered endpoint is visible without navigating away from the dashboard.
+- Made the forensic card visually distinct and changed the headline to **5M LIVE ON-CHAIN FORENSICS**.
+- The roadmap matrix now reflects the forensic endpoint's runtime response state (live RPC sample, incomplete sample, or unavailable); it does not mark the module complete based on endpoint reachability alone.
+- Bumped HTML/JS asset query versions and service-worker cache from UI38/v38 to UI39/v39 to reduce stale iPhone/PWA assets.
+- Railway logs from the deployed service show HTTP 200 for `/snapshot` and `/forensics` requests. This confirms route reachability only; it does not by itself prove valid live transaction evidence or that every installed iPhone PWA has refreshed.
+- Next acceptance check: open the public dashboard with a cache-busting query or refresh the installed PWA, confirm the 5M panel is on the first Radar screen, and inspect its selected-token evidence state. DEX instruction semantics, developer attribution, realized PnL, and live execution remain unverified/locked.
