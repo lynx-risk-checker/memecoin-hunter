@@ -221,3 +221,14 @@ The detailed additive technical/strategy checkpoint is maintained in [`docs/ROAD
 **Current strategic order:** (1) verify deployment snapshot/version and production RPC on the iPhone-serving service; (2) finish WebSocket-to-evidence-backed BUY/SELL and rolling 5-minute flow; (3) verify swap semantics and quote-asset PnL; (4) connect cohorts and wallet independence; (5) real quote/exit simulation; (6) OHLCV and dashboard data wiring; (7) sourced narrative/rotation; (8) point-in-time casebook/dataset; (9) at least 100 valid paper trades and OOS/walk-forward validation; (10) release/safety gate.
 
 This checkpoint is documentation and prioritization only. It does not claim new modules are implemented or runtime-verified. Profitability remains **BELUM TERVERIFIKASI**; DRY RUN/PAPER TRADING stay ON; LIVE EXECUTION stays LOCKED; no merge to `main` without explicit Founder approval.
+
+
+## Live five-minute forensic endpoint — 2026-10-14
+
+- Added `GET /forensics?token=<mint>` to the existing production snapshot service.
+- Uses the configured `SOLANA_RPC_URL` (Helius in the Founder environment) and a DexScreener-identified Solana pool to fetch confirmed signatures and transaction metadata.
+- Parses successful transactions, applies a trailing 300-second block-time window, and surfaces token/SOL balance-flow candidates with wallet, signature, slot, and time evidence.
+- The cockpit polls this endpoint for the selected token and displays candidate counts and evidence links.
+- Candidate flow is **not** labelled as a confirmed DEX swap: program/instruction semantics, quote accounting, and realized PnL remain separate acceptance gates.
+- RPC sampling is bounded; the response reports `sample_exhaustive` / `data_complete` honestly when a signature limit is reached or transactions cannot be parsed.
+- Regression tests cover recent candidate aggregation and the no-RPC-configured state. GitHub Actions passed the endpoint implementation/test commit; the latest UI syntax and final deployment must still be verified independently.
