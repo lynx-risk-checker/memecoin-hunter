@@ -139,6 +139,6 @@ class SolanaLogStream:
                         yield event
             except asyncio.CancelledError:
                 raise
-            except (OSError, TimeoutError, SolanaWebSocketError):
+            except (OSError, TimeoutError, SolanaWebSocketError, websockets.exceptions.WebSocketException):
                 if self.reconnect_delay:
                     await asyncio.sleep(self.reconnect_delay)
