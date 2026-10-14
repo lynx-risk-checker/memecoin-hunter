@@ -128,9 +128,8 @@ window.__mhRedrawWorkspace=()=>{const t=performance.now();if(typeof radar==="fun
  const page={
   radar:makePage("radar","Market Radar","Discovery ringkas untuk menemukan kandidat; keputusan tetap menunggu bukti yang cukup.","01 / DISCOVERY"),
   tokens:makePage("tokens","Token Terminal","Pilih kandidat dan periksa OHLCV nyata dari pool yang terverifikasi. Tidak ada candle buatan.","02 / MARKET DATA"),
-  flow:makePage("flow","On-chain Flow","Riwayat transaksi dan arus wallet yang benar-benar teramati; hitungan bukan volume uang.","03 / FLOW"),
-  wallets:makePage("wallets","Wallet Intelligence","Smart Money, wallet terpantau, cluster, dan relasi hanya jika evidence tersedia.","04 / WALLET GRAPH"),
-  more:makePage("more","Intelligence Workspaces","Masuk ke ruang analisis khusus. Setiap modul memiliki halaman terpisah.","WORKSPACES")
+  wallets:makePage("wallets","Wallet Intelligence","On-chain flow, Smart Money, wallet terpantau, cluster, dan relasi berbasis evidence.","03 / WALLET INTELLIGENCE"),
+  settings:makePage("settings","Settings & Research","Konfigurasi, diagnostik sistem, risk control, validasi, dan modul riset.","04 / SYSTEM CONTROL")
  };
  const edgePage=makePage("edge","Edge Analysis","Komponen penilaian peluang dan kualitas evidence; bukan jaminan profit.","05 / EDGE");
  const riskPage=makePage("risk","Risk Control","Veto risiko, proteksi, dan exitability. Live execution tetap terkunci.","06 / RISK");
@@ -142,14 +141,14 @@ window.__mhRedrawWorkspace=()=>{const t=performance.now();if(typeof radar==="fun
  if(metrics)page.radar.appendChild(metrics);
  if(radar)page.radar.appendChild(radar);
  if(price)page.tokens.appendChild(price);
- const flowWrap=document.createElement("div");flowWrap.className="grid";if(flow){flowWrap.appendChild(flow);page.flow.appendChild(flowWrap);}
+ if(devSection)page.tokens.appendChild(devSection);
+ const flowWrap=document.createElement("div");flowWrap.className="grid";if(flow){flowWrap.appendChild(flow);page.wallets.appendChild(flowWrap);}
  const edgeWrap=document.createElement("div");edgeWrap.className="grid";if(edge){edgeWrap.appendChild(edge);edgePage.appendChild(edgeWrap);}
  const walletWrap=document.createElement("div");walletWrap.className="grid";if(wallets){walletWrap.appendChild(wallets);page.wallets.appendChild(walletWrap);}
  const riskWrap=document.createElement("div");riskWrap.className="grid";if(risk){riskWrap.appendChild(risk);riskPage.appendChild(riskWrap);}
  if(exitSection){const ew=document.createElement("div");ew.className="grid";ew.appendChild(exitSection);riskPage.appendChild(ew);}
  if(mission)capitalPage.appendChild(mission);
  if(matrix)systemsPage.appendChild(matrix);
- if(devSection)systemsPage.appendChild(devSection);
  const links=[
   ["EDGE ANALYSIS","Asymmetric Edge, flow/wallet/narrative components.","↗","edge"],
   ["RISK CONTROL","Risk veto, liquidity, exitability and protection.","⛨","risk"],
@@ -158,14 +157,15 @@ window.__mhRedrawWorkspace=()=>{const t=performance.now();if(typeof radar==="fun
  ];
  const moreGrid=document.createElement("div");moreGrid.className="more-grid";
  links.forEach(([title,desc,icon,key])=>{const b=document.createElement("button");b.type="button";b.className="more-link";b.innerHTML='<span class="more-icon">'+icon+'</span><b>'+title+'</b><small>'+desc+'</small>';b.addEventListener("click",()=>go(key));moreGrid.appendChild(b)});
- page.more.appendChild(moreGrid);
+ page.settings.appendChild(moreGrid);
+ if(footer)page.settings.appendChild(footer);
  // The old flat grid is emptied only after all existing modules are safely relocated.
  if(oldGrid){Array.from(oldGrid.children).forEach(node=>{if(node!==devSection&&node!==exitSection)node.remove()});if(oldGrid.children.length===0)oldGrid.remove();}
  const nav=document.getElementById("workspace-nav");
  function go(key){
   const target=document.getElementById("page-"+key);if(!target)return;
   document.querySelectorAll(".workspace-page").forEach(p=>p.classList.toggle("is-active",p===target));
-  nav.querySelectorAll("button[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===key || (key!=="radar"&&key!=="tokens"&&key!=="flow"&&key!=="wallets"&&b.dataset.page==="more")));
+  nav.querySelectorAll("button[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===key));
   const crumb=document.getElementById("page-breadcrumb");if(crumb)crumb.textContent=target.querySelector("h2")?.textContent?.toUpperCase()||key.toUpperCase();
   history.replaceState(null,"","#"+key);
   window.scrollTo({top:0,behavior:"smooth"});
