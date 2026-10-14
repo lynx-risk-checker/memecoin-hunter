@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import base64
 import json
 import os
@@ -13,6 +14,7 @@ from typing import Any
 
 from src.data.dexscreener import DexScreenerClient, DexScreenerError
 from src.data.solana_rpc import SolanaRPCClient, SolanaRPCError
+from src.data.solana_stream import SolanaLogStream
 from src.wallets.history import collect_wallet_transactions
 from src.wallets.swap_evidence import extract_balance_flow_swaps
 from src.radar.token_radar import RadarPolicy, candidate_filter_reasons, filter_candidates
@@ -337,6 +339,30 @@ class SnapshotHandler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:  # noqa: N802
         path = urlsplit(self.path).path
+        if path == "/stream":
+            query = parse_qs(urlsplit(self.path).query)
+            token = query.get("token", [""])[0].strip()
+            if not token or len(token) > 64:
+                self._write_json(400, {"status": "INVALID_TOKEN", "source": "solana-logsSubscribe"})
+                return
+            self.send_response(200)
+            self.send_header("Content-Type", "text/event-stream; charset=utf-8")
+            self.send_header("Cache-Control", "no-cache, no-transform")
+            self.send_header("Connection", "keep-alive")
+            self.send_header("X-Accel-Buffering", "no")
+            self.end_headers()
+            try:
+                asyncio.run(self._serve_token_stream(token))
+            except (BrokenPipeError, ConnectionResetError):
+                return
+            except Exception as exc:
+                try:
+                    payload = json.dumps({"status": "UNAVAILABLE", "source": "solana-logsSubscribe", "error": str(exc)}, separators=(",", ":")).encode("utf-8")
+                    self.wfile.write(b"event: status\\ndata: " + payload + b"\\n\\n")
+                    self.wfile.flush()
+                except (BrokenPipeError, ConnectionResetError, OSError):
+                    pass
+            return
         if path == "/snapshot":
             self._write_json(200, build_snapshot(self.client))
             return
@@ -354,6 +380,30 @@ class SnapshotHandler(BaseHTTPRequestHandler):
         if self._serve_static(path):
             return
         self._write_json(404, {"status": "NOT_FOUND"})
+
+
+    async def _serve_token_stream(self, token: str) -> None:
+        endpoint = (
+            os.getenv("SOLANA_WS_URL", "").strip()
+            or os.getenv("SOLANA_RPC_URL", "").strip()
+            or "https://api.mainnet-beta.solana.com"
+        )
+        stream = SolanaLogStream(endpoint, commitment="confirmed", reconnect_delay=2.0)
+        self.wfile.write(b'event: status\\ndata: {"status":"CONNECTING","source":"solana-logsSubscribe"}\\n\\n')
+        self.wfile.flush()
+        async for item in stream.events(mentions=token):
+            payload = json.dumps({
+                "status": "TOKEN_LOG_EVENT",
+                "source": "solana-logsSubscribe",
+                "token": token,
+                "slot": item.slot,
+                "signature": item.signature,
+                "err": item.err,
+                "logs": list(item.logs[:8]),
+                "observed_at": datetime.now(timezone.utc).isoformat(),
+            }, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+            self.wfile.write(b"event: tx\\ndata: " + payload + b"\\n\\n")
+            self.wfile.flush()
 
     def log_message(self, format: str, *args: object) -> None:
         return
