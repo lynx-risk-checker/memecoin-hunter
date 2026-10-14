@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import json
 import os
 from datetime import datetime, timezone
@@ -201,6 +202,99 @@ def build_candles(client: DexScreenerClient, token_address: str, timeframe: str 
         return {"status": "UNAVAILABLE", "source": "geckoterminal", "token": token_address, "timeframe": timeframe, "candles": []}
 
 
+def _base58_encode(raw: bytes) -> str:
+    alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+    number = int.from_bytes(raw, "big")
+    encoded = ""
+    while number:
+        number, remainder = divmod(number, 58)
+        encoded = alphabet[remainder] + encoded
+    zeroes = len(raw) - len(raw.lstrip(b"\\x00"))
+    return "1" * zeroes + (encoded or ("" if zeroes else "1"))
+
+
+def build_token_holders(token_address: str, rpc_client: SolanaRPCClient | None = None) -> dict[str, Any]:
+    """Fetch real largest token accounts and decode their on-chain token authorities."""
+    token = token_address.strip()
+    observed_at = datetime.now(timezone.utc).isoformat()
+    if not token or len(token) > 64:
+        return {"status": "INVALID_TOKEN", "source": "solana-rpc", "token": token, "holders": [], "nodes": [], "edges": []}
+    rpc_url = os.getenv("SOLANA_RPC_URL", "").strip() or "https://api.mainnet-beta.solana.com"
+    rpc = rpc_client or SolanaRPCClient(rpc_url, timeout_seconds=5.0)
+    try:
+        largest = rpc.call("getTokenLargestAccounts", [token, {"commitment": "confirmed"}])
+        rows = largest.get("value", []) if isinstance(largest, dict) else []
+        rows = [row for row in rows if isinstance(row, dict) and isinstance(row.get("address"), str)]
+        rows = rows[:10]
+        if not rows:
+            return {"status": "NO_HOLDERS", "source": "solana-rpc", "token": token, "observed_at": observed_at, "holders": [], "nodes": [], "edges": []}
+        accounts = rpc.call("getMultipleAccounts", [[row["address"] for row in rows], {"encoding": "base64", "commitment": "confirmed"}])
+        values = accounts.get("value", []) if isinstance(accounts, dict) else []
+        holders = []
+        seen_owners: set[str] = set()
+        for row, account in zip(rows, values):
+            if not isinstance(account, dict):
+                continue
+            data = account.get("data")
+            if not isinstance(data, list) or not data or not isinstance(data[0], str):
+                continue
+            try:
+                raw = base64.b64decode(data[0], validate=True)
+            except (ValueError, TypeError):
+                continue
+            # SPL Token account layout: mint[0:32], authority/owner[32:64].
+            if len(raw) < 64:
+                continue
+            owner = _base58_encode(raw[32:64])
+            if not owner or owner in seen_owners:
+                continue
+            seen_owners.add(owner)
+            amount = row.get("uiAmount")
+            if not isinstance(amount, (int, float)):
+                try:
+                    amount = float(row.get("amount", "0")) / (10 ** int(row.get("decimals", 0)))
+                except (TypeError, ValueError, OverflowError):
+                    amount = None
+            holders.append({
+                "rank": len(holders) + 1,
+                "wallet": owner,
+                "token_account": row["address"],
+                "amount": amount,
+                "raw_amount": row.get("amount"),
+                "decimals": row.get("decimals"),
+                "source": "getTokenLargestAccounts + getMultipleAccounts",
+                "evidence_status": "CONFIRMED_EVIDENCE",
+            })
+        nodes = [{"id": "mint:" + token, "address": token, "label": "TOKEN MINT", "kind": "mint", "evidence_status": "CONFIRMED_EVIDENCE"}]
+        edges = []
+        for holder in holders:
+            nodes.append({"id": holder["wallet"], "address": holder["wallet"], "label": "HOLDER #" + str(holder["rank"]), "kind": "token-account-authority", "amount": holder["amount"], "evidence_status": "CONFIRMED_EVIDENCE"})
+            edges.append({"source": "mint:" + token, "target": holder["wallet"], "kind": "TOKEN_ACCOUNT_AUTHORITY", "evidence_status": "CONFIRMED_EVIDENCE"})
+        return {
+            "status": "CONNECTED" if holders else "INSUFFICIENT_EVIDENCE",
+            "source": "solana-rpc",
+            "rpc_endpoint_kind": "configured" if os.getenv("SOLANA_RPC_URL", "").strip() else "public-fallback",
+            "token": token,
+            "observed_at": observed_at,
+            "holder_count": len(holders),
+            "holders": holders,
+            "nodes": nodes,
+            "edges": edges,
+            "note": "Authorities of the largest token accounts; these are not wallet-to-wallet transfer edges and may include pool/program authorities.",
+        }
+    except (SolanaRPCError, ValueError, OSError, TypeError, KeyError) as exc:
+        return {
+            "status": "UNAVAILABLE",
+            "source": "solana-rpc",
+            "token": token,
+            "observed_at": observed_at,
+            "error": str(exc),
+            "holders": [],
+            "nodes": [],
+            "edges": [],
+        }
+
+
 WEB_ROOT = Path(__file__).resolve().parent.parent / "web"
 STATIC_FILES = {
     "/": ("index.html", "text/html; charset=utf-8"),
@@ -251,6 +345,11 @@ class SnapshotHandler(BaseHTTPRequestHandler):
             token = query.get("token", [""])[0].strip()
             timeframe = query.get("timeframe", ["minute"])[0].strip()
             self._write_json(200, build_candles(self.client, token, timeframe))
+            return
+        if path == "/holders":
+            query = parse_qs(urlsplit(self.path).query)
+            token = query.get("token", [""])[0].strip()
+            self._write_json(200, build_token_holders(token))
             return
         if self._serve_static(path):
             return
