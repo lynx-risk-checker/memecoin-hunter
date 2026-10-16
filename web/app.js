@@ -158,7 +158,7 @@ async function loadTokenForensics(token=window.__selectedToken||window.__data?.o
   const forensicDetail=data.error||((data.transactions_parsed??0)+" parsed / "+(data.signatures_scanned??0)+" signatures · "+(data.window_seconds||300)+"s window"+(data.data_complete===false?" · SAMPLE INCOMPLETE":"")+" · balance-flow candidates are not confirmed swaps");
   sourceHealth("forensics",data.status==="CONNECTED"?(data.data_complete===false?"SAMPLE INCOMPLETE":(data.transactions_parsed>0?"RPC SAMPLE RECEIVED":"NO PARSED TRANSACTIONS")):(data.status||"UNAVAILABLE"),forensicDetail,data.status==="CONNECTED"&&data.data_complete!==false&&data.transactions_parsed>0?"good":"warn");
   set("matrix-flow-state",data.status==="CONNECTED"?(data.data_complete===false?"RPC SAMPLE INCOMPLETE":"LIVE RPC SAMPLE"):String(data.status||"UNAVAILABLE"));
-  set("forensics-status",status+" · "+(data.transactions_parsed??0)+" TX PARSED / "+(data.signatures_scanned??0)+" SIGNATURES");
+  set("forensics-status",status+" · "+(data.transactions_parsed??0)+" TX PARSED / "+(data.signatures_scanned??0)+" SIGNATURES"+(data.error?" · "+data.error:""));
   set("forensics-buy",typeof summary.buy_candidates==="number"?String(summary.buy_candidates):"—");
   set("forensics-sell",typeof summary.sell_candidates==="number"?String(summary.sell_candidates):"—");
   set("forensics-buy-sol",typeof summary.buy_sol_ui==="number"?summary.buy_sol_ui.toFixed(4)+" SOL":"—");
@@ -167,9 +167,10 @@ async function loadTokenForensics(token=window.__selectedToken||window.__data?.o
   const list=$("forensics-events");
   const events=Array.isArray(data.events)?data.events.slice(-8).reverse():[];
   if(list)list.innerHTML=events.length?'<div class="row"><span>RECENT BALANCE-FLOW CANDIDATES</span><b>'+events.length+' EVENTS</b></div>'+events.map(event=>'<div class="row"><span>'+esc(event.direction)+' · '+esc(String(event.wallet||"").slice(0,5)+"…"+String(event.wallet||"").slice(-4))+' · <a class="green" target="_blank" rel="noopener noreferrer" href="https://explorer.solana.com/tx/'+encodeURIComponent(event.signature||"")+'?cluster=mainnet-beta">TX ↗</a></span><b>'+esc(Number(event.token_delta_ui).toFixed(4))+' TOKEN</b></div>').join(""):'<div class="row"><span>RECENT FLOW CANDIDATES</span><b>'+esc(data.status==="NOT_CONFIGURED"?"RPC NOT CONFIGURED":data.status==="UNAVAILABLE"?"RPC UNAVAILABLE":"NO MATCHING CANDIDATES")+'</b></div>';
+  const diagnostic=$("forensics-diagnostic");if(diagnostic){diagnostic.textContent=data.error?"RPC DIAGNOSTIC: "+data.error:(data.status==="CONNECTED"?(data.data_complete===false?"RPC connected, but sample completeness is not proven.":"RPC response received; flow candidates are not confirmed swaps."):"RPC STATUS: "+String(data.status||"UNKNOWN")+" — no verified transaction window available.");diagnostic.dataset.state=data.error||data.status!=="CONNECTED"?"error":"ok";}
   if(data.data_complete===false)set("forensics-status",($("forensics-status")?.textContent||status)+" · SAMPLE INCOMPLETE");
  }catch(error){
-  if(requestId===forensicsRequest){sourceHealth("forensics","SOURCE UNAVAILABLE",String(error.message||error),"bad");set("matrix-flow-state","RPC UNAVAILABLE");set("forensics-status","5M FORENSICS · UNAVAILABLE · "+String(error.message||error));set("forensics-buy","—");set("forensics-sell","—");set("forensics-buy-sol","—");set("forensics-sell-sol","—");set("forensics-window","NO VERIFIED WINDOW");const list=$("forensics-events");if(list)list.innerHTML='<div class="row"><span>FORENSIC EVIDENCE</span><b>UNAVAILABLE</b></div>';}
+  if(requestId===forensicsRequest){sourceHealth("forensics","SOURCE UNAVAILABLE",String(error.message||error),"bad");set("matrix-flow-state","RPC UNAVAILABLE");set("forensics-status","5M FORENSICS · UNAVAILABLE · "+String(error.message||error));set("forensics-buy","—");set("forensics-sell","—");set("forensics-buy-sol","—");set("forensics-sell-sol","—");set("forensics-window","NO VERIFIED WINDOW");const list=$("forensics-events");if(list)list.innerHTML='<div class="row"><span>FORENSIC EVIDENCE</span><b>UNAVAILABLE</b></div>';const diagnostic=$("forensics-diagnostic");if(diagnostic){diagnostic.textContent="REQUEST FAILED: "+String(error.message||error)+" · Check the backend/provider response; no flow data is inferred.";diagnostic.dataset.state="error";}}
  }finally{if(requestId===forensicsRequest)forensicsBusy=false}
 }
 
@@ -289,7 +290,7 @@ if(window.__selectedToken&&window.__lastHolderToken!==window.__selectedToken)loa
  if(window.__selectedToken&&forensicsToken!==window.__selectedToken)loadTokenForensics(window.__selectedToken);
 if(window.__selectedToken&&window.__lastStreamToken!==window.__selectedToken){window.__lastStreamToken=window.__selectedToken;connectTokenStream(window.__selectedToken);}
 }
-async function refresh(){try{const r=await fetch("/snapshot?ui=44&t="+Date.now(),{cache:"no-store"});if(!r.ok)throw Error(r.status);render(await r.json())}catch(e){set("connection","DEX: SNAPSHOT UNAVAILABLE");set("rpc-connection","RPC: UNKNOWN");set("hero-reason","Backend snapshot belum tersedia. Tidak ada data market palsu.");}}
+async function refresh(){try{const r=await fetch("/snapshot?ui=45&t="+Date.now(),{cache:"no-store"});if(!r.ok)throw Error(r.status);render(await r.json())}catch(e){set("connection","DEX: SNAPSHOT UNAVAILABLE");set("rpc-connection","RPC: UNKNOWN");set("hero-reason","Backend snapshot belum tersedia. Tidak ada data market palsu.");}}
 $("refresh").onclick=refresh;
 window.__mhRedrawWorkspace=()=>{const t=performance.now();if(typeof radar==="function")radar(t);if(typeof marketRadar==="function")marketRadar();if(typeof chart==="function")chart(t);if(typeof network==="function")network(t);if(typeof drawCandles==="function")drawCandles();};
 /* UI27 workspace router: each destination gets its own page and context. */
