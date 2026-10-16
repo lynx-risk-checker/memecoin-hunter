@@ -394,6 +394,19 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 @media(max-width:720px){.mev-evidence-head{align-items:flex-start;flex-direction:column;gap:8px}.mev-evidence-head p{font-size:10px}.mev-repo-link{padding:8px 9px}.mev-evidence-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.mev-file-card{padding:8px}.mev-file-card>b{font-size:9px}.mev-terminal-snippet{font-size:7px;min-height:58px}.mev-file-card>small{font-size:7px}.mev-threat-statement{font-size:10px!important}}
 @media(max-width:360px){.mev-evidence-grid{grid-template-columns:1fr}.mev-terminal-snippet{min-height:0}}
 
+
+/* UI44 — founder onboarding and explicit real-money readiness state */
+.howto-panel{margin:0 0 16px;padding:16px;border:1px solid #35614f;border-radius:15px;background:radial-gradient(ellipse at 100% 0,#0c4b3030,transparent 48%),linear-gradient(145deg,#0e1a22,#080d13 78%);box-shadow:0 15px 38px #0005,inset 0 1px #ffffff09}
+.howto-kicker{font:800 8px ui-monospace,monospace;letter-spacing:.16em;color:#63d8a8}
+.howto-panel h3{margin:8px 0;font-size:19px;letter-spacing:-.035em;color:#e4f4ed}
+.howto-intro{margin:0 0 13px;color:#9db0bf;font-size:11px;line-height:1.6}.howto-intro b{color:#ffd27b}
+.howto-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.howto-grid article{position:relative;min-width:0;padding:12px;border:1px solid #223746;border-radius:10px;background:#070d13}
+.howto-grid article span{display:block;color:#56d9a6;font:800 9px ui-monospace,monospace;margin-bottom:7px}
+.howto-grid article b{font-size:10px;letter-spacing:.07em;color:#d4e4ee}.howto-grid article p{margin:7px 0 0;color:#8c9fb0;font-size:10px;line-height:1.55}
+.howto-warning{margin-top:10px;padding:12px;border:1px solid #7a4a32;border-radius:10px;background:#24150f}.howto-warning b{color:#ffbf7c;font:900 9px ui-monospace,monospace;letter-spacing:.04em}.howto-warning p{margin:7px 0 0;color:#e2bca1;font-size:10px;line-height:1.55}
+.howto-note{margin-top:10px;padding-top:10px;border-top:1px solid #263644;color:#8094a5;font-size:9px;line-height:1.6}.howto-note b{color:#bfd0dc}
+@media(max-width:480px){.howto-panel{padding:12px}.howto-panel h3{font-size:16px}.howto-grid{grid-template-columns:1fr}.howto-grid article{padding:10px}.howto-grid article p{font-size:10px}}
 </style></head>
 <body><div id="app">
 <header><div class="brand"><div class="logo">MH</div><div><small>SOLANA INTELLIGENCE</small><b>MEMECOIN HUNTER</b></div></div><div class="status"><span class="connection-item"><i class="dot"></i><span id="connection">DEX: CONNECTING</span></span><span class="connection-item rpc-status"><i class="dot rpc-dot"></i><span id="rpc-connection">RPC: CHECKING</span></span><button id="refresh" aria-label="Refresh market snapshot">↻</button></div></header>
@@ -449,5 +462,5 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 <button type="button" data-page="wallets"><span class="nav-icon">◎</span><span>WALLETS</span></button>
 <button type="button" data-page="settings"><span class="nav-icon">⚙</span><span>SETTINGS</span></button>
 </nav>
-<script src="/app.js?v=ui43"></script>
-<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js?v=ui43").catch(()=>{});</script></body></html>
+<script src="/app.js?v=ui44"></script>
+<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js?v=ui44").catch(()=>{});</script></body></html>
