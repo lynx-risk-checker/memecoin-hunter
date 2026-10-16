@@ -289,7 +289,7 @@ if(window.__selectedToken&&window.__lastHolderToken!==window.__selectedToken)loa
  if(window.__selectedToken&&forensicsToken!==window.__selectedToken)loadTokenForensics(window.__selectedToken);
 if(window.__selectedToken&&window.__lastStreamToken!==window.__selectedToken){window.__lastStreamToken=window.__selectedToken;connectTokenStream(window.__selectedToken);}
 }
-async function refresh(){try{const r=await fetch("/snapshot?ui=43&t="+Date.now(),{cache:"no-store"});if(!r.ok)throw Error(r.status);render(await r.json())}catch(e){set("connection","DEX: SNAPSHOT UNAVAILABLE");set("rpc-connection","RPC: UNKNOWN");set("hero-reason","Backend snapshot belum tersedia. Tidak ada data market palsu.");}}
+async function refresh(){try{const r=await fetch("/snapshot?ui=44&t="+Date.now(),{cache:"no-store"});if(!r.ok)throw Error(r.status);render(await r.json())}catch(e){set("connection","DEX: SNAPSHOT UNAVAILABLE");set("rpc-connection","RPC: UNKNOWN");set("hero-reason","Backend snapshot belum tersedia. Tidak ada data market palsu.");}}
 $("refresh").onclick=refresh;
 window.__mhRedrawWorkspace=()=>{const t=performance.now();if(typeof radar==="function")radar(t);if(typeof marketRadar==="function")marketRadar();if(typeof chart==="function")chart(t);if(typeof network==="function")network(t);if(typeof drawCandles==="function")drawCandles();};
 /* UI27 workspace router: each destination gets its own page and context. */
@@ -367,6 +367,20 @@ window.__mhRedrawWorkspace=()=>{const t=performance.now();if(typeof radar==="fun
   wallets:makePage("wallets","Wallet Intelligence","On-chain flow, Smart Money, wallet terpantau, cluster, dan relasi berbasis evidence.","03 / WALLET INTELLIGENCE"),
   settings:makePage("settings","Settings & Research","Konfigurasi, diagnostik sistem, risk control, validasi, dan modul riset.","04 / SYSTEM CONTROL")
  };
+ page.radar.insertAdjacentHTML("beforeend", `
+  <section class="howto-panel" id="founder-start-guide" aria-labelledby="howto-title">
+   <div class="howto-kicker">FOUNDER QUICK START / FIRST SESSION</div>
+   <h3 id="howto-title">Cara menggunakan Memecoin Hunter</h3>
+   <p class="howto-intro">Penting: versi saat ini adalah dashboard riset/pemantauan. <b>Bot belum mengirim order beli/jual uang asli.</b> Jangan kirim uang ke alamat apa pun karena dashboard menampilkan kandidat.</p>
+   <div class="howto-grid">
+    <article><span>01</span><b>PERIKSA DATA</b><p>Tekan ↻ untuk memperbarui snapshot. Lihat status DEX dan RPC. Jika UNAVAILABLE, NOT_CONFIGURED, atau data kosong, jangan anggap kandidat siap entry.</p></article>
+    <article><span>02</span><b>PILIH TOKEN</b><p>Buka TOKENS di navigasi bawah, pilih token kandidat, lalu cek status OHLCV dan sumber pool. Tanpa candle/sumber nyata, tidak ada dasar entry yang cukup.</p></article>
+    <article><span>03</span><b>BACA RISIKO</b><p>Buka SETTINGS → RISK CONTROL / EDGE ANALYSIS. WATCH, WAIT, BLOCKED, atau INSUFFICIENT EVIDENCE berarti jangan trading berdasarkan sinyal itu.</p></article>
+    <article><span>04</span><b>VALIDASI SEBELUM MODAL</b><p>Perlu jurnal paper-trading end-to-end, biaya, slippage, drawdown, dan hasil out-of-sample yang lolos gate. Dashboard hidup atau skor edge bukan bukti profit.</p></article>
+   </div>
+   <div class="howto-warning"><b>REAL-MONEY STATUS: NOT READY · LIVE EXECUTION LOCKED</b><p>Jangan hubungkan wallet berisi dana, jangan masukkan seed phrase/private key, dan jangan mulai trading uang asli melalui proyek ini dulu. Tahap berikutnya adalah memastikan data runtime + jurnal paper-trading benar-benar berjalan, lalu menguji hasilnya.</p></div>
+   <div class="howto-note"><b>TENTANG KLAIM GOOGLE 90% KALAH / 10% MENANG</b> — angka itu belum bisa dianggap rating atau hasil terukur tanpa tautan/sumber dan definisi pengujiannya. Saya tidak akan mengubah strategi dengan mengejar win rate 100%: tidak ada sistem yang dapat menjamin selalu menang. Yang harus kita ukur adalah expectancy setelah fee/slippage, max drawdown, kualitas exit, dan hasil paper-trading di data yang belum pernah dipakai untuk tuning.</div>
+  </section>`);
  const edgePage=makePage("edge","Edge Analysis","Komponen penilaian peluang dan kualitas evidence; bukan jaminan profit.","05 / EDGE");
  const riskPage=makePage("risk","Risk Control","Veto risiko, proteksi, dan exitability. Live execution tetap terkunci.","06 / RISK");
  const capitalPage=makePage("capital","Capital & Validation","Paper trading, jurnal, misi modal, dan validasi strategi. Hasil belum boleh diasumsikan.","07 / CAPITAL");
