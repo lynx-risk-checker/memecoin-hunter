@@ -308,6 +308,71 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .row{font-size:10px}.row b{font-size:10px}
 .page-heading .eyebrow{font-size:9px}.page-heading p{font-size:12px}.page-tag{font-size:9px}
 @media(max-width:420px){.brand b{font-size:12px}.brand small{font-size:7px}.hero p{font-size:10px}.metric span{font-size:7px}.metric b{font-size:10px}.status{font-size:7px}.row{gap:8px}.row span{overflow-wrap:anywhere}}
+
+/* UI42: founder-first mobile cockpit + curved MEV threat surface */
+.mev-panel{position:relative;overflow:hidden;margin:12px 0 14px;padding:15px;border:1px solid #294355;border-radius:16px;background:radial-gradient(ellipse at 72% 12%,#132a3a88,transparent 44%),linear-gradient(145deg,#0e1822,#080d14 68%);box-shadow:inset 0 1px #ffffff0a,0 18px 45px #0006}
+.mev-panel:before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(120deg,transparent 20%,#55d8ff07 48%,transparent 72%)}
+.mev-head{position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.mev-kicker{font:800 9px ui-monospace,monospace;letter-spacing:.16em;color:#6e9bb2}
+.mev-title{font-size:19px;letter-spacing:-.04em;margin:5px 0 4px}
+.mev-subtitle{font-size:11px;line-height:1.5;color:#8da0b1;max-width:470px}
+.mev-state{border:1px solid #73562a;background:#21190c;color:#ffd078;border-radius:999px;padding:7px 9px;font:800 8px ui-monospace,monospace;white-space:nowrap}
+.mev-layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:12px;margin-top:13px;align-items:stretch}
+.mev-visual{position:relative;min-height:185px;border:1px solid #1c3546;border-radius:12px;background:radial-gradient(ellipse at 50% 50%,#102333,#080e15 72%);overflow:hidden}
+.mev-visual svg{display:block;width:100%;height:185px}
+.mev-visual .orbit{fill:none;stroke:#55d8ff;stroke-opacity:.19;stroke-width:1}
+.mev-visual .curve-a{fill:none;stroke:#55d8ff;stroke-width:1.7;stroke-opacity:.9;filter:drop-shadow(0 0 5px #55d8ff66)}
+.mev-visual .curve-b{fill:none;stroke:#9d83ff;stroke-width:1.4;stroke-opacity:.85;filter:drop-shadow(0 0 5px #9d83ff66)}
+.mev-visual .curve-c{fill:none;stroke:#00ff9a;stroke-width:1.2;stroke-opacity:.7}
+.mev-visual .scanline{stroke:#00ff9a;stroke-opacity:.4;stroke-width:1;stroke-dasharray:3 7;animation:mevDrift 8s linear infinite}
+.mev-visual .node{fill:#b5f9ff;filter:drop-shadow(0 0 5px #55d8ff)}
+.mev-visual-label{position:absolute;left:11px;bottom:10px;color:#7f9aaa;font:700 8px ui-monospace,monospace;letter-spacing:.07em}
+.mev-target{display:flex;flex-direction:column;justify-content:space-between;gap:12px;padding:13px;border:1px solid #253543;border-radius:12px;background:#080e15}
+.mev-target-top{display:flex;align-items:center;gap:10px}
+.mev-target-mark{width:44px;height:44px;flex:0 0 44px;display:grid;place-items:center;border:1px dashed #6d5c3c;border-radius:13px;background:#17130e;color:#ffd078;font:900 10px ui-monospace,monospace;letter-spacing:.04em}
+.mev-target small{display:block;color:#71869a;font:800 8px ui-monospace,monospace;letter-spacing:.1em}
+.mev-target b{display:block;color:#e5edf5;font-size:12px;margin-top:4px}
+.mev-target p{margin:0;color:#899aaa;font-size:10px;line-height:1.55}
+.mev-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:9px}
+.mev-metric{min-width:0;padding:10px;border:1px solid #1c2b39;border-radius:9px;background:#080e14}
+.mev-metric span{display:block;color:#71869a;font:800 8px ui-monospace,monospace;letter-spacing:.05em}
+.mev-metric b{display:block;color:#e4f2fa;font:800 12px ui-monospace,monospace;margin-top:6px;overflow-wrap:anywhere}
+.mev-metric small{display:block;color:#738699;font-size:9px;line-height:1.4;margin-top:4px}
+.mev-footnote{margin-top:10px;color:#71869a;font-size:10px;line-height:1.55}
+@keyframes mevDrift{to{stroke-dashoffset:-80}}
+@media(max-width:720px){
+ .hero{min-height:275px!important;grid-template-columns:minmax(0,1fr)!important;padding:14px 12px 12px!important}
+ .hero-copy{padding-right:75px!important;max-width:100%}
+ .hero h2{font-size:23px!important;max-width:100%;overflow-wrap:anywhere}
+ .hero-copy p{font-size:11px!important;max-width:95%;line-height:1.45!important}
+ #radar{position:absolute!important;right:0;bottom:0;width:53%!important;height:145px!important;opacity:.76;pointer-events:none}
+ .hero-score{right:12px!important;top:12px!important}
+ .hero-score b{font-size:27px!important}
+ .chips{margin-top:9px}
+ .live-strip{gap:7px;align-items:flex-start}
+ .live-strip small{font-size:10px;line-height:1.45}
+ .source-health{margin-top:9px}
+ .mev-panel{padding:12px;margin:10px 0}
+ .mev-title{font-size:17px}
+ .mev-subtitle{font-size:10px}
+ .mev-layout{grid-template-columns:1fr;gap:8px;margin-top:10px}
+ .mev-visual,.mev-visual svg{height:155px;min-height:155px}
+ .mev-target{gap:9px;padding:11px}
+ .mev-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+ .mev-metric{padding:9px}
+ .mev-metric b{font-size:12px}
+ #radar-section .radar-list{grid-template-columns:1fr}
+ .page-heading{margin-top:6px}
+}
+@media(max-width:390px){
+ .mev-head{flex-direction:column;gap:8px}
+ .mev-state{align-self:flex-start}
+ .mev-target-mark{width:39px;height:39px;flex-basis:39px}
+ .hero-copy{padding-right:60px!important}
+ .hero h2{font-size:21px!important}
+ .hero-score b{font-size:24px!important}
+}
+
 </style></head>
 <body><div id="app">
 <header><div class="brand"><div class="logo">MH</div><div><small>SOLANA INTELLIGENCE</small><b>MEMECOIN HUNTER</b></div></div><div class="status"><span class="connection-item"><i class="dot"></i><span id="connection">DEX: CONNECTING</span></span><span class="connection-item rpc-status"><i class="dot rpc-dot"></i><span id="rpc-connection">RPC: CHECKING</span></span><button id="refresh" aria-label="Refresh market snapshot">↻</button></div></header>
@@ -363,5 +428,5 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 <button type="button" data-page="wallets"><span class="nav-icon">◎</span><span>WALLETS</span></button>
 <button type="button" data-page="settings"><span class="nav-icon">⚙</span><span>SETTINGS</span></button>
 </nav>
-<script src="/app.js?v=ui41"></script>
-<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js?v=ui41").catch(()=>{});</script></body></html>
+<script src="/app.js?v=ui42"></script>
+<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js?v=ui42").catch(()=>{});</script></body></html>
