@@ -156,7 +156,7 @@ async function loadTokenForensics(token=window.__selectedToken||window.__data?.o
   const summary=data.summary||{};
   const status=(data.status||"UNKNOWN")+" · "+(data.evidence_status||data.validation_status||"INSUFFICIENT_EVIDENCE");
   const forensicDetail=data.error||((data.transactions_parsed??0)+" parsed / "+(data.signatures_scanned??0)+" signatures · "+(data.window_seconds||300)+"s window"+(data.data_complete===false?" · SAMPLE INCOMPLETE":"")+" · balance-flow candidates are not confirmed swaps");
-  sourceHealth("forensics",data.status==="CONNECTED"?(data.data_complete===false?"SAMPLE INCOMPLETE":"RPC SAMPLE RECEIVED"):(data.status||"UNAVAILABLE"),forensicDetail,data.status==="CONNECTED"&&data.data_complete!==false?"good":"warn");
+  sourceHealth("forensics",data.status==="CONNECTED"?(data.data_complete===false?"SAMPLE INCOMPLETE":(data.transactions_parsed>0?"RPC SAMPLE RECEIVED":"NO PARSED TRANSACTIONS")):(data.status||"UNAVAILABLE"),forensicDetail,data.status==="CONNECTED"&&data.data_complete!==false&&data.transactions_parsed>0?"good":"warn");
   set("matrix-flow-state",data.status==="CONNECTED"?(data.data_complete===false?"RPC SAMPLE INCOMPLETE":"LIVE RPC SAMPLE"):String(data.status||"UNAVAILABLE"));
   set("forensics-status",status+" · "+(data.transactions_parsed??0)+" TX PARSED / "+(data.signatures_scanned??0)+" SIGNATURES");
   set("forensics-buy",typeof summary.buy_candidates==="number"?String(summary.buy_candidates):"—");
