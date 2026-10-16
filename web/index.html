@@ -227,6 +227,17 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .nav-context b{color:#d8e7f3}
 .nav-live{font-size:8px;letter-spacing:.09em;color:#708298;display:flex;align-items:center;gap:7px}
 .nav-live i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#f6b73c;box-shadow:0 0 9px #f6b73c55}
+.source-health{margin:12px 0 14px;padding:15px;border:1px solid #233747;border-radius:15px;background:linear-gradient(135deg,#101a25f5,#090e15f5);box-shadow:inset 0 1px #ffffff08,0 12px 35px #0003}
+.source-health-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.source-health-head h3{font-size:17px;letter-spacing:-.035em;margin:5px 0 0}
+#health-updated{font:700 9px ui-monospace,monospace;color:#8296a9;text-align:right}
+.source-health-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.health-item{min-width:0;padding:11px;border:1px solid #1f3040;border-radius:10px;background:#080e15}
+.health-label{font:800 9px ui-monospace,monospace;letter-spacing:.07em;color:#8fa2b5;margin-bottom:8px}
+.health-state{display:inline-block;font:800 10px ui-monospace,monospace;letter-spacing:.025em}
+.health-state.good{color:#5fffc0}.health-state.warn{color:#ffd078}.health-state.bad{color:#ff8093}.health-state.neutral{color:#a4b5c6}
+.health-item p{font-size:11px;line-height:1.5;color:#9aabbb;margin:7px 0 0;overflow-wrap:anywhere}
+@media(max-width:760px){.source-health{padding:12px}.source-health-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.source-health-grid .health-item:last-child{grid-column:1/-1}.source-health-head h3{font-size:16px}.health-item{padding:10px}.health-item p{font-size:11px}}
 #workspace-pages{min-height:65vh}
 .workspace-page{display:none;animation:pageEnter .2s ease-out;min-width:0}
 .workspace-page.is-active{display:block}
@@ -295,6 +306,17 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 <section class="hero"><div class="hero-copy"><div class="eyebrow" id="hero-label">RADAR CANDIDATE · WAIT FOR FULL EVIDENCE</div><h2 id="hero-token">SCANNING SOLANA</h2><p id="hero-reason">Menunggu snapshot real market.</p><div class="chips"><span class="chip amber" id="hero-decision">WATCH</span><span class="chip" id="hero-evidence">RADAR ONLY</span><span class="chip lock">LIVE LOCKED</span></div></div><canvas id="radar" aria-label="radar"></canvas><div class="hero-score"><small>ASYMMETRIC EDGE</small><b id="hero-score">—</b><small>/ 1.00</small><div class="score-state" id="score-state">WAITING FOR EVIDENCE</div></div></section>
 <div class="live-strip"><div><strong><span class="live-pulse"></span> LIVE MARKET FEED</strong><small>Snapshot otomatis · nilai hanya berubah saat sumber data memberi pembaruan</small></div><div class="price-sub" id="last-update">MENUNGGU DATA REAL</div></div>
 <section class="metrics"><div class="metric"><span>MARKET CAP</span><b id="hero-mc">—</b></div><div class="metric"><span>LIQUIDITY</span><b id="hero-liq">—</b></div><div class="metric"><span>VOL 5M</span><b id="hero-v5m">—</b></div><div class="metric"><span>VOL 1H</span><b id="hero-v1h">—</b></div><div class="metric"><span>TX / MIN</span><b id="hero-tx">—</b></div><div class="metric"><span>MISSION CAPITAL</span><b id="mission-capital">NOT SET</b></div></section>
+
+<section class="source-health" id="source-health" aria-label="Live data source diagnostics">
+  <div class="source-health-head"><div><div class="eyebrow">LIVE SYSTEM OBSERVABILITY</div><h3>Data Source Health</h3></div><span id="health-updated">WAITING FOR FIRST CHECK</span></div>
+  <div class="source-health-grid">
+    <article class="health-item"><div class="health-label">MARKET DISCOVERY</div><b class="health-state neutral" id="health-market-state">CHECKING</b><p id="health-market-detail">Waiting for live DEX snapshot.</p></article>
+    <article class="health-item"><div class="health-label">SOLANA RPC</div><b class="health-state neutral" id="health-rpc-state">CHECKING</b><p id="health-rpc-detail">Endpoint reachability is not proof every RPC method works.</p></article>
+    <article class="health-item"><div class="health-label">5M FORENSICS</div><b class="health-state neutral" id="health-forensics-state">WAITING</b><p id="health-forensics-detail">Awaiting confirmed signature and transaction data.</p></article>
+    <article class="health-item"><div class="health-label">VERIFIED OHLCV</div><b class="health-state neutral" id="health-candles-state">WAITING</b><p id="health-candles-detail">Candles only appear when the provider returns real rows.</p></article>
+    <article class="health-item"><div class="health-label">TOP HOLDERS</div><b class="health-state neutral" id="health-holders-state">WAITING</b><p id="health-holders-detail">Holder query status will appear when requested.</p></article>
+  </div>
+</section>
 <section class="price-terminal" id="price-terminal"><div class="price-head"><div><div class="eyebrow">LIVE OHLCV · DEX POOL</div><h3 id="price-token">REAL CANDLE CHART</h3><div class="price-sub">Sumber: GeckoTerminal OHLCV untuk pool Solana yang ditemukan melalui DexScreener. Tidak ada candle buatan.</div><select id="price-token-select" aria-label="Pilih token untuk chart"></select></div><div class="price-last"><b id="price-last">—</b><small id="price-change">WAITING FOR CANDLES</small></div></div><div class="timeframes" role="group" aria-label="Candle timeframe"><button type="button" data-timeframe="minute" class="active">1M</button><button type="button" data-timeframe="5m">5M</button><button type="button" data-timeframe="hour">1H</button><button type="button" data-timeframe="day">1D</button></div><div class="price-chart-wrap"><canvas id="price-canvas" aria-label="Real Solana token candlestick chart"></canvas></div><div class="evidence-note" style="margin-top:6px"><b>CHART CONTROLS</b>Drag horizontally to inspect history. Use mouse-wheel to zoom; candle values and volume remain sourced from GeckoTerminal.</div><div id="token-stream-status" class="evidence-note" style="margin-top:6px">SOLANA LOG STREAM · NOT CONNECTED</div><div class="chart-state"><span id="candle-status">OHLCV: MENUNGGU DATA</span><span id="candle-range">—</span><span id="candle-source">GECKOTERMINAL · VERIFIED POOL REQUIRED</span></div></section>
 <div class="grid">
 <section id="radar-section" class="card"><div class="card-head"><div><div class="eyebrow">01 / DISCOVERY</div><h3>⚗ TOKEN RADAR</h3></div><span class="badge">DEXSCREENER SNAPSHOT</span></div><div class="market-radar-wrap"><canvas id="market-radar-canvas" aria-label="Real DEX liquidity versus five-minute volume radar plot"></canvas><div id="market-radar-status" class="market-radar-status">Waiting for real DEX candidate metrics.</div><div class="market-radar-legend"><span><i class="legend-qualified"></i>RADAR QUALIFIED</span><span><i class="legend-filtered"></i>FILTERED / ENTRY BLOCKED</span></div></div><div id="opportunities" class="radar-list"><div class="token-card"><b>WAITING</b><small>Backend snapshot pending</small></div><div class="token-card"><b>—</b><small>No synthetic signal</small></div></div><div class="mini-stats"><div><span>VOL 5M</span><b id="v5m">—</b></div><div><span>VOL 1H</span><b id="v1h">—</b></div><div><span>TX/MIN</span><b id="txns">—</b></div><div><span>SOLANA RPC</span><b id="flow-title">NOT CONFIGURED</b></div></div></section>
@@ -332,5 +354,5 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 <button type="button" data-page="wallets"><span class="nav-icon">◎</span><span>WALLETS</span></button>
 <button type="button" data-page="settings"><span class="nav-icon">⚙</span><span>SETTINGS</span></button>
 </nav>
-<script src="/app.js?v=ui40"></script>
-<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js?v=ui40").catch(()=>{});</script></body></html>
+<script src="/app.js?v=ui41"></script>
+<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js?v=ui41").catch(()=>{});</script></body></html>
