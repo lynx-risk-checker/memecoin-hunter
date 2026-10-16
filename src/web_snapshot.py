@@ -369,7 +369,7 @@ def build_candles(client: DexScreenerClient, token_address: str, timeframe: str 
                 values = [float(open_price), float(high), float(low), float(close), float(volume)]
                 if not all(__import__("math").isfinite(value) for value in values):
                     continue
-                candles.append({"time": int(timestamp), "open": values[0], "high": values[1], "low": values[3] if False else values[2], "close": values[3], "volume": max(0.0, values[4])})
+                candles.append({"time": int(timestamp), "open": values[0], "high": values[1], "low": values[2], "close": values[3], "volume": max(0.0, values[4])})
             except (TypeError, ValueError, OverflowError):
                 continue
         candles.sort(key=lambda item: item["time"])
