@@ -61,3 +61,33 @@ def test_stablecoin_quote_can_be_exposed_as_usd_proxy() -> None:
 def test_ignores_non_swap_like_flow() -> None:
     result = extract_balance_flow_swaps("W", [_tx(100, 1)], target_mint="TARGET", quote_mint="USDC")
     assert result == ()
+
+
+def test_canonical_solana_usdc_mint_is_recognized_as_usd_proxy() -> None:
+    evidence = SwapEvidence(
+        signature="sig",
+        mint="TARGET",
+        quantity_ui=100.0,
+        quote_mint="EPjFWdd5AufqSSqeM2q8xzybapC8G4wEGGkZwyTDt1v",
+        quote_quantity_ui=1.0,
+        price_quote_per_token=0.01,
+        block_time=100,
+        direction="BUY",
+        evidence_class="BALANCE_FLOW_ACCOUNTING",
+    )
+    assert evidence.price_usd == 0.01
+
+
+def test_canonical_solana_usdt_mint_is_recognized_as_usd_proxy() -> None:
+    evidence = SwapEvidence(
+        signature="sig",
+        mint="TARGET",
+        quantity_ui=100.0,
+        quote_mint="Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+        quote_quantity_ui=1.0,
+        price_quote_per_token=0.01,
+        block_time=100,
+        direction="BUY",
+        evidence_class="BALANCE_FLOW_ACCOUNTING",
+    )
+    assert evidence.price_usd == 0.01
