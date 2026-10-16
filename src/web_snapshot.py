@@ -342,12 +342,16 @@ def build_candles(client: DexScreenerClient, token_address: str, timeframe: str 
     if timeframe not in intervals:
         return {"status": "INVALID_TIMEFRAME", "source": "geckoterminal", "candles": []}
     if not token_address or len(token_address) > 64:
-        return {"status": "INVALID_TOKEN", "source": "geckoterminal", "candles": []}
+        return {"status": "INVALID_TOKEN", "source": "geckoterminal", "token": token_address, "candles": []}
     try:
         pairs = client.token_pairs([token_address])
         pair = client._best_solana_pair(pairs, token_address)
         if not pair or not isinstance(pair.get("pairAddress"), str):
-            return {"status": "POOL_NOT_FOUND", "source": "geckoterminal", "token": token_address, "candles": []}
+            return {
+                "status": "POOL_NOT_FOUND", "source": "geckoterminal",
+                "token": token_address, "timeframe": timeframe, "candles": [],
+                "error": "DexScreener has no verified Solana pool for this mint.",
+            }
         candle_interval, aggregate = intervals[timeframe]
         query = urlencode({"aggregate": aggregate, "limit": "120", "currency": "usd", "token": "base"})
         url = f"https://api.geckoterminal.com/api/v2/networks/solana/pools/{pair['pairAddress']}/ohlcv/{candle_interval}?{query}"
@@ -365,13 +369,41 @@ def build_candles(client: DexScreenerClient, token_address: str, timeframe: str 
                 values = [float(open_price), float(high), float(low), float(close), float(volume)]
                 if not all(__import__("math").isfinite(value) for value in values):
                     continue
-                candles.append({"time": int(timestamp), "open": values[0], "high": values[1], "low": values[2], "close": values[3], "volume": max(0.0, values[4])})
+                candles.append({"time": int(timestamp), "open": values[0], "high": values[1], "low": values[3] if False else values[2], "close": values[3], "volume": max(0.0, values[4])})
             except (TypeError, ValueError, OverflowError):
                 continue
         candles.sort(key=lambda item: item["time"])
-        return {"status": "CONNECTED" if candles else "NO_CANDLES", "source": "geckoterminal", "token": token_address, "pair_address": pair["pairAddress"], "timeframe": timeframe, "observed_at": datetime.now(timezone.utc).isoformat(), "candles": candles}
-    except (DexScreenerError, urllib.error.URLError, TimeoutError, json.JSONDecodeError, ValueError, OSError):
-        return {"status": "UNAVAILABLE", "source": "geckoterminal", "token": token_address, "timeframe": timeframe, "candles": []}
+        return {
+            "status": "CONNECTED" if candles else "NO_CANDLES",
+            "source": "geckoterminal", "token": token_address,
+            "pair_address": pair["pairAddress"], "timeframe": timeframe,
+            "observed_at": datetime.now(timezone.utc).isoformat(),
+            "candles": candles,
+            **({"error": "GeckoTerminal returned no OHLCV rows yet; newly created pools can take time to be indexed."} if not candles else {}),
+        }
+    except urllib.error.HTTPError as exc:
+        detail = f"GeckoTerminal HTTP {exc.code}"
+        try:
+            payload = json.loads(exc.read(2048).decode("utf-8", errors="replace"))
+            errors = payload.get("errors", []) if isinstance(payload, dict) else []
+            if errors and isinstance(errors[0], dict):
+                reason = errors[0].get("detail") or errors[0].get("title")
+                if isinstance(reason, str) and reason.strip():
+                    detail += ": " + reason.strip()[:180]
+        except (ValueError, OSError):
+            pass
+        return {"status": "UNAVAILABLE", "source": "geckoterminal", "token": token_address, "timeframe": timeframe, "candles": [], "error": detail}
+    except urllib.error.URLError as exc:
+        reason = getattr(exc, "reason", None)
+        detail = "GeckoTerminal request timed out." if isinstance(reason, TimeoutError) else f"GeckoTerminal network error ({type(reason).__name__})."
+        return {"status": "UNAVAILABLE", "source": "geckoterminal", "token": token_address, "timeframe": timeframe, "candles": [], "error": detail}
+    except TimeoutError:
+        return {"status": "UNAVAILABLE", "source": "geckoterminal", "token": token_address, "timeframe": timeframe, "candles": [], "error": "GeckoTerminal request timed out after 8 seconds."}
+    except json.JSONDecodeError:
+        return {"status": "UNAVAILABLE", "source": "geckoterminal", "token": token_address, "timeframe": timeframe, "candles": [], "error": "GeckoTerminal returned invalid JSON."}
+    except (DexScreenerError, ValueError, OSError) as exc:
+        detail = "DexScreener pool lookup failed." if isinstance(exc, DexScreenerError) else f"Invalid OHLCV response ({type(exc).__name__})."
+        return {"status": "UNAVAILABLE", "source": "geckoterminal", "token": token_address, "timeframe": timeframe, "candles": [], "error": detail}
 
 
 def _base58_encode(raw: bytes) -> str:
@@ -580,7 +612,7 @@ def build_token_holders(token_address: str, rpc_client: SolanaRPCClient | None =
     if not token or len(token) > 64:
         return {"status": "INVALID_TOKEN", "source": "solana-rpc", "token": token, "holders": [], "nodes": [], "edges": []}
     rpc_url = os.getenv("SOLANA_RPC_URL", "").strip() or "https://api.mainnet-beta.solana.com"
-    rpc = rpc_client or SolanaRPCClient(rpc_url, timeout_seconds=5.0)
+    rpc = rpc_client or SolanaRPCClient(rpc_url, timeout_seconds=12.0)
     try:
         largest = rpc.call("getTokenLargestAccounts", [token, {"commitment": "confirmed"}])
         rows = largest.get("value", []) if isinstance(largest, dict) else []
