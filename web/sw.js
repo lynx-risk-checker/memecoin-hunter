@@ -1,5 +1,5 @@
-const CACHE_NAME="memecoin-hunter-v43";
-const APP_SHELL=["/","/index.html?v=ui43","/app.js?v=ui43","/manifest.webmanifest?v=ui43"];
+const CACHE_NAME="memecoin-hunter-v44";
+const APP_SHELL=["/","/index.html?v=ui44","/app.js?v=ui44","/manifest.webmanifest?v=ui44"];
 
 self.addEventListener("install",event=>{
   event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(APP_SHELL)).then(()=>self.skipWaiting()));
