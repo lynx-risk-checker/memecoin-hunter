@@ -31,8 +31,16 @@ class SolanaRPCClient:
         try:
             with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
                 body = json.loads(response.read().decode("utf-8"))
-        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
-            raise SolanaRPCError(f"Solana RPC request failed: {method}") from exc
+        except urllib.error.HTTPError as exc:
+            raise SolanaRPCError(f"Solana RPC HTTP {exc.code} for {method}") from exc
+        except urllib.error.URLError as exc:
+            reason = getattr(exc, "reason", None)
+            detail = "timeout" if isinstance(reason, TimeoutError) else f"network error ({type(reason).__name__})"
+            raise SolanaRPCError(f"Solana RPC request failed: {method} · {detail}") from exc
+        except TimeoutError as exc:
+            raise SolanaRPCError(f"Solana RPC request timed out: {method}") from exc
+        except json.JSONDecodeError as exc:
+            raise SolanaRPCError(f"Solana RPC returned invalid JSON: {method}") from exc
         if "error" in body:
             raise SolanaRPCError(f"Solana RPC error for {method}: {body['error']}")
         return body.get("result")
