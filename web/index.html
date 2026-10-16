@@ -309,7 +309,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .page-heading .eyebrow{font-size:9px}.page-heading p{font-size:12px}.page-tag{font-size:9px}
 @media(max-width:420px){.brand b{font-size:12px}.brand small{font-size:7px}.hero p{font-size:10px}.metric span{font-size:7px}.metric b{font-size:10px}.status{font-size:7px}.row{gap:8px}.row span{overflow-wrap:anywhere}}
 
-/* UI42: founder-first mobile cockpit + curved MEV threat surface */
+/* UI43: founder threat brief + linked GitHub source evidence */
 .mev-panel{position:relative;overflow:hidden;margin:12px 0 14px;padding:15px;border:1px solid #294355;border-radius:16px;background:radial-gradient(ellipse at 72% 12%,#132a3a88,transparent 44%),linear-gradient(145deg,#0e1822,#080d14 68%);box-shadow:inset 0 1px #ffffff0a,0 18px 45px #0006}
 .mev-panel:before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(120deg,transparent 20%,#55d8ff07 48%,transparent 72%)}
 .mev-head{position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
@@ -373,6 +373,27 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
  .hero-score b{font-size:24px!important}
 }
 
+.mev-target-sub{margin-top:5px!important;color:#ffd078!important;font-size:8px!important;letter-spacing:.04em}
+.mev-threat-statement{padding:10px 11px!important;border-left:2px solid #ffbd59;background:linear-gradient(90deg,#2b1e0c88,transparent);color:#ffe1a6!important;font-size:11px!important;font-weight:900;letter-spacing:.025em}
+.mev-founder-line{border-top:1px solid #263747;padding-top:9px;display:flex;flex-direction:column;gap:4px}
+.mev-founder-line span{font:800 8px ui-monospace,monospace;color:#71869a;letter-spacing:.1em}
+.mev-founder-line b{font:800 10px ui-monospace,monospace;color:#b9e9ff;overflow-wrap:anywhere}
+.mev-evidence-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-top:18px;margin-bottom:10px}
+.mev-evidence-head h4{margin:5px 0;color:#e4f2fa;font-size:14px;letter-spacing:.01em}
+.mev-evidence-head p{max-width:510px;color:#8196a8;font-size:10px;line-height:1.55}
+.mev-repo-link{flex:0 0 auto;border:1px solid #28516a;border-radius:8px;padding:9px 10px;color:#7cddff;font:800 9px ui-monospace,monospace;text-decoration:none}
+.mev-repo-link:hover,.mev-file-card:hover{border-color:#55d8ff;transform:translateY(-1px)}
+.mev-evidence-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.mev-file-card{display:block;min-width:0;padding:10px;border:1px solid #203343;border-radius:10px;background:linear-gradient(145deg,#0d1822,#080d13);text-decoration:none;transition:border-color .15s ease,transform .15s ease}
+.mev-file-top{display:flex;justify-content:space-between;gap:6px;color:#6e9bb2;font:800 8px ui-monospace,monospace;letter-spacing:.08em}
+.mev-file-card>b{display:block;margin:8px 0;color:#dff5ff;font:800 10px ui-monospace,monospace;overflow-wrap:anywhere}
+.mev-terminal-snippet{min-height:62px;padding:7px;border:1px solid #172b39;border-radius:6px;background:#050a0f;color:#8ca8b7;font:8px/1.8 ui-monospace,monospace;overflow-wrap:anywhere}
+.mev-terminal-snippet i{color:#4b7288;font-style:normal;margin-right:4px}
+.mev-terminal-snippet em{color:#00e6a0;font-style:normal}
+.mev-file-card>small{display:block;margin-top:8px;color:#6d8798;font:700 7px/1.5 ui-monospace,monospace;letter-spacing:.03em}
+@media(max-width:720px){.mev-evidence-head{align-items:flex-start;flex-direction:column;gap:8px}.mev-evidence-head p{font-size:10px}.mev-repo-link{padding:8px 9px}.mev-evidence-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.mev-file-card{padding:8px}.mev-file-card>b{font-size:9px}.mev-terminal-snippet{font-size:7px;min-height:58px}.mev-file-card>small{font-size:7px}.mev-threat-statement{font-size:10px!important}}
+@media(max-width:360px){.mev-evidence-grid{grid-template-columns:1fr}.mev-terminal-snippet{min-height:0}}
+
 </style></head>
 <body><div id="app">
 <header><div class="brand"><div class="logo">MH</div><div><small>SOLANA INTELLIGENCE</small><b>MEMECOIN HUNTER</b></div></div><div class="status"><span class="connection-item"><i class="dot"></i><span id="connection">DEX: CONNECTING</span></span><span class="connection-item rpc-status"><i class="dot rpc-dot"></i><span id="rpc-connection">RPC: CHECKING</span></span><button id="refresh" aria-label="Refresh market snapshot">↻</button></div></header>
@@ -428,5 +449,5 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 <button type="button" data-page="wallets"><span class="nav-icon">◎</span><span>WALLETS</span></button>
 <button type="button" data-page="settings"><span class="nav-icon">⚙</span><span>SETTINGS</span></button>
 </nav>
-<script src="/app.js?v=ui42"></script>
-<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js?v=ui42").catch(()=>{});</script></body></html>
+<script src="/app.js?v=ui43"></script>
+<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js?v=ui43").catch(()=>{});</script></body></html>
