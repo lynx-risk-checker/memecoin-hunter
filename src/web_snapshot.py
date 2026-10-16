@@ -45,7 +45,7 @@ def build_snapshot(
             rpc_status = {"status": "UNAVAILABLE", "error": str(exc)}
     elif rpc_url:
         try:
-            rpc = SolanaRPCClient(rpc_url, timeout_seconds=2.5)
+            rpc = SolanaRPCClient(rpc_url, timeout_seconds=8.0)
             rpc_status = {"status": "CONNECTED", "health": rpc.get_health(), "slot": rpc.get_slot()}
         except (SolanaRPCError, ValueError, OSError) as exc:
             rpc_status = {"status": "UNAVAILABLE", "error": str(exc)}
@@ -197,7 +197,7 @@ def build_token_forensics(
                 "token": token, "observed_at": observed_at, "events": [],
                 "validation_status": "INSUFFICIENT_EVIDENCE",
             }
-        rpc = SolanaRPCClient(rpc_url, timeout_seconds=5.0)
+        rpc = SolanaRPCClient(rpc_url, timeout_seconds=12.0)
 
     client = client or DexScreenerClient()
     try:
