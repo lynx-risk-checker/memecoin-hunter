@@ -299,6 +299,15 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 #flow-section .flow-values>div{border:1px solid #1c3c32;background:#07130f}
 #flow-section .flow-values b{font-size:11px}
 @media(max-width:720px){#flow-section{padding:13px}#flow-section h3{font-size:14px}}
+/* Readability pass: raise critical typography for phone-sized screens. */
+.brand small{font-size:8px}.brand b{font-size:14px}.eyebrow{font-size:9px}
+.hero p{font-size:11px;line-height:1.6}.chip{font-size:8px}.hero-score small,.score-state{font-size:8px}
+.metric span{font-size:8px}.badge{font-size:8px}.card h3{font-size:15px}
+.token-card b{font-size:14px}.token-card small{font-size:9px}
+.flow-values span{font-size:8px}.flow-values b{font-size:10px}
+.row{font-size:10px}.row b{font-size:10px}
+.page-heading .eyebrow{font-size:9px}.page-heading p{font-size:12px}.page-tag{font-size:9px}
+@media(max-width:420px){.brand b{font-size:12px}.brand small{font-size:7px}.hero p{font-size:10px}.metric span{font-size:7px}.metric b{font-size:10px}.status{font-size:7px}.row{gap:8px}.row span{overflow-wrap:anywhere}}
 </style></head>
 <body><div id="app">
 <header><div class="brand"><div class="logo">MH</div><div><small>SOLANA INTELLIGENCE</small><b>MEMECOIN HUNTER</b></div></div><div class="status"><span class="connection-item"><i class="dot"></i><span id="connection">DEX: CONNECTING</span></span><span class="connection-item rpc-status"><i class="dot rpc-dot"></i><span id="rpc-connection">RPC: CHECKING</span></span><button id="refresh" aria-label="Refresh market snapshot">↻</button></div></header>
