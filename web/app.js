@@ -289,7 +289,7 @@ if(window.__selectedToken&&window.__lastHolderToken!==window.__selectedToken)loa
  if(window.__selectedToken&&forensicsToken!==window.__selectedToken)loadTokenForensics(window.__selectedToken);
 if(window.__selectedToken&&window.__lastStreamToken!==window.__selectedToken){window.__lastStreamToken=window.__selectedToken;connectTokenStream(window.__selectedToken);}
 }
-async function refresh(){try{const r=await fetch("/snapshot?ui=42&t="+Date.now(),{cache:"no-store"});if(!r.ok)throw Error(r.status);render(await r.json())}catch(e){set("connection","DEX: SNAPSHOT UNAVAILABLE");set("rpc-connection","RPC: UNKNOWN");set("hero-reason","Backend snapshot belum tersedia. Tidak ada data market palsu.");}}
+async function refresh(){try{const r=await fetch("/snapshot?ui=43&t="+Date.now(),{cache:"no-store"});if(!r.ok)throw Error(r.status);render(await r.json())}catch(e){set("connection","DEX: SNAPSHOT UNAVAILABLE");set("rpc-connection","RPC: UNKNOWN");set("hero-reason","Backend snapshot belum tersedia. Tidak ada data market palsu.");}}
 $("refresh").onclick=refresh;
 window.__mhRedrawWorkspace=()=>{const t=performance.now();if(typeof radar==="function")radar(t);if(typeof marketRadar==="function")marketRadar();if(typeof chart==="function")chart(t);if(typeof network==="function")network(t);if(typeof drawCandles==="function")drawCandles();};
 /* UI27 workspace router: each destination gets its own page and context. */
@@ -305,9 +305,9 @@ window.__mhRedrawWorkspace=()=>{const t=performance.now();if(typeof radar==="fun
  const threatPanel=document.createElement("section");
  threatPanel.id="mev-threat-panel";threatPanel.className="mev-panel";
  threatPanel.innerHTML=`
-  <div class="mev-head"><div><div class="mev-kicker">ADVERSARIAL EXECUTION / THREAT MODEL</div><h3 class="mev-title">MEV Threat Surface</h3><p class="mev-subtitle">Memecoin Hunter melawan keunggulan latency dengan evidence, wallet intelligence, liquidity dan exit-risk. Identitas/telemetri bot lawan belum terverifikasi.</p></div><span class="mev-state" id="mev-model-state">MODEL ONLY · NO BOT TELEMETRY</span></div>
+  <div class="mev-head"><div><div class="mev-kicker">FOUNDER THREAT BRIEF / ADVERSARIAL EXECUTION</div><h3 class="mev-title">MEV: THE PROFIT-BLOCKING ADVERSARY</h3><p class="mev-subtitle">TARGET THREAT MODEL: bot MEV diperlakukan sebagai adversary paling canggih yang menghalangi Memecoin Hunter mencari keuntungan. Strategi tandingan: evidence, wallet intelligence, liquidity, latency-aware decisions, dan exit-risk.</p></div><span class="mev-state" id="mev-model-state">THREAT HYPOTHESIS · TELEMETRY UNVERIFIED</span></div>
   <div class="mev-layout">
-   <div class="mev-visual" role="img" aria-label="Curved threat-surface schematic, not a live MEV bot telemetry chart">
+   <div class="mev-visual" role="img" aria-label="Curved MEV threat model schematic, not observed bot telemetry">
     <svg viewBox="0 0 520 210" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
      <defs><radialGradient id="mevGlow"><stop offset="0" stop-color="#55d8ff" stop-opacity=".18"/><stop offset="1" stop-color="#55d8ff" stop-opacity="0"/></radialGradient></defs>
      <ellipse cx="260" cy="105" rx="185" ry="80" fill="url(#mevGlow)"/>
@@ -320,8 +320,9 @@ window.__mhRedrawWorkspace=()=>{const t=performance.now();if(typeof radar==="fun
     </svg><div class="mev-visual-label">CURVED THREAT MAP · SCHEMATIC, NOT OBSERVED BOT ACTIVITY</div>
    </div>
    <div class="mev-target">
-    <div class="mev-target-top"><div class="mev-target-mark">LOGO<br>WAIT</div><div><small>ADVERSARY PROFILE</small><b id="mev-target-name">MEV BOT · IDENTITY UNVERIFIED</b></div></div>
-    <p>Slot ini disiapkan untuk logo asli setelah target bot teridentifikasi. Tidak menggunakan logo rekaan yang diklaim sebagai logo asli.</p>
+    <div class="mev-target-top"><div class="mev-target-mark" aria-label="MEV adversary category emblem"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M23 3 9 22h9l-2 15 15-22h-9z" fill="none" stroke="#ffd078" stroke-width="2.2" stroke-linejoin="round"/><circle cx="20" cy="20" r="18" fill="none" stroke="#7b6034" stroke-dasharray="2 4"/></svg></div><div><small>ADVERSARY PROFILE / TARGET MODEL</small><b id="mev-target-name">MEV BOT · PROFIT-BLOCKING THREAT</b><small class="mev-target-sub">ORIGINAL BOT IDENTITY NOT VERIFIED</small></div></div>
+    <p class="mev-threat-statement">BOT MEV PALING CANGGIH YANG MENGHALANGI MEMECOIN HUNTER MENCARI KEUNTUNGAN.</p>
+    <div class="mev-founder-line"><span>FOUNDER / PROJECT OWNER</span><b>MEMECOIN HUNTER · lynx-risk-checker</b></div>
     <div class="row"><span>LIVE CANDIDATE</span><b id="mev-candidate">WAITING</b></div>
     <div class="row"><span>HUNTER DECISION</span><b id="mev-decision" class="amber">WAIT</b></div>
     <div class="row"><span>WALLET INTELLIGENCE</span><b id="mev-wallet-status">NOT CONFIGURED</b></div>
@@ -333,7 +334,16 @@ window.__mhRedrawWorkspace=()=>{const t=performance.now();if(typeof radar==="fun
    <div class="mev-metric"><span>5M BUY / SELL TX</span><b id="mev-tx">—</b><small>DEX counts only</small></div>
    <div class="mev-metric"><span>PAIR AGE</span><b id="mev-age">—</b><small>Pool observation</small></div>
   </div>
-  <div class="mev-footnote" id="mev-evidence-note">Telemetry lawan belum terhubung. Grafik lengkung di atas adalah threat-model schematic; hanya metrik berlabel observed yang berasal dari snapshot market aktual.</div>`;
+  <div class="mev-evidence-head"><div><div class="mev-kicker">GITHUB REPOSITORY / INSPECTABLE SOURCE</div><h4>FOUNDER BUILD · FILE EVIDENCE</h4><p>Setiap kartu membuka file nyata pada branch founder. Visual terminal di bawah adalah ringkasan kode, bukan klaim bahwa semua modul sudah lulus runtime validation.</p></div><a class="mev-repo-link" href="https://github.com/lynx-risk-checker/memecoin-hunter/tree/agent/memecoin-hunter-foundation" target="_blank" rel="noopener noreferrer">OPEN REPOSITORY ↗</a></div>
+  <div class="mev-evidence-grid">
+   <a class="mev-file-card" href="https://github.com/lynx-risk-checker/memecoin-hunter/blob/agent/memecoin-hunter-foundation/web/app.js" target="_blank" rel="noopener noreferrer"><div class="mev-file-top"><span>JS / UI</span><span>01</span></div><b>web/app.js</b><div class="mev-terminal-snippet"><i>01</i> refresh() <em>→</em> /snapshot<br><i>02</i> wallet intelligence<br><i>03</i> MEV threat surface</div><small>LIVE DASHBOARD LOGIC · OPEN SOURCE FILE ↗</small></a>
+   <a class="mev-file-card" href="https://github.com/lynx-risk-checker/memecoin-hunter/blob/agent/memecoin-hunter-foundation/web/index.html" target="_blank" rel="noopener noreferrer"><div class="mev-file-top"><span>HTML / CSS</span><span>02</span></div><b>web/index.html</b><div class="mev-terminal-snippet"><i>01</i> mobile-first cockpit<br><i>02</i> source health panels<br><i>03</i> responsive layout</div><small>INTERFACE + VISUAL SYSTEM · OPEN FILE ↗</small></a>
+   <a class="mev-file-card" href="https://github.com/lynx-risk-checker/memecoin-hunter/blob/agent/memecoin-hunter-foundation/src/web_snapshot.py" target="_blank" rel="noopener noreferrer"><div class="mev-file-top"><span>PY / DATA</span><span>03</span></div><b>src/web_snapshot.py</b><div class="mev-terminal-snippet"><i>01</i> market snapshot<br><i>02</i> verified OHLCV path<br><i>03</i> source diagnostics</div><small>BACKEND DATA PIPELINE · OPEN FILE ↗</small></a>
+   <a class="mev-file-card" href="https://github.com/lynx-risk-checker/memecoin-hunter/blob/agent/memecoin-hunter-foundation/src/data/solana_rpc.py" target="_blank" rel="noopener noreferrer"><div class="mev-file-top"><span>PY / RPC</span><span>04</span></div><b>src/data/solana_rpc.py</b><div class="mev-terminal-snippet"><i>01</i> Solana RPC client<br><i>02</i> method-level errors<br><i>03</i> safe diagnostics</div><small>ON-CHAIN ACCESS LAYER · OPEN FILE ↗</small></a>
+   <a class="mev-file-card" href="https://github.com/lynx-risk-checker/memecoin-hunter/blob/agent/memecoin-hunter-foundation/tests/test_live_source_diagnostics.py" target="_blank" rel="noopener noreferrer"><div class="mev-file-top"><span>PY / TESTS</span><span>05</span></div><b>tests/test_live_source_diagnostics.py</b><div class="mev-terminal-snippet"><i>01</i> HTTP error coverage<br><i>02</i> RPC timeout coverage<br><i>03</i> empty OHLCV coverage</div><small>REGRESSION TEST SOURCE · TEST STATUS NOT IMPLIED ↗</small></a>
+   <a class="mev-file-card" href="https://github.com/lynx-risk-checker/memecoin-hunter/blob/agent/memecoin-hunter-foundation/docs/ROADMAP_AUDIT.md" target="_blank" rel="noopener noreferrer"><div class="mev-file-top"><span>MD / AUDIT</span><span>06</span></div><b>docs/ROADMAP_AUDIT.md</b><div class="mev-terminal-snippet"><i>01</i> founder checkpoint<br><i>02</i> validation gates<br><i>03</i> known limitations</div><small>ROADMAP + AUDIT EVIDENCE · OPEN FILE ↗</small></a>
+  </div>
+  <div class="mev-footnote" id="mev-evidence-note">Ancaman MEV adalah model adversarial; belum ada identitas bot atau telemetri lawan yang terverifikasi. Bukti GitHub menunjukkan file implementasi tersedia di branch, bukan bukti otomatis bahwa semua fitur aktif atau menguntungkan.</div>`;
  const price=document.getElementById("price-terminal");
  const radar=document.getElementById("radar-section");
  const edge=document.getElementById("edge-section");
