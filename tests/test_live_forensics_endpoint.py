@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from src.data.solana_rpc import SolanaRPCError
 from src.web_snapshot import build_token_forensics
 
 
@@ -103,3 +104,22 @@ def test_forensics_requires_configured_rpc_when_no_client(monkeypatch):
 def test_forensics_rejects_invalid_token_without_rpc_calls():
     result = build_token_forensics(" " , client=FakeDexClient(), rpc_client=FakeRPC(transaction(1_800_000_000)))
     assert result["status"] == "INVALID_TOKEN"
+
+
+class FailingRPC:
+    def get_signatures_for_address(self, address, *, limit=10, before=None, until=None, commitment="confirmed"):
+        raise SolanaRPCError("Solana RPC HTTP 429 for getSignaturesForAddress")
+
+
+def test_forensics_preserves_provider_failure_reason_without_endpoint_details(monkeypatch):
+    monkeypatch.delenv("SOLANA_RPC_URL", raising=False)
+    result = build_token_forensics(
+        TOKEN,
+        client=FakeDexClient(),
+        rpc_client=FailingRPC(),
+        now_epoch=1_800_000_000,
+    )
+    assert result["status"] == "UNAVAILABLE"
+    assert result["events"] == []
+    assert result["error"] == "Solana RPC HTTP 429 for getSignaturesForAddress"
+    assert "https://" not in result["error"]
