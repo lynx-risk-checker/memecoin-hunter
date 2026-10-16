@@ -7,6 +7,16 @@ from src.data.tx_parser import ParsedTransaction
 from src.wallets.execution_price import derive_execution_price
 
 
+# Canonical Solana mainnet mints. Stablecoin quotes are USD proxies, not a
+# guarantee that the asset traded exactly at $1 at the transaction timestamp.
+_STABLECOIN_USD_PROXY_MINTS = frozenset({
+    "USDC",
+    "USDT",
+    "EPjFWdd5AufqSSqeM2q8xzybapC8G4wEGGkZwyTDt1v",  # Circle USDC
+    "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",  # Tether USDT
+})
+
+
 @dataclass(frozen=True)
 class SwapEvidence:
     signature: str | None
@@ -23,7 +33,8 @@ class SwapEvidence:
     def price_usd(self) -> float | None:
         # SOL-denominated prices are not USD prices. Converting them requires
         # an independently observed SOL/USD quote at the transaction time.
-        return self.price_quote_per_token if self.quote_mint in {"USDC", "USDT"} else None
+        # Stablecoin-denominated prices are only USD proxies: a depeg is possible.
+        return self.price_quote_per_token if self.quote_mint in _STABLECOIN_USD_PROXY_MINTS else None
 
 
 def extract_balance_flow_swaps(
