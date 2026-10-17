@@ -430,4 +430,10 @@ window.__mhRedrawWorkspace=()=>{const t=performance.now();if(typeof radar==="fun
  const initial=location.hash.slice(1);go(document.getElementById("page-"+initial)?initial:"radar");
  window.__mhNavigate=go;
 })();
-let tick=0;function loop(t){radar(t);chart(t);network(t);requestAnimationFrame(loop)}requestAnimationFrame(loop);refresh();setInterval(refresh,12000);setInterval(()=>loadCandles(true),12000);setInterval(()=>loadTokenForensics(),12000);window.onresize=()=>{drawCandles()};
+let tick=0;function loop(t){radar(t);chart(t);network(t);requestAnimationFrame(loop)}requestAnimationFrame(loop);refresh();
+// Public RPC/market-data providers are rate-limiting this app (HTTP 429). Keep polling bounded.
+// Manual refresh remains available; do not hammer upstream APIs every 12 seconds.
+setInterval(()=>{if(!document.hidden)refresh()},60000);
+setInterval(()=>{if(!document.hidden)loadCandles(true)},60000);
+setInterval(()=>{if(!document.hidden)loadTokenForensics()},60000);
+window.onresize=()=>{drawCandles()};
