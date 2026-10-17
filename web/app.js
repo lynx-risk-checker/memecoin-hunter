@@ -260,7 +260,7 @@ function connectTokenStream(token){
    const data=JSON.parse(event.data);
    if(status)status.textContent="TOKEN MINT LOG EVENT · SLOT "+data.slot+" · "+String(data.signature||"").slice(0,8)+"… · REFRESHING INDEXED OHLCV";
    const now=Date.now();
-   if(now-lastStreamRefresh>2500){lastStreamRefresh=now;loadCandles(true);loadTokenForensics(token)}
+   if(now-lastStreamRefresh>60000){lastStreamRefresh=now;loadCandles(true);loadTokenForensics(token)}
   }catch{}
  });
  stream.addEventListener("error",()=>{if(tokenStreamAddress===token&&status)status.textContent="SOLANA LOG STREAM · RECONNECTING · POLLING OHLCV REMAINS ACTIVE"});
