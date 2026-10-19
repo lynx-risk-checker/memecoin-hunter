@@ -135,3 +135,34 @@ def test_dashboard_response_cache_refreshes_after_ttl(monkeypatch):
     clock["now"] = 106.0
     assert handler._cached_response("test:ttl", 5.0, build) == {"sequence": 2}
     assert calls == [1, 2]
+
+
+
+def test_dashboard_response_cache_collapses_concurrent_misses():
+    import threading
+    import time
+
+    handler = web_snapshot.SnapshotHandler
+    with handler._response_cache_lock:
+        handler._response_cache.pop("test:concurrent", None)
+        handler._response_key_locks.pop("test:concurrent", None)
+    calls = []
+    results = []
+
+    def build():
+        calls.append(1)
+        time.sleep(0.05)
+        return {"status": "CONNECTED"}
+
+    def request():
+        results.append(handler._cached_response("test:concurrent", 30.0, build))
+
+    threads = [threading.Thread(target=request) for _ in range(2)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join(timeout=2)
+
+    assert all(not thread.is_alive() for thread in threads)
+    assert len(calls) == 1
+    assert results == [{"status": "CONNECTED"}, {"status": "CONNECTED"}]
