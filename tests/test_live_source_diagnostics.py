@@ -95,3 +95,43 @@ def test_solana_rpc_reports_timeout_without_exposing_endpoint(monkeypatch):
         SolanaRPCClient("https://rpc.invalid/secret").call("getSignaturesForAddress", [POOL, {}])
 
     assert "secret" not in str(error.value)
+
+
+
+def test_dashboard_response_cache_reuses_provider_result(monkeypatch):
+    handler = web_snapshot.SnapshotHandler
+    with handler._response_cache_lock:
+        handler._response_cache.clear()
+        handler._response_key_locks.clear()
+    clock = {"now": 100.0}
+    monkeypatch.setattr(web_snapshot.time, "monotonic", lambda: clock["now"])
+    calls = []
+
+    def build():
+        calls.append("called")
+        return {"status": "UNAVAILABLE", "error": "HTTP 429"}
+
+    first = handler._cached_response("test:429", 30.0, build)
+    second = handler._cached_response("test:429", 30.0, build)
+
+    assert first == second == {"status": "UNAVAILABLE", "error": "HTTP 429"}
+    assert calls == ["called"]
+
+
+def test_dashboard_response_cache_refreshes_after_ttl(monkeypatch):
+    handler = web_snapshot.SnapshotHandler
+    with handler._response_cache_lock:
+        handler._response_cache.clear()
+        handler._response_key_locks.clear()
+    clock = {"now": 100.0}
+    monkeypatch.setattr(web_snapshot.time, "monotonic", lambda: clock["now"])
+    calls = []
+
+    def build():
+        calls.append(len(calls) + 1)
+        return {"sequence": calls[-1]}
+
+    assert handler._cached_response("test:ttl", 5.0, build) == {"sequence": 1}
+    clock["now"] = 106.0
+    assert handler._cached_response("test:ttl", 5.0, build) == {"sequence": 2}
+    assert calls == [1, 2]
