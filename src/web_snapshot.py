@@ -4,6 +4,8 @@ import asyncio
 import base64
 import json
 import os
+import threading
+import time
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -701,6 +703,25 @@ STATIC_FILES = {
 
 class SnapshotHandler(BaseHTTPRequestHandler):
     client = DexScreenerClient()
+    _response_cache: dict[str, tuple[float, dict[str, Any]]] = {}
+    _response_cache_lock = threading.Lock()
+    _response_key_locks: dict[str, threading.Lock] = {}
+
+    @classmethod
+    def _cached_response(cls, key: str, ttl_seconds: float, builder: Any) -> dict[str, Any]:
+        """Share upstream responses across browser requests and collapse concurrent cache misses."""
+        with cls._response_cache_lock:
+            key_lock = cls._response_key_locks.setdefault(key, threading.Lock())
+        with key_lock:
+            now = time.monotonic()
+            with cls._response_cache_lock:
+                cached = cls._response_cache.get(key)
+                if cached is not None and now < cached[0]:
+                    return cached[1]
+            payload = builder()
+            with cls._response_cache_lock:
+                cls._response_cache[key] = (time.monotonic() + ttl_seconds, payload)
+            return payload
 
     def _write_bytes(self, status: int, body: bytes, content_type: str) -> None:
         self.send_response(status)
@@ -754,28 +775,49 @@ class SnapshotHandler(BaseHTTPRequestHandler):
                     pass
             return
         if path == "/snapshot":
-            self._write_json(200, build_snapshot(self.client))
+            payload = self._cached_response("snapshot", 30.0, lambda: build_snapshot(self.client))
+            self._write_json(200, payload)
             return
         if path == "/candles":
             query = parse_qs(urlsplit(self.path).query)
             token = query.get("token", [""])[0].strip()
             timeframe = query.get("timeframe", ["minute"])[0].strip()
-            self._write_json(200, build_candles(self.client, token, timeframe))
+            if not token or len(token) > 64:
+                self._write_json(200, {"status": "INVALID_TOKEN", "source": "geckoterminal", "candles": []})
+                return
+            key = f"candles:{token}:{timeframe}"
+            payload = self._cached_response(key, 300.0, lambda: build_candles(self.client, token, timeframe))
+            self._write_json(200, payload)
             return
         if path == "/forensics":
             query = parse_qs(urlsplit(self.path).query)
             token = query.get("token", [""])[0].strip()
-            self._write_json(200, build_token_forensics(token, client=self.client))
+            if not token or len(token) > 64:
+                self._write_json(200, {"status": "INVALID_TOKEN", "source": "solana-rpc", "transactions": []})
+                return
+            key = f"forensics:{token}"
+            payload = self._cached_response(key, 60.0, lambda: build_token_forensics(token, client=self.client))
+            self._write_json(200, payload)
             return
         if path == "/dev-dna":
             query = parse_qs(urlsplit(self.path).query)
             token = query.get("token", [""])[0].strip()
-            self._write_json(200, build_developer_dna(token))
+            if not token or len(token) > 64:
+                self._write_json(200, {"status": "INVALID_TOKEN", "source": "solana-rpc"})
+                return
+            key = f"dev-dna:{token}"
+            payload = self._cached_response(key, 300.0, lambda: build_developer_dna(token))
+            self._write_json(200, payload)
             return
         if path == "/holders":
             query = parse_qs(urlsplit(self.path).query)
             token = query.get("token", [""])[0].strip()
-            self._write_json(200, build_token_holders(token))
+            if not token or len(token) > 64:
+                self._write_json(200, {"status": "INVALID_TOKEN", "source": "solana-rpc", "holders": [], "nodes": [], "edges": []})
+                return
+            key = f"holders:{token}"
+            payload = self._cached_response(key, 300.0, lambda: build_token_holders(token))
+            self._write_json(200, payload)
             return
         if self._serve_static(path):
             return
