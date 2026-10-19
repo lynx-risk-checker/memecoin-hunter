@@ -456,6 +456,90 @@ button:focus-visible,a:focus-visible{outline:2px solid #7acde4;outline-offset:3p
 }
 @media(min-width:721px){.metrics{grid-template-columns:repeat(5,minmax(0,1fr))}}
 
+
+/* FOUNDER UI REDESIGN 2026-10: dense, usable radar cockpit; no fabricated metrics */
+:root{--bg:#060b10;--panel:#0b141c;--panel2:#0e1b25;--line:#254151;--green:#00f0a0;--cyan:#42d9f5;--amber:#f5c542;--red:#ff627b}
+html,body{background:#060b10;color:#e3eef5}body{padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+#app{max-width:1120px;padding:0 12px}
+header{height:58px;padding:0 8px;background:#060b10f2;border-color:#1e3948}
+.brand .logo{width:34px;height:34px}.brand b{font-size:13px;letter-spacing:.07em;color:#4ddcf5}
+.status{font-size:8px;gap:5px}.tabs{height:38px}
+.workspace-page>.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(100px,.75fr);gap:12px;min-height:0!important;margin:10px 0;padding:14px;border-radius:12px;border-color:#2b6170;background:linear-gradient(120deg,#0d2029,#09121a 70%)}
+.workspace-page>.hero .hero-copy{padding:0!important;min-width:0}
+.workspace-page>.hero h2{font-size:clamp(23px,4vw,36px)!important;line-height:1.05;overflow-wrap:anywhere}
+.workspace-page>.hero p{font-size:12px!important;line-height:1.5!important}
+.workspace-page>.hero #radar{position:relative!important;width:100%!important;height:145px!important;right:auto;bottom:auto;opacity:1}
+.workspace-page>.hero .hero-score{position:static!important;grid-column:2;grid-row:1;align-items:flex-end}
+.workspace-page>.hero .hero-score b{font-size:32px!important}
+.workspace-page>.hero .chips{margin-top:9px}
+.workspace-page>.live-strip{margin:9px 0;padding:10px 12px}
+.workspace-page>.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;margin:9px 0 12px;border-color:#254151}
+.metric{padding:10px;background:#0b141c}.metric span{font-size:8px}.metric b{font-size:12px}
+.workspace-page>.price-terminal{padding:13px;margin:10px 0 12px;border-radius:12px}
+.workspace-page>.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}
+.workspace-page .card,.workspace-page .price-terminal{margin-bottom:0}
+.workspace-page .card{padding:12px;border-radius:11px;border-color:#244252;background:linear-gradient(145deg,#0d1821,#091118);box-shadow:inset 0 1px #ffffff08}
+.workspace-page .card h3,.workspace-page .card-head h3{font-size:13px;letter-spacing:.01em}
+.workspace-page .row{font-size:10px;padding:8px 0}.workspace-page .row span{font-size:9px}.workspace-page .row b{font-size:10px}
+.workspace-page .token-card{padding:10px;border-color:#254252;background:#09131b}
+.workspace-page .token-card b{font-size:13px}.workspace-page .token-card small{font-size:9px;line-height:1.45}
+.workspace-page #radar-section,.workspace-page #edge-section,.workspace-page #mission-section,.workspace-page #flow-section,.workspace-page #risk-section,.workspace-page #wallets-section,.workspace-page #roadmap-matrix,.workspace-page .mev-panel{grid-column:1/-1}
+.workspace-page #radar-section .radar-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.workspace-page #radar-section .token-card{min-width:0;overflow-wrap:anywhere}
+.workspace-page #flow-section .flow-values{gap:7px}
+.workspace-page #flow-section .flow-values div{padding:9px}
+.workspace-page .source-health-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.workspace-page .source-health-grid .health-item:last-child{grid-column:1/-1}
+.workspace-page .page-heading{margin:8px 0 12px}
+.workspace-page .page-heading h2{font-size:22px}
+.workspace-page .page-heading p{font-size:11px}
+#workspace-nav{height:calc(66px + env(safe-area-inset-bottom));background:#070d13f7;border-color:#254151}
+#workspace-nav button{font-size:9px;gap:5px}
+#workspace-nav button .nav-icon{font-size:20px}
+@media(max-width:600px){
+ #app{padding:0 9px}
+ header{height:56px;padding:0 3px;gap:5px}
+ .brand{gap:6px}.brand .logo{width:29px;height:29px;flex:0 0 29px}.brand b{font-size:10px;letter-spacing:.035em}.brand small{font-size:7px}
+ .status{font-size:6px;gap:3px}.status .connection-item{gap:3px}#refresh{width:29px;height:29px;flex:0 0 29px}
+ .workspace-page>.hero{grid-template-columns:minmax(0,1fr) minmax(84px,.68fr);gap:7px;padding:12px;min-height:0!important}
+ .workspace-page>.hero .hero-copy{padding:0!important}
+ .workspace-page>.hero h2{font-size:22px!important;line-height:1.05}
+ .workspace-page>.hero p{font-size:10px!important;line-height:1.4!important}
+ .workspace-page>.hero #radar{height:100px!important;align-self:center}
+ .workspace-page>.hero .hero-score{grid-column:2;grid-row:1}
+ .workspace-page>.hero .hero-score b{font-size:24px!important}
+ .workspace-page>.hero .hero-score small,.workspace-page>.hero .score-state{font-size:7px!important}
+ .workspace-page>.hero .chip{font-size:7px;padding:4px 5px}
+ .workspace-page>.metrics{grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:9px}
+ .workspace-page>.metrics .metric:last-child{grid-column:auto}
+ .metric{padding:9px 8px}.metric b{font-size:11px;overflow-wrap:anywhere}
+ .workspace-page>.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .workspace-page .card{padding:10px;border-radius:10px}
+ .workspace-page .card h3,.workspace-page .card-head h3{font-size:11px}
+ .workspace-page .row{gap:6px}.workspace-page .row span{font-size:8px}.workspace-page .row b{font-size:9px;text-align:right;overflow-wrap:anywhere}
+ .workspace-page #radar-section .radar-list{grid-template-columns:1fr}
+ .workspace-page #radar-section .token-card{padding:10px}
+ .workspace-page #radar-section .token-card b{font-size:13px}
+ .workspace-page .source-health{padding:10px}
+ .workspace-page .source-health-head h3{font-size:14px}
+ .workspace-page .health-item{padding:8px}.workspace-page .health-label{font-size:8px}.workspace-page .health-state{font-size:9px}.workspace-page .health-item p{font-size:9px}
+ .workspace-page .price-terminal{padding:10px}
+ .workspace-page .price-chart-wrap{height:190px}
+ .workspace-page .mev-layout{grid-template-columns:1fr}
+ .workspace-page .mev-evidence-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .workspace-page .mission-points{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .workspace-page .decision-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #workspace-nav button{font-size:8px}
+}
+@media(max-width:360px){
+ .workspace-page>.hero{grid-template-columns:minmax(0,1fr) 72px}
+ .workspace-page>.hero h2{font-size:19px!important}
+ .workspace-page>.hero #radar{height:80px!important}
+ .workspace-page>.grid{grid-template-columns:1fr}
+ .workspace-page #radar-section,.workspace-page #edge-section,.workspace-page #mission-section,.workspace-page #flow-section,.workspace-page #risk-section,.workspace-page #wallets-section,.workspace-page #roadmap-matrix,.workspace-page .mev-panel{grid-column:auto}
+ .workspace-page #radar-section .radar-list{grid-template-columns:1fr}
+}
+
 </style></head>
 <body><div id="app">
 <header><div class="brand"><div class="logo">MH</div><div><small>SOLANA INTELLIGENCE</small><b>MEMECOIN HUNTER</b></div></div><div class="status"><span class="connection-item"><i class="dot"></i><span id="connection">DEX: CONNECTING</span></span><span class="connection-item rpc-status"><i class="dot rpc-dot"></i><span id="rpc-connection">RPC: CHECKING</span></span><button id="refresh" aria-label="Refresh market snapshot">↻</button></div></header>
