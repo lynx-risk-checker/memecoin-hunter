@@ -597,3 +597,76 @@ header{height:58px;padding:0 8px;background:#060b10f2;border-color:#1e3948}
 </nav>
 <script src="/app.js?v=ui46"></script>
 <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js?v=ui46").catch(()=>{});</script></body></html>
+
+/* UI13: compact reference-style mobile cockpit */
+@media(max-width:720px){
+  #app{padding:0 10px 10px}
+  header{height:54px;gap:7px;overflow:hidden}
+  .brand{gap:6px;min-width:0}
+  .logo{flex:0 0 30px;width:30px;height:30px}
+  .brand small{font-size:6px}
+  .brand b{font-size:12px;white-space:nowrap;letter-spacing:.045em}
+  .status{gap:4px;font-size:7px;white-space:nowrap;min-width:0}
+  .connection-item{gap:3px}
+  #refresh{flex:0 0 30px;width:30px;height:30px;margin-left:0}
+  .tabs{height:34px}
+  .tabs .nav-context{font-size:8px}
+  .hero{grid-template-columns:minmax(0,1fr) minmax(100px,.72fr);gap:8px;min-height:260px;padding:14px;margin:9px 0}
+  .hero-copy{padding-right:0;min-width:0}
+  .hero h2{font-size:25px;overflow-wrap:anywhere;margin:8px 0}
+  .hero-copy p{font-size:12px;line-height:1.45}
+  .hero canvas{height:160px;min-width:0;align-self:center}
+  .hero-score{position:absolute;right:12px;top:12px;z-index:3;align-items:flex-end;max-width:100px}
+  .hero-score b{font-size:26px}
+  .hero-score small,.score-state{font-size:6px}
+  .hero-copy .eyebrow{max-width:210px}
+  .chips{gap:5px;margin-top:10px}
+  .chip{font-size:8px;padding:5px 7px}
+  .live-strip{margin:12px 2px;gap:8px;align-items:flex-start}
+  .live-strip small{font-size:11px;line-height:1.4}
+  .price-sub{font-size:9px}
+  .metrics{grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:10px}
+  .metric{padding:12px}
+  .metric b{font-size:15px;overflow-wrap:anywhere}
+  .metric:last-child{grid-column:1/-1}
+  .source-health{margin-bottom:10px}
+  .grid,.threat-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .grid>.card,.threat-grid>.card{min-width:0;padding:11px}
+  #radar-section,#flow-section,#edge-section,#risk-section,#decision-section,.mission,.footer-note{grid-column:1/-1}
+  #radar-section .market-radar-wrap{display:none}
+  #radar-section .radar-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  #radar-section .mini-stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .card-head{gap:6px;align-items:flex-start}
+  .card-head h3{font-size:12px;line-height:1.25}
+  .badge{font-size:7px;padding:4px 6px;max-width:48%;white-space:normal;text-align:right}
+  .row{gap:6px;font-size:10px}
+  .row span{min-width:0;overflow-wrap:anywhere}
+  .row b{max-width:58%;text-align:right;overflow-wrap:anywhere}
+  .mini-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .mini-stats>div{min-width:0}
+  .mini-stats b{overflow-wrap:anywhere}
+  .score-box{grid-template-columns:86px minmax(0,1fr);gap:9px}
+  .score-ring{width:82px;height:82px}
+  .score-ring b{font-size:22px}
+  .decision-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .bottom{height:66px}
+  body{padding-bottom:78px}
+}
+@media(max-width:390px){
+  .brand small{display:none}
+  .brand b{font-size:11px}
+  .status{font-size:6px}
+  .hero{grid-template-columns:minmax(0,1fr) minmax(86px,.62fr);min-height:245px;padding:11px}
+  .hero h2{font-size:22px}
+  .hero-copy p{font-size:11px}
+  .hero canvas{height:135px}
+  .hero-score{right:9px;top:9px}
+  .hero-score b{font-size:22px}
+  #radar-section .radar-list{grid-template-columns:1fr}
+  #radar-section .mini-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .grid,.threat-grid{gap:7px}
+  .grid>.card,.threat-grid>.card{padding:9px}
+  .card-head h3{font-size:11px}
+  .metric{padding:10px}
+  .metric b{font-size:13px}
+}
