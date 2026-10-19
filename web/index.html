@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#05070b"><meta name="description" content="MEMECOIN HUNTER — Solana intelligence cockpit. Paper trading only; live execution locked."><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="MEMECOIN HUNTER"><link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icons/icon.svg" type="image/svg+xml"><title>MEMECOIN HUNTER</title>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#05070b"><meta name="description" content="MEMECOIN HUNTER — evidence-first Solana research cockpit. Paper trading only; live execution locked."><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="MEMECOIN HUNTER"><link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icons/icon.svg" type="image/svg+xml"><title>MEMECOIN HUNTER</title>
 <style>
 *{box-sizing:border-box}html,body{margin:0;background:#05070b;color:#eaf2f8;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}body{min-height:100vh;padding-bottom:76px;overflow-x:hidden}
 :root{--bg:#05070b;--panel:#0c1219;--panel2:#101923;--line:#1d2a38;--muted:#718196;--green:#00ff9a;--amber:#f6b73c;--red:#ef526f;--cyan:#55d8ff}
@@ -409,6 +409,53 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 @media(max-width:480px){.howto-panel{padding:12px}.howto-panel h3{font-size:16px}.howto-grid{grid-template-columns:1fr}.howto-grid article{padding:10px}.howto-grid article p{font-size:10px}}
 
 .forensics-diagnostic{margin:7px 0;padding:9px 10px;border:1px solid #374354;border-radius:8px;background:#0a1017;color:#aebdcc;font:700 9px/1.55 ui-monospace,monospace;overflow-wrap:anywhere}.forensics-diagnostic[data-state="error"]{border-color:#75413b;background:#211211;color:#ffb5a8}.forensics-diagnostic[data-state="ok"]{border-color:#275c49;background:#0b1b15;color:#91e0bb}
+
+/* UI46 — readable, decision-first mobile cockpit */
+:root{--bg:#080d12;--panel:#101820;--panel2:#141f29;--line:#263541;--muted:#9aabba;--green:#55d6a2;--amber:#f4bd66;--red:#f08086;--cyan:#7acde4}
+html,body{background:#080d12;color:#e5edf3}
+#app{max-width:1100px;padding-left:14px;padding-right:14px}
+header{height:62px;background:#080d12f5}
+.brand small{font-size:9px;letter-spacing:.12em}.brand b{font-size:14px}
+.status{font-size:10px}
+#refresh{width:38px;height:38px;font-size:20px;cursor:pointer}
+.hero{grid-template-columns:minmax(0,1.1fr) minmax(150px,.9fr);gap:14px;padding:18px;margin:14px 0;border-radius:14px;background:#101820;box-shadow:none}
+.hero-score{grid-column:1/-1;align-items:flex-start;display:grid;grid-template-columns:auto 1fr;column-gap:12px;align-items:center}
+.hero-score b{font-size:34px;text-shadow:none}.hero-score small{font-size:9px}
+.hero h2{font-size:clamp(26px,5vw,38px)}.hero p{font-size:12px;line-height:1.65;color:#a5b3bf}
+.eyebrow{font-size:9px;letter-spacing:.14em}
+.chip{font-size:9px;padding:6px 8px}
+.metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;margin-bottom:12px}
+.metric{padding:12px}.metric span{font-size:9px;line-height:1.4}.metric b{font-size:13px;overflow-wrap:anywhere}
+.grid{gap:12px}.card{padding:14px;border-radius:12px;background:#101820;box-shadow:none}
+.card h3{font-size:15px;line-height:1.35}.badge{font-size:9px}
+.token-card{padding:11px;background:#0b1218;border-color:#2b3a46}.token-card b{font-size:13px}
+.card p,.card small,.footer-note{font-size:11px;line-height:1.6}
+.page-heading{margin:18px 0 12px}.page-heading h2{font-size:clamp(22px,4vw,30px)}.page-heading p{font-size:12px;line-height:1.6;color:#a5b3bf}
+.page-tag{font-size:9px}
+.more-link{background:#101820;border-color:#2b3a46;border-radius:12px;min-height:84px}
+.more-link b{font-size:12px}.more-link small{font-size:10px;line-height:1.5}
+#workspace-nav{background:#0b1218f7;border-top-color:#263541}
+#workspace-nav button{font-size:10px;min-height:54px}
+.source-health,.health-card{border-color:#2b3a46}
+.howto-panel{background:#101820;border-color:#30463e;box-shadow:none}
+.howto-panel h3{font-size:20px}.howto-intro,.howto-grid article p,.howto-warning p{font-size:12px;line-height:1.65}
+.howto-grid article{background:#0b1218;border-color:#2b3a46}.howto-grid article b{font-size:11px}
+.howto-warning{background:#211812}
+button,a{ -webkit-tap-highlight-color:transparent}
+button:focus-visible,a:focus-visible{outline:2px solid #7acde4;outline-offset:3px}
+@media(max-width:720px){
+ #app{padding-left:10px;padding-right:10px}
+ .hero{grid-template-columns:minmax(0,1fr);padding:14px;min-height:0}
+ .hero-score{grid-column:auto;grid-template-columns:auto 1fr}
+ #radar{height:165px}
+ .grid{grid-template-columns:minmax(0,1fr)}
+ .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .card{padding:12px}
+ .page-heading{align-items:flex-start;gap:8px}
+ .page-heading p{max-width:100%}
+}
+@media(min-width:721px){.metrics{grid-template-columns:repeat(5,minmax(0,1fr))}}
+
 </style></head>
 <body><div id="app">
 <header><div class="brand"><div class="logo">MH</div><div><small>SOLANA INTELLIGENCE</small><b>MEMECOIN HUNTER</b></div></div><div class="status"><span class="connection-item"><i class="dot"></i><span id="connection">DEX: CONNECTING</span></span><span class="connection-item rpc-status"><i class="dot rpc-dot"></i><span id="rpc-connection">RPC: CHECKING</span></span><button id="refresh" aria-label="Refresh market snapshot">↻</button></div></header>
