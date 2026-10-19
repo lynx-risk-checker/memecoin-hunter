@@ -127,7 +127,7 @@ if(priceCanvas&&!priceCanvas.dataset.interactive){
 }
 async function loadCandles(force=false){
  const token=window.__selectedToken||window.__data?.opportunities?.[0]?.token;if(!token){lastCandles=[];set("candle-status","OHLCV: NO TOKEN");drawCandles();return}
- if(!force&&token===candleToken&&window.__candlesBusy)return;
+ if(window.__candlesBusy&&token===candleToken)return;
  candleToken=token;const requestId=++candleRequest;window.__candlesBusy=true;set("price-token",(window.__data?.opportunities?.find(item=>item.token===token)?.symbol||"TOKEN")+" · "+selectedTimeframe.toUpperCase());set("candle-status","OHLCV: FETCHING REAL POOL DATA");
  try{const r=await fetch("/candles?token="+encodeURIComponent(token)+"&timeframe="+encodeURIComponent(selectedTimeframe)+"&t="+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);const payload=await r.json();if(requestId!==candleRequest)return;
  lastCandles=payload.status==="CONNECTED"&&Array.isArray(payload.candles)?payload.candles.filter(v=>[v.time,v.open,v.high,v.low,v.close,v.volume].every(Number.isFinite)):[];candleOffset=Math.min(candleOffset,Math.max(0,lastCandles.length-candleZoom));
