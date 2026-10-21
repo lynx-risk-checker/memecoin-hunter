@@ -290,7 +290,7 @@ if(window.__selectedToken&&window.__lastHolderToken!==window.__selectedToken)loa
  if(window.__selectedToken&&forensicsToken!==window.__selectedToken)loadTokenForensics(window.__selectedToken);
 if(window.__selectedToken&&window.__lastStreamToken!==window.__selectedToken){window.__lastStreamToken=window.__selectedToken;connectTokenStream(window.__selectedToken);}
 }
-async function refresh(){try{const r=await fetch("/snapshot?ui=49&t="+Date.now(),{cache:"no-store"});if(!r.ok)throw Error(r.status);render(await r.json())}catch(e){set("connection","DEX: SNAPSHOT UNAVAILABLE");set("rpc-connection","RPC: UNKNOWN");set("hero-reason","Backend snapshot belum tersedia. Tidak ada data market palsu.");}}
+async function refresh(){try{const r=await fetch("/snapshot?ui=50&t="+Date.now(),{cache:"no-store"});if(!r.ok)throw Error(r.status);render(await r.json())}catch(e){set("connection","DEX: SNAPSHOT UNAVAILABLE");set("rpc-connection","RPC: UNKNOWN");set("hero-reason","Backend snapshot belum tersedia. Tidak ada data market palsu.");}}
 $("refresh").onclick=refresh;
 window.__mhRedrawWorkspace=()=>{const t=performance.now();if(typeof radar==="function")radar(t);if(typeof marketRadar==="function")marketRadar();if(typeof chart==="function")chart(t);if(typeof network==="function")network(t);if(typeof drawCandles==="function")drawCandles();};
 /* UI27 workspace router: each destination gets its own page and context. */
