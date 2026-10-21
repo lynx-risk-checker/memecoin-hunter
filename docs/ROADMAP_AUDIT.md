@@ -251,3 +251,26 @@ This checkpoint is documentation and prioritization only. It does not claim new 
 - It explicitly returns `risk_score: null` and `classification: NOT_SCORED`. Signer identity, developer control, rug history, profitability, and manipulation are not inferred from initialization evidence alone.
 - Added a live Dev DNA panel in the Token Terminal with links to the candidate signer and mint authority. It loads when the selected token changes and does not claim a reputation score.
 - Acceptance limits: bounded signature samples can miss older initialization/history; no confirmed dev attribution, rug labels, or profitable-launch ground truth is integrated yet. Phase 4 remains **PARTIAL**.
+
+
+---
+
+## Founder checkpoint — 2026-10-22 (bounded RPC retry hardening)
+
+### Change committed to the working branch
+
+- Updated `src/data/solana_rpc.py` to retry transient HTTP 429 and selected 5xx responses with bounded exponential backoff, honoring numeric `Retry-After` values up to a 2-second cap.
+- HTTP 403 and other non-retryable errors still fail closed; retry count is bounded and configurable.
+- Added regression tests for 429-then-success and no retry on 403.
+- Source commit: `addc92531c1194d8e39ad6f2cea788be864dfa22`.
+- Test commit: `c9a398c89c8e9896aa11dcf38fd2d8e7da4b2356`.
+- Test status: **TESTS ADDED — EXECUTION BELUM TERVERIFIKASI**. The available session could not reach GitHub to clone the branch, and no passing CI result was observed during this checkpoint.
+- Deployment status: production still points to deployment `c7c94624-ba10-443e-8cad-3437745c2083`, commit `988fc2ce5313019ac2b2e4ff870e989fb233d298`; this code change is **NOT DEPLOYED**.
+- Trading status remains **NOT READY**. This retry change reduces avoidable transient failures but does not resolve provider capacity, high request volume, missing confirmed DEX semantics, missing quote-backed exitability, or insufficient out-of-sample paper evidence.
+
+### Required follow-up
+
+1. Execute `pytest -q` on the branch and fix any regression before deployment.
+2. Reconnect/deploy the intended working branch only after tests pass; verify the terminal deployment status.
+3. Verify production RPC health, slot, freshness and real on-chain endpoints on the deployed build.
+4. Continue the full roadmap. Do not enable live execution.
