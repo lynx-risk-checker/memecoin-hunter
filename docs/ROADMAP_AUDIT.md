@@ -274,3 +274,11 @@ This checkpoint is documentation and prioritization only. It does not claim new 
 2. Reconnect/deploy the intended working branch only after tests pass; verify the terminal deployment status.
 3. Verify production RPC health, slot, freshness and real on-chain endpoints on the deployed build.
 4. Continue the full roadmap. Do not enable live execution.
+
+
+### Verification update — 2026-10-22
+
+- An isolated local harness ran the three focused `tests/test_solana_rpc.py` cases against the fetched branch implementation and matching test logic: **3 passed**. This is focused verification only; the full repository test suite and CI are still **BELUM TERVERIFIKASI**.
+- Railway service configuration was read without exposing secret values. The service is configured to follow `agent/memecoin-hunter-foundation` and has a `SOLANA_RPC_URL` variable name, but its value and runtime connectivity were not exposed or verified.
+- A deployment trigger was attempted for the intended branch; Railway returned **“Deploys have been paused temporarily.”** No new deployment was created. Production remains on the previously observed deployment and must not be described as updated.
+- A live HTTP read of the public `/snapshot` endpoint could not be completed from this session. Production end-to-end dashboard/data verification remains **BELUM TERVERIFIKASI**.
