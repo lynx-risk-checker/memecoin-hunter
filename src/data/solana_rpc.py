@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
@@ -15,10 +16,13 @@ class SolanaRPCError(RuntimeError):
 class SolanaRPCClient:
     endpoint: str
     timeout_seconds: float = 10.0
+    max_attempts: int = 3
 
     def __post_init__(self) -> None:
         if not self.endpoint.strip():
             raise ValueError("Solana RPC endpoint is required.")
+        if self.max_attempts < 1:
+            raise ValueError("max_attempts must be at least 1.")
 
     def call(self, method: str, params: list[Any] | None = None) -> Any:
         payload = {"jsonrpc": "2.0", "id": 1, "method": method, "params": [] if params is None else params}
@@ -28,19 +32,31 @@ class SolanaRPCClient:
             headers={"Content-Type": "application/json"},
             method="POST",
         )
-        try:
-            with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
-                body = json.loads(response.read().decode("utf-8"))
-        except urllib.error.HTTPError as exc:
-            raise SolanaRPCError(f"Solana RPC HTTP {exc.code} for {method}") from exc
-        except urllib.error.URLError as exc:
-            reason = getattr(exc, "reason", None)
-            detail = "timeout" if isinstance(reason, TimeoutError) else f"network error ({type(reason).__name__})"
-            raise SolanaRPCError(f"Solana RPC request failed: {method} · {detail}") from exc
-        except TimeoutError as exc:
-            raise SolanaRPCError(f"Solana RPC request timed out: {method}") from exc
-        except json.JSONDecodeError as exc:
-            raise SolanaRPCError(f"Solana RPC returned invalid JSON: {method}") from exc
+        for attempt in range(self.max_attempts):
+            try:
+                with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
+                    body = json.loads(response.read().decode("utf-8"))
+                break
+            except urllib.error.HTTPError as exc:
+                retryable = exc.code == 429 or exc.code in {500, 502, 503, 504}
+                if not retryable or attempt + 1 >= self.max_attempts:
+                    raise SolanaRPCError(f"Solana RPC HTTP {exc.code} for {method}") from exc
+                # Respect Retry-After when it is a numeric delay, but cap waiting
+                # so a single request cannot stall the API indefinitely.
+                retry_after = exc.headers.get("Retry-After") if exc.headers else None
+                try:
+                    delay = min(max(float(retry_after), 0.0), 2.0) if retry_after is not None else min(0.5 * (2 ** attempt), 2.0)
+                except (TypeError, ValueError):
+                    delay = min(0.5 * (2 ** attempt), 2.0)
+                time.sleep(delay)
+            except urllib.error.URLError as exc:
+                reason = getattr(exc, "reason", None)
+                detail = "timeout" if isinstance(reason, TimeoutError) else f"network error ({type(reason).__name__})"
+                raise SolanaRPCError(f"Solana RPC request failed: {method} · {detail}") from exc
+            except TimeoutError as exc:
+                raise SolanaRPCError(f"Solana RPC request timed out: {method}") from exc
+            except json.JSONDecodeError as exc:
+                raise SolanaRPCError(f"Solana RPC returned invalid JSON: {method}") from exc
         if "error" in body:
             raise SolanaRPCError(f"Solana RPC error for {method}: {body['error']}")
         return body.get("result")
