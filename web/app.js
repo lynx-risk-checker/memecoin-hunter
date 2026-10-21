@@ -416,18 +416,19 @@ window.__mhRedrawWorkspace=()=>{const t=performance.now();if(typeof radar==="fun
  // The old flat grid is emptied only after all existing modules are safely relocated.
  if(oldGrid){Array.from(oldGrid.children).forEach(node=>{if(node!==devSection&&node!==exitSection)node.remove()});if(oldGrid.children.length===0)oldGrid.remove();}
  const nav=document.getElementById("workspace-nav");
+ const routeMap={radar:"radar-section",tokens:"radar-section",wallets:"wallets-section",settings:"risk-section",edge:"edge-section",risk:"risk-section",capital:"mission-section",systems:"source-health"};
  function go(key){
-  const target=document.getElementById("page-"+key);if(!target)return;
-  document.querySelectorAll(".workspace-page").forEach(p=>p.classList.toggle("is-active",p===target));
+  const target=document.getElementById("page-"+key)||document.getElementById(routeMap[key]);if(!target)return;
   nav.querySelectorAll("button[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===key || (b.dataset.page==="settings" && ["edge","risk","capital","systems"].includes(key))));
-  const crumb=document.getElementById("page-breadcrumb");if(crumb)crumb.textContent=target.querySelector("h2")?.textContent?.toUpperCase()||key.toUpperCase();
+  const crumb=document.getElementById("page-breadcrumb");if(crumb)crumb.textContent=({radar:"RADAR",tokens:"TOKEN RADAR",wallets:"WALLET INTELLIGENCE",settings:"RISK CONTROL",edge:"EDGE ANALYSIS",risk:"RISK CONTROL",capital:"CAPITAL MISSION",systems:"DATA HEALTH"})[key]||key.toUpperCase();
   history.replaceState(null,"","#"+key);
-  window.scrollTo({top:0,behavior:"smooth"});
+  const top=target.getBoundingClientRect().top+window.scrollY-76;
+  window.scrollTo({top:Math.max(0,top),behavior:"smooth"});
   setTimeout(()=>{window.dispatchEvent(new Event("resize"));window.__mhRedrawWorkspace?.();if(key==="tokens")loadCandles(true);},90);
  }
  nav.querySelectorAll("button[data-page]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.page)));
- window.addEventListener("hashchange",()=>{const key=location.hash.slice(1);if(document.getElementById("page-"+key))go(key)});
- const initial=location.hash.slice(1);go(document.getElementById("page-"+initial)?initial:"radar");
+ window.addEventListener("hashchange",()=>{const key=location.hash.slice(1);if(routeMap[key]||document.getElementById("page-"+key))go(key)});
+ const initial=location.hash.slice(1);go(routeMap[initial]||document.getElementById("page-"+initial)?initial:"radar");
  window.__mhNavigate=go;
 })();
 let tick=0;function loop(t){radar(t);chart(t);network(t);requestAnimationFrame(loop)}requestAnimationFrame(loop);refresh();
