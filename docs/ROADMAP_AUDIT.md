@@ -292,3 +292,9 @@ This checkpoint is documentation and prioritization only. It does not claim new 
 - Dashboard priority order: (1) trustworthy live data/source health and freshness; (2) Token Radar with explicit filter reasons; (3) selectable token + real OHLCV; (4) 5-minute on-chain flow with evidence class and completeness; (5) Risk Veto and liquidity/exitability; (6) persistent paper ledger/journal and portfolio metrics; (7) wallet/dev/manipulation modules with evidence labels; (8) validation gate and capital mission. Every module must show its actual status and must not present decorative SVG/canvas visuals as live market evidence.
 - Manual Phantom trading is separate from this repository. The user may choose to trade manually, but no project signal should currently be represented as a verified buy recommendation; start with paper tracking, and never share a seed phrase/private key with this app or anyone.
 - Trading readiness: **NOT READY / no completion date can honestly be promised yet**. Blocking conditions include paused Railway deployments, unverified current production snapshot/RPC, missing web-connected paper journal, incomplete route-aware exitability, and insufficient out-of-sample results. Do not unlock live execution based on the user's target or urgency.
+
+### Dashboard integrity correction — 2026-10-22
+
+- Commit `361ef2dbbe0a2e59e64e1b5cb21272b2b6197036` changes the paper-trading roadmap card from the unsupported static claim `100 VALID PAPER TRADES` to `PAPER LEDGER / NOT CONNECTED`.
+- This is a dashboard truthfulness fix, **not** implementation of the paper-trading engine. The web API still needs a persistent ledger, qualified-signal gate, simulated fills/fees/slippage, close/exit logic, and portfolio/drawdown calculations with tests.
+- Full test suite, deployed UI, and production runtime remain **BELUM TERVERIFIKASI** because deployment is paused and no fresh production build was observed.
